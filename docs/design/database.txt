@@ -1,0 +1,8 @@
+Table users:
+	username varchar(100) primary key
+	email varchar(100)
+	salt varchar(100)
+	hashed_password varchar(100)
+Table stocks:
+	symbol varchar(10) primary key
+	
