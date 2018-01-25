@@ -1,0 +1,26 @@
+#macro(mainLayout)
+<html>
+<head>
+	<title>Stock Performance</title>
+	<link rel="stylesheet" href="/main.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<header>
+	<nav>
+		<ul id="menu">
+			<li><a href="$WebPath.getSIGNIN()"">sign in</a></li>
+			<li><a href="$WebPath.getSIGNUP()"">sign up</a></li>
+		</ul>
+	</nav>
+</header>
+<main>
+    <div id="content">
+        $bodyContent
+    </div>
+</main>
+<footer>
+</footer>
+</body>
+</html>
+#end
