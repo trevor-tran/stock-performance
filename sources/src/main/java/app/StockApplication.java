@@ -8,7 +8,7 @@ import app.signup.SignupController;
 import app.util.Filters;
 import app.util.Path;
 import app.util.ViewUtil;
-public class Main {
+public class StockApplication {
 
 	public static void main(String[] args) {
 		
