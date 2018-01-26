@@ -1,5 +1,7 @@
 use stock_performance;
 create table users( user_id int auto_increment,
+					first_name varchar(20) not null,
+                    last_name varchar(20) not null,
 					username varchar(100) not null,
                     salt varchar(100),
                     hashed_password varchar(100),
@@ -16,4 +18,4 @@ create table stocks( stock_id int auto_increment,
                     primary key(stock_id),
                     foreign key(user_id) references users(user_id));
                     
-insert into users(username,salt,hashed_password) values ('phuong', '$2a$10$YawZPDb7OLQ66FQuMCyW0e','$2a$10$YawZPDb7OLQ66FQuMCyW0e0d2r2Qd1kFLgHLhJqJwaypsQdnYX7fi');
+insert into users(first_name,last_name,username,salt,hashed_password) values ('phuong','tran','phuong', '$2a$10$YawZPDb7OLQ66FQuMCyW0e','$2a$10$YawZPDb7OLQ66FQuMCyW0e0d2r2Qd1kFLgHLhJqJwaypsQdnYX7fi');

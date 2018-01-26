@@ -32,20 +32,21 @@ public class UserDao {
 		ResultSet rs = statement.executeQuery(sql);
 		//DatabaseConnection.closeConnection(); TODO:why cannot close connection at this point?
 		if(rs.next()){
-			//first column is user_id. Second column is username
-			String salt = rs.getString(3);
-			String hashedPassword = rs.getString(4);
-			String email = rs.getString(5);
-			BigDecimal investment = rs.getBigDecimal(6);
-			Date startDate = rs.getDate(7);
-			Date endDate = rs.getDate(8);
-			User user = new User(username, salt, hashedPassword, email, investment, startDate, endDate);
-			//DatabaseConnection.closeConnection();
+			//first column is user_id
+			String firstName = rs.getString(2);
+			String lastName = rs.getString(3);
+			//fourth column is username
+			String salt = rs.getString(5);
+			String hashedPassword = rs.getString(6);
+			String email = rs.getString(7);
+			BigDecimal investment = rs.getBigDecimal(8);
+			Date startDate = rs.getDate(9);
+			Date endDate = rs.getDate(10);
+			User user = new User(firstName,lastName,username, salt, hashedPassword, email, investment, startDate, endDate);
 			return user;
 		}
-		//DatabaseConnection.closeConnection();
 		return null;
-		
 	}
+	//public static void setUser(String username,)
 
 }
