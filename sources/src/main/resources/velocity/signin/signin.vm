@@ -1,4 +1,11 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-	<h1>sign in page</h1>
+<form id="signinForm" method="post">
+	<h1>Sign In</h1>
+	<label>Username</label>
+	<input type="text" name="username" placeholder="Enter user name" value="" required>
+	<label>Password</label>
+	<input type="password" name="password" placeholder="Enter password" value="" required>
+	<input type="submit">
+</form>
 #end

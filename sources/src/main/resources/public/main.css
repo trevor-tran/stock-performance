@@ -20,6 +20,10 @@ h1, h2, h3, h4 {
     font-family: monospace;
     font-weight: 300;
     color: #444;
+    font-weight:bold;
+}
+#signinForm h1 {
+	text-align:center;
 }
 
 small {
@@ -130,4 +134,45 @@ nav ul, nav li {
   width: 800px;
   height: 800px;
   background-color: #fff;
+}
+
+/* signin form */
+#signinForm {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#signinForm label {
+    display: block;
+    width: 100%
+}
+
+#signinForm input {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    width: 100%;
+    border-radius: 3px;
+    margin: 2px 0 20px 0;
+}
+
+#signinForm input[type="submit"] {
+    color: white;
+    background: #274555;
+    border: 0;
+    cursor: pointer;
+}
+
+.notification {
+    padding: 10px;
+    background: #333;
+    color: white;
+    border-radius: 3px;
+}
+
+.good.notification {
+    background: #008900;
+}
+
+.bad.notification {
+    background: #bb0000;
 }

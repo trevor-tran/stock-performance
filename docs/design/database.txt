@@ -1,8 +1,17 @@
 Table users:
-	username varchar(100) primary key
-	email varchar(100)
+	user_id int primary
+	username varchar(100)
+	email varchar(50)
+	investment decimal(13,2)
+	start_date date
+	end_date date
 	salt varchar(100)
 	hashed_password varchar(100)
 Table stocks:
-	symbol varchar(10) primary key
+	stock_id int primary
+	symbol varchar(10)
+	user_id int foreign key
+	number_of_shares double
+	
+	
 	
