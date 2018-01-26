@@ -1,4 +1,27 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-	<h1>sign up page</h1>
+<form id="SignupForm" method = "post">
+	
+	#if($usernameExist)
+		<p class="bad notification">username exist</p>
+	#elseif($passwordNotMatch)
+		<p class="bad notification">Password does not match</p>
+	#elseif($signupSucceeded)
+		<p class="good notification">You have signed up successfully</p>
+	#end
+	<h1>Sign-up Form</h1>
+	<label>First name</label>
+	<input type="text" name="firstname" placeholder="Enter first name">
+	<label>Last name</label>
+	<input type="text" name="lastname" placeholder="Enter last name">
+	<label>Email address</label>
+	<input type="text" name="emailaddress" placeholder="Enter email address"> 
+	<label>New username</label>
+	<input type="text" name="username" placeholder="Enter new username" value="" required>
+	<label>Enter password</label>
+	<input type="password" name="enterpassword" placeholder="Enter password" value="" required>
+	<label>Re-enter password</label>
+	<input type="password" name="reenterpassword" placeholder="Re-enter password" value="" required>
+	<input type="submit">
+</form>
 #end
