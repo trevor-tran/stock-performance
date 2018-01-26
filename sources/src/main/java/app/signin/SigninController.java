@@ -5,7 +5,7 @@ import java.util.Map;
 import app.util.Path;
 import app.util.ViewUtil;
 import spark.*;
-import  app.user.UserController;
+import static app.user.UserController.*;
 public class SigninController {
 	
 	public static Route handleSigninDisplay = (Request request, Response response) -> {
@@ -16,12 +16,18 @@ public class SigninController {
 		Map<String,Object> model = new HashMap<String,Object>();
 		String username = request.queryParams("username");
 		String password = request.queryParams("password");
-		if(UserController.authenticate(username, password)){
-			//model.put("isAuthenticated", true);
+		if ( username.contains(" ")){
+			model.put("usernameContainsSpace", true);
+			return ViewUtil.render(request, model, Path.Templates.SIGNIN);
+		}
+		if(authenticate(username, password)){
+			model.put("authenticationSucceeded", true);
 			response.redirect(Path.Web.HOME);
 		}
-		//else
-			//model.put("isAuthenticated", false);
+		else{
+			model.put("authenticationFailed", true);
+			return ViewUtil.render(request, model, Path.Templates.SIGNIN);
+		}
 		
 		return null;//ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
