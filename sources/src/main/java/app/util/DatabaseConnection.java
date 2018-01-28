@@ -28,11 +28,6 @@ public class DatabaseConnection {
 			ex.printStackTrace();
 		}
 	}
-	public static void closeConnection() throws SQLException
-	{
-		if (!connection.isClosed())
-			connection.close();
-	}
 
 	private static Connection getConnection(String dbName, String userName, String password) throws Exception
 	{
