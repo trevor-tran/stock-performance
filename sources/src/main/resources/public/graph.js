@@ -1,6 +1,10 @@
-const {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} = Recharts;
-const {React} = React;
-const {ReactDOM} = React-dom;
+import React, { Component } from 'react';
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'Recharts';
+//const {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} = Recharts;
+//const {React} = React;
+//const {ReactDOM} = React-dom;
+//const {Component} = React;
+const {LineChart} = Recharts;
 const data = [
       {name: 'Page A', uv: 4000, pv: 2400, amt: 2400},
       {name: 'Page B', uv: 3000, pv: 1398, amt: 2210},
@@ -26,4 +30,10 @@ const SimpleLineChart = React.createClass({
     );
   }
 })
+
+
+ReactDOM.render(
+  		<SimpleLineChart />,
+  		document.getElementById('graph')
+		);
 

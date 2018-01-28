@@ -2,12 +2,6 @@
 #@mainLayout()
 <h1>home page</h1>
 <div id="graph">
-	<script>
-		ReactDOM.render(
-  		<SimpleLineChart />,
-  		document.getElementById('graph')
-		);
-	</script>
 	
 </div>
 #end
