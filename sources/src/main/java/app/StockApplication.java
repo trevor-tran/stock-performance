@@ -31,6 +31,7 @@ public class StockApplication {
 		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
 		post(Path.Web.SIGNIN, 		SigninController.handelSigninPost);
 		get(Path.Web.SIGNUP, 		SignupController.handleSignupDisplay);
+		post(Path.Web.SIGNUP, 		SignupController.handleSignupPost);
 		get("*", 					ViewUtil.notFound);
 		
 	}

@@ -5,7 +5,9 @@
 	#if($usernameExist)
 		<p class="bad notification">username exist</p>
 	#elseif($passwordNotMatch)
-		<p class="bad notification">Password does not match</p>
+		<p class="bad notification">Passwords do not match</p>
+	#elseif ($passwordNotComplex)
+		<p class"bad notification">Password is not satisfied. Try again.</p>
 	#elseif($signupSucceeded)
 		<p class="good notification">You have signed up successfully</p>
 	#end
@@ -19,7 +21,7 @@
 	<label>New username</label>
 	<input type="text" name="username" placeholder="Enter new username" value="" required>
 	<label>Enter password</label>
-	<input type="password" name="enterpassword" placeholder="Enter password" value="" required>
+	<input type="password" name="password" placeholder="Enter password" value="" required>
 	<label>Re-enter password</label>
 	<input type="password" name="reenterpassword" placeholder="Re-enter password" value="" required>
 	<input type="submit">

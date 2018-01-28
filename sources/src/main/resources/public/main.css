@@ -22,7 +22,7 @@ h1, h2, h3, h4 {
     color: #444;
     font-weight:bold;
 }
-#signinForm, #signupForm h1 {
+#signinForm h1 {
 	text-align:center;
 }
 
@@ -137,17 +137,17 @@ nav ul, nav li {
 }
 
 /* signin form */
-#signinForm, #signupForm {
+#signinForm {
     max-width: 400px;
     margin: 0 auto;
 }
 
-#signinForm, #signupForm label {
+#signinForm label {
     display: block;
     width: 100%
 }
 
-#signinForm, #signupForm input {
+#signinForm input {
     border: 1px solid #ddd;
     padding: 8px 12px;
     width: 100%;
@@ -155,7 +155,7 @@ nav ul, nav li {
     margin: 2px 0 20px 0;
 }
 
-#signinForm, #signupForm input[type="submit"] {
+#signinForm input[type="submit"] {
     color: white;
     background: #274555;
     border: 0;
