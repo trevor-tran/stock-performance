@@ -56,14 +56,14 @@ public class SignupController {
 	};
 	/**
 	 * Check if password contains at least one lower case letter, 
-	 * one upper case letter, one special character, and length of at least eight.
+	 * one upper case letter, and length of at least eight.
 	 * @see  stackoverflow.com/questions/3802192/regexp-java-for-password-validation
 	 * @param password
 	 * @return <i>true</i> if password is complex, <i>false</i> if not
 	 */
 	private static boolean isPasswordComplex(String password)
 	{
-		Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
+		Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
 		Matcher matcher = pattern.matcher(password);
 		return matcher.matches();
 	}

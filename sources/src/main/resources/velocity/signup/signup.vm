@@ -1,6 +1,6 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<form id="SignupForm" method = "post">
+<form class="userForm" method = "post">
 	
 	#if($usernameExist)
 		<p class="bad notification">username exist</p>
@@ -19,11 +19,30 @@
 	<label>Email address</label>
 	<input type="text" name="emailaddress" placeholder="Enter email address"> 
 	<label>New username</label>
-	<input type="text" name="username" placeholder="Enter new username" value="" required>
+	<input type="text" name="username" placeholder="Enter new username" required>
 	<label>Enter password</label>
-	<input type="password" name="password" placeholder="Enter password" value="" required>
+	<input type="password" id="password" name="password" onkeyup="validatePassword()" placeholder="Enter password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
+		title="Must contain a number, a uppercase letter, a lowercase letter,and at lease 8 characters" required>
+	<label id="mark"></label>
 	<label>Re-enter password</label>
 	<input type="password" name="reenterpassword" placeholder="Re-enter password" value="" required>
 	<input type="submit">
 </form>
+<script>
+	function validatePassword(){
+		var password = document.getElementById("password");
+		var regex = new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$');
+		if(password.value==null || password.value==""){
+			document.getElementById("mark").innerHTML = "";
+		}
+		else if (regex.test(password.value)) {
+			document.getElementById("mark").innerHTML = "&#10004;";
+			document.getElementById("mark").style.color = "green";
+		}
+		else {
+			document.getElementById("mark").innerHTML = '&#10006;';
+			document.getElementById("mark").style.color = "red";
+		}	
+	}
+</script>
 #end

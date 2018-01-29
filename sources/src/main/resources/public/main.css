@@ -22,9 +22,6 @@ h1, h2, h3, h4 {
     color: #444;
     font-weight:bold;
 }
-#signinForm h1 {
-	text-align:center;
-}
 
 small {
     color: #555;
@@ -136,30 +133,41 @@ nav ul, nav li {
   background-color: #fff;
 }
 
-/* signin form */
-#signinForm {
+/*  signin and signup form */
+
+.userForm h1 {
+	text-align:center;
+}
+
+.userForm {
     max-width: 400px;
     margin: 0 auto;
 }
 
-#signinForm label {
+.userForm label {
     display: block;
     width: 100%
 }
 
-#signinForm input {
+.userForm input {
     border: 1px solid #ddd;
     padding: 8px 12px;
     width: 100%;
     border-radius: 3px;
     margin: 2px 0 20px 0;
 }
-
-#signinForm input[type="submit"] {
+.userForm input[type="submit"] {
     color: white;
     background: #274555;
     border: 0;
     cursor: pointer;
+}
+
+.userForm label[id="mark"]{
+	color:green;
+    position: relative;
+    bottom: 50px;
+    left:410px;
 }
 
 .notification {

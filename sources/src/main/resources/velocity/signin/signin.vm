@@ -1,6 +1,6 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<form id="signinForm" method="post">
+<form class="userForm" method="post">
 	#if($usernameContainsSpace)
 		<p class="bad notification">Username cannot contain spaces</p>
 	#elseif($authenticationFailed)
