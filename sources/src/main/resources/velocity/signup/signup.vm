@@ -13,36 +13,20 @@
 	#end
 	<h1>Sign-up Form</h1>
 	<label>First name</label>
-	<input type="text" name="firstname" placeholder="Enter first name">
+	<input type="text" name="firstname" placeholder="Enter first name" autofocus required>
 	<label>Last name</label>
-	<input type="text" name="lastname" placeholder="Enter last name">
+	<input type="text" name="lastname" placeholder="Enter last name" required>
 	<label>Email address</label>
-	<input type="text" name="emailaddress" placeholder="Enter email address"> 
+	<input type="text" name="emailaddress" placeholder="Enter email address" required> 
 	<label>New username</label>
 	<input type="text" name="username" placeholder="Enter new username" required>
 	<label>Enter password</label>
 	<input type="password" id="password" name="password" onkeyup="validatePassword()" placeholder="Enter password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
 		title="Must contain a number, a uppercase letter, a lowercase letter,and at lease 8 characters" required>
-	<label id="mark"></label>
+	<label id="validationmark"></label>
 	<label>Re-enter password</label>
-	<input type="password" name="reenterpassword" placeholder="Re-enter password" value="" required>
+	<input type="password" id="reenterpassword" name="reenterpassword" onkeyup="passwordMatch()" placeholder="Re-enter password" required>
+	<label id="matchmark"></label>
 	<input type="submit">
 </form>
-<script>
-	function validatePassword(){
-		var password = document.getElementById("password");
-		var regex = new RegExp('^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$');
-		if(password.value==null || password.value==""){
-			document.getElementById("mark").innerHTML = "";
-		}
-		else if (regex.test(password.value)) {
-			document.getElementById("mark").innerHTML = "&#10004;";
-			document.getElementById("mark").style.color = "green";
-		}
-		else {
-			document.getElementById("mark").innerHTML = '&#10006;';
-			document.getElementById("mark").style.color = "red";
-		}	
-	}
-</script>
 #end

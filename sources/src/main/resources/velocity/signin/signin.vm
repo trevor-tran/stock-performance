@@ -9,9 +9,9 @@
 	<h1>Sign In</h1>
 	<p>Enter your username and password below</p>
 	<label>Username</label>
-	<input type="text" name="username" placeholder="Enter user name" value="" required>
+	<input type="text" name="username" placeholder="Enter user name" autofocus required>
 	<label>Password</label>
-	<input type="password" name="password" placeholder="Enter password" value="" required>
+	<input type="password" name="password" placeholder="Enter password" required>
 	<input type="submit">
 </form>
 #end
