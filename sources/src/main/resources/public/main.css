@@ -163,10 +163,13 @@ nav ul, nav li {
     cursor: pointer;
 }
 
-.userForm label[id="validationmark"], label[id="matchmark"] {
+.userForm label[id="passwordmark"], label[id="matchmark"], label[id="emailmark"] {
     position: relative;
     bottom: 50px;
     left:410px;
+    width:10px;
+    height:10px;
+  	margin-bottom:0px;
 }
 
 

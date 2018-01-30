@@ -17,13 +17,14 @@
 	<label>Last name</label>
 	<input type="text" name="lastname" placeholder="Enter last name" required>
 	<label>Email address</label>
-	<input type="text" name="emailaddress" placeholder="Enter email address" required> 
+	<input type="text" id="emailaddress" name="emailaddress" placeholder="Enter email address" onkeyup="validateEmail()" required> 
+	<label id="emailmark"></label>
 	<label>New username</label>
 	<input type="text" name="username" placeholder="Enter new username" required>
 	<label>Enter password</label>
 	<input type="password" id="password" name="password" onkeyup="validatePassword()" placeholder="Enter password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
 		title="Must contain a number, a uppercase letter, a lowercase letter,and at lease 8 characters" required>
-	<label id="validationmark"></label>
+	<label id="passwordmark"></label>
 	<label>Re-enter password</label>
 	<input type="password" id="reenterpassword" name="reenterpassword" onkeyup="passwordMatch()" placeholder="Re-enter password" required>
 	<label id="matchmark"></label>
