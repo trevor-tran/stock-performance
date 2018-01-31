@@ -14,8 +14,7 @@
 	<script src="https://npmcdn.com/prop-types@15.6.0/prop-types.min.js"></script>
 	<script src="https://npmcdn.com/recharts@1.0.0-beta.9/umd/Recharts.min.js"></script>
 	
-	<script type="text/javascript" src="/graph.js"></script>
-	<script type="text/javascript" src="/validation.js"></script>
+	<script type="text/javascript" src="/js/validation.js"></script>
 </head>
 <body>
 <header>
