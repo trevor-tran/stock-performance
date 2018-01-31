@@ -20,7 +20,17 @@
 <header>
 	<nav>
 		<ul id="menu">
-			<li><a href="$WebPath.getSIGNIN()"">sign in</a></li>
+			#if($firstName)
+				<li><a href="$WebPath.getPROFILE()"">$firstName</a></li>
+			#end
+			#if($userId)
+				<li>
+                    <form method="post" action="$WebPath.getSIGNOUT()">
+                        <button id="signout" onclick="signOut();">sign out</button>
+                    </form>
+     		#else
+     			<li><a href="$WebPath.getSIGNIN()"">sign in</a></li>	
+			#end
 			<li><a href="$WebPath.getSIGNUP()"">sign up</a></li>
 		</ul>
 	</nav>
