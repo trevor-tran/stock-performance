@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Objects;
 
-import app.user.User;
-import app.user.UserController;
+import app.user.UserInfo;
+import static app.user.UserController.*;
 import app.user.UserDao;
 import app.util.Path;
 import app.util.ViewUtil;
@@ -29,11 +29,10 @@ public class SignupController {
 		String email = request.queryParams("emailaddress");
 		String username = request.queryParams("username");
 		String password = request.queryParams("password");
-		String reenterPassword = request.queryParams("reenterpassword");
-		User user = UserDao.getUserCredentials(username);
-		if (user!=null)
+		String reenterPassword = request.queryParams("reenterpassword"); 
+		if (usernameExists(username))
 		{
-			model.put("usernameExist", true);
+			model.put("usernameExists", true);
 			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 		}
 		else if(! Objects.equal(password, reenterPassword))
@@ -48,7 +47,7 @@ public class SignupController {
 		//TODO: Email Address Validation
 		else
 		{
-			UserController.createUser(firstName, lastName, email, username, password);
+			createUser(firstName, lastName, email, username, password);
 			model.put("signupSucceeded", true);
 			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 		}
