@@ -2,7 +2,7 @@
 #@mainLayout()
 <form class="userForm" method = "post">
 	
-	#if($usernameExist)
+	#if($usernameExists)
 		<p class="bad notification">username exist</p>
 	#elseif($passwordNotMatch)
 		<p class="bad notification">Passwords do not match</p>

@@ -1,4 +1,5 @@
 package app.util;
+
 import lombok.*;
 
 public class Path {
@@ -7,6 +8,8 @@ public class Path {
 		@Getter public static final String HOME = "/home/";
 		@Getter public static final String SIGNIN = "/signin/";
 		@Getter public static final String SIGNUP = "/signup/";
+		@Getter public static final String SIGNOUT = "/signout/";
+		@Getter public static final String PROFILE = "/profile/";
 	}
 	
 	public static class Templates {
