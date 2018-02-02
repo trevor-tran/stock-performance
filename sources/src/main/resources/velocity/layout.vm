@@ -4,19 +4,25 @@
 	<title>Stock Performance</title>
 	<link rel="stylesheet" href="/main.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-	<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-	
-	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.24/browser.js"></script>
-	<script src="https://npmcdn.com/react@15.6.2/dist/react-with-addons.min.js"></script>
-	<script src="https://npmcdn.com/react-dom@15.6.2/dist/react-dom.min.js"></script>
-	<script src="https://npmcdn.com/prop-types@15.6.0/prop-types.min.js"></script>
-	<script src="https://npmcdn.com/recharts@1.0.0-beta.9/umd/Recharts.min.js"></script>
-	
 	<script type="text/javascript" src="/js/validation.js"></script>
+	<script type"text/javascript" src="/js/GoogleSignin.js"></script>
+	<!-- Google Sign-in https://developers.google.com/identity/sign-in/web/ -->
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com"> 
+    <script src="https://apis.google.com/js/platform.js?" async defer></script>   
+	<script>
+		//https://developers.google.com/identity/sign-in/web/reference#googleauthgrantofflineaccessoptions
+		function onLoad() 
+		{	
+        	// make sure auth2 is initialized at page load
+         	// https://stackoverflow.com/a/29833065
+         	gapi.load('auth2', function() {
+            	gapi.auth2.init();
+         	});
+      	}
+   </script>
 </head>
-<body>
+<body onload="onLoad()">
 <header>
 	<nav>
 		<ul id="menu">

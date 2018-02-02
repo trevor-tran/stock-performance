@@ -13,5 +13,8 @@
 	<label>Password</label>
 	<input type="password" name="password" placeholder="Enter password" required>
 	<input type="submit">
+	<div class="g-signin2" 
+ 	    data-onsuccess="onSignIn"
+ 	    ></div>
 </form>
 #end
