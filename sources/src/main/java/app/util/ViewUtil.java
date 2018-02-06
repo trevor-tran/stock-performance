@@ -1,10 +1,10 @@
 package app.util;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.velocity.app.*;
 import org.eclipse.jetty.http.*;
 import spark.*;
-import spark.template.velocity.*;
 
 import spark.template.velocity.VelocityTemplateEngine;
 public class ViewUtil {
@@ -16,7 +16,10 @@ public class ViewUtil {
 		model.put("WebPath", Path.Web.class);  // Access application URLs from templates
 		return strictVelocityEngine().render( new ModelAndView(model, templatePath));
 	}
-	
+	public static Route notAcceptable = (Request request, Response response) -> {
+        response.status(HttpStatus.NOT_ACCEPTABLE_406);
+        return "No suitable content found. Please specify either 'html/text' or 'application/json'.";
+    };
 	public static Route notFound = (Request request, Response response) -> {
 		response.status(HttpStatus.NOT_FOUND_404);
 		return render(request, new HashMap<>(), Path.Templates.NOT_FOUND); 
