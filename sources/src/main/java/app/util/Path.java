@@ -1,5 +1,6 @@
 package app.util;
 
+import app.util.Path.Web;
 import lombok.*;
 
 public class Path {
@@ -10,6 +11,8 @@ public class Path {
 		@Getter public static final String SIGNUP = "/signup/";
 		@Getter public static final String SIGNOUT = "/signout/";
 		@Getter public static final String PROFILE = "/profile/";
+		@Getter public static final String STOCKDATA = "/stockdata/";
+		 @Getter public static final String STOCKS = "/stocks/";
 	}
 	
 	public static class Templates {
