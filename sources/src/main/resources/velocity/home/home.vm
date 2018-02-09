@@ -2,16 +2,7 @@
 #@mainLayout()
 <h1>home page</h1>
 <div class="row row-3">
-    #foreach($stock in $stocks)
-        <div class="col">
-            <a class="stock" href="$WebPath.getSTOCKS()$stock.getSymbol()">
-                <div class="stockCover">
-                    <b>$stock.getName()</b>
-                </div>
-                ##-- $msg.get("STOCKS_CAPTION", $stock.getName(), $stock.getSymbol())**
-            </a>
-        </div>        
-    #end
+    
     
     <div class="container">
         <p>Stock Performance</p>

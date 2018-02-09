@@ -19,20 +19,20 @@ import spark.*;
 
 public class HomeController {
 	 
-	/*
+	
 	public static Route fetchAllStocks = (Request request, Response response) -> {
 	      //LoginController.ensureUserIsLoggedIn(request, response);
 	      if (clientAcceptsHtml(request)) {
 	         HashMap<String, Object> model = new HashMap<>();
-	         model.put("stocks", StockDao.getAllStocks());
+	         //model.put("stocks", StockDao.getAllStocks());
 	         return ViewUtil.render(request, model, Path.Templates.HOME);
 	      }
 	      if (clientAcceptsJson(request)) {
-	         return dataToJson(StockDao.getAllStocks());
+	         return dataToJson(StockDao.getStockData("AAPL", "2018-1-29", "2018-2-2"));
 	      }
 	      return ViewUtil.notAcceptable.handle(request, response);
 	   };
-	*/
+	
 	   public static Route fetchRawStockData = (Request request, Response response) -> {
 	      // TODO: validate JS session!
 	      //LoginController.ensureUserIsLoggedIn(request, response);
