@@ -1,12 +1,17 @@
 {
-  "name": "stock-performance",
-  "version": "1.0",
+  "name": "spark-react-example",
+  "version": "0.2.0",
   "main": "index.js",
   "scripts": {
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [ "spark-java", "React", "Recharts", "NodeJS" ],
+  "keywords": [
+    "spark-java",
+    "React",
+    "Recharts",
+    "NodeJS"
+  ],
   "author": "Nathan Scandella",
   "license": "ISC",
   "devDependencies": {

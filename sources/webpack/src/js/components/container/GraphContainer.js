@@ -13,7 +13,7 @@ class GraphContainer extends Component {
 
    componentDidMount() {
       var _self = this;
-      fetch('http://localhost:4567/stockdata/?user=perwendel', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+      fetch('http://localhost:4567/stockdata/?user=phuong', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
       .then(function(response) {
          // convert to JSON
          return response.json();
