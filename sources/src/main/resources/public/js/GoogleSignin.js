@@ -50,7 +50,7 @@ function onSignIn()
 		// This did not work:
 		//window.location.replace("http://localhost:4567/books?currentUser=phuong");
 		// Redirect after sign in to the books page
-		window.location.replace("http://localhost:4567/books");
+		window.location.replace("http://localhost:4567/home");
 		//}
 	}
 }
