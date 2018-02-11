@@ -9,7 +9,7 @@
 	<!-- Google Sign-in https://developers.google.com/identity/sign-in/web/ -->
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com"> 
-    <script src="https://apis.google.com/js/platform.js?" async defer></script>   
+    <script src="https://apis.google.com/js/platform.js?" async defer></script>
 	<script>
 		//https://developers.google.com/identity/sign-in/web/reference#googleauthgrantofflineaccessoptions
 		function onLoad() 
@@ -29,7 +29,7 @@
 			#if($firstName)
 				<li><a href="$WebPath.getPROFILE()"">$firstName</a></li>
 			#end
-			#if($userId)
+			#if($currentUserId)
 				<li>
                     <form method="post" action="$WebPath.getSIGNOUT()">
                         <button id="signout" onclick="signOut();">sign out</button>
