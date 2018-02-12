@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class StockDao {
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
-	public static Map<String,List<PriceData>> getStockData(String symbol, String startDate, String endDate) {
+	public static Map<String,Map<String,Float>> getStockData(String symbol, String startDate, String endDate) {
 		try{
 			URI uri = setUri(symbol, startDate, endDate);
 			CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -68,11 +69,7 @@ public class StockDao {
 			};
 			JsonObject myjson = httpclient.execute(httpget,rh);
 			JsonArray dataArr = myjson.getAsJsonObject("datatable").getAsJsonArray("data");
-			List<PriceData> dataList = reformatJson(dataArr);
-			Map<String,List<PriceData>> data = new HashMap<String,List<PriceData>>();
-			data.put(symbol, dataList);
-			return data;
-			
+			return reformatJson(dataArr);
 		} 
 		catch(Exception ex){
 			System.out.println(ex.getMessage());
@@ -84,7 +81,7 @@ public class StockDao {
 				.setScheme("https")
 				.setHost("quandl.com")
 				.setPath("/api/v3/datatables/WIKI/PRICES.json")
-				.setParameter("qopts.columns", "close,date")
+				.setParameter("qopts.columns", "date,ticker,close")
 				.setParameter("date.gte", startDate)
 				.setParameter("date.lte", endDate)
 				.setParameter("ticker", symbol)
@@ -92,19 +89,25 @@ public class StockDao {
 				.build();
 		return uri;
 	}
-	//TODO: find easier way
-	private static List<PriceData> reformatJson(JsonArray dataArr){
-		List<PriceData> priceList = new ArrayList<PriceData>();
-		//Gson gson = new GsonBuilder().create();
-		float date = 2000;
+	private static Map<String,Map<String,Float>> reformatJson(JsonArray dataArr){
+		//Map<date:prices>
+		Map<String,Map<String,Float>> priceMap = new HashMap<String,Map<String,Float>>();
 		for ( JsonElement element : dataArr)
 		{
 			JsonArray e = element.getAsJsonArray();
-			float price = e.get(0).getAsFloat();
-			date += 1;// e.get(1).getAsString();
-			PriceData priceData = new PriceData(price,date);
-			priceList.add(priceData);
+			String date = e.get(0).getAsString();
+			String ticker = e.get(1).getAsString();
+			float price = e.get(2).getAsFloat();
+			if (priceMap.containsKey(date)){
+				Map<String,Float> value = priceMap.get(date);
+				value.put(ticker, price);
+			}
+			else {
+				Map<String,Float> newValue = new HashMap<String,Float>();
+				newValue.put(ticker, price);
+				priceMap.put(date, newValue);
+			}
 		}
-		return priceList;
+		return priceMap;
 	}
 }
