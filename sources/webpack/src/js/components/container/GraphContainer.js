@@ -1,51 +1,53 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 //import Input from "../presentational/Input";
-import {ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+
+const data1 = [
+	{date: '10/20/1017', AAPL: 400, TSLA: 240, GOOGL:150},
+	{date: '10/10/2018', AAPL: 200, TSLA: 390, GOOGL:560},
+	{date: '10/20/2018', AAPL: 300, TSLA: 139, GOOGL:160},
+	];
 
 class GraphContainer extends Component {
-   constructor(props) {
-      super(props);
-      this.state = {
-            data: false
-      };
-   }
+	constructor(props) {
+		super(props);
+		this.state = {
+				data: false
+		};
+	}
 
-   componentDidMount() {
-      var _self = this;
-      fetch('http://localhost:4567/stockdata/?user=phuong', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-      .then(function(response) {
-         // convert to JSON
-         return response.json();
-      })
-      .then(function(data) {
-         // save JSON stock data to render later
-         console.log(data);
-         _self.setState({data});
-      })
-      .catch(function(error) {
-         console.log(error);
-      });
-   }
-
-   render() {
-      return (
-         <ScatterChart width={600} height={400} margin={{top: 20, right: 20, bottom: 20, left: 20}}>
-            <XAxis type="number" dataKey={'date'} name='year' unit='' tickCount={7} domain={['dataMin', 'dataMax']} />
-            <YAxis type="number" dataKey={'price'} name='price' unit='USD'/>
-            <ZAxis range={[100]}/>
-            <CartesianGrid />
-            <Tooltip cursor={{strokeDasharray: '3 3'}}/>
-            <Legend/>
-            <Scatter name='TSLA' data={this.state.data["TSLA"]} fill='#8884d8' line shape="square"/>
-            <Scatter name='MSFT' data={this.state.data["MSFT"]} fill='#82ca9d' line shape="diamond"/>
-            <Scatter name='AMZN' data={this.state.data["AMZN"]} fill='#ff0000' line shape="circle"/>
-            <Scatter name='GOOG' data={this.state.data["GOOG"]} fill='#00ff00' line shape="star"/>
-            <Scatter name='UBER' data={this.state.data["UBER"]} fill='#0000ff' line shape="triangle"/>
-            <Scatter name='AAPL' data={this.state.data["AAPL"]} fill='#000000' line shape="cross"/>
-         </ScatterChart>    
-      );
-   }
+	componentDidMount() {
+		var _self = this;
+		fetch('http://localhost:4567/stockdata/?user=phuong', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		.then(function(response) {
+			// convert to JSON
+			return response.json();
+		})
+		.then(function(data) {
+			// save JSON stock data to render later
+			console.log(data);
+			_self.setState({data});
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
+	}
+	render() {
+		return (
+				<LineChart width={600} height={300} data={data1}
+				margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+				<XAxis dataKey="date"/>
+				<YAxis/>
+				<CartesianGrid strokeDasharray="3 3"/>
+					<Tooltip/>
+				<Legend />
+				<Line type="monotone" dataKey="AAPL" stroke="#8884d8" />
+					<Line type="monotone" dataKey="TSLA" stroke="#82ca9d" />
+					<Line type="monotone" dataKey="GOOGL" stroke="#82449d" />
+						</LineChart>
+		);
+	}
 }
 
 const wrapper = document.getElementById("graph");
