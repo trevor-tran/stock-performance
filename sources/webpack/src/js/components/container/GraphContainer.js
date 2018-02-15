@@ -8,8 +8,6 @@ const data1 = [
 	{date: '10/10/2018', AAPL: 200, GOOGL:560},
 	{date: '10/20/2018', AAPL: 300, GOOGL:160},
 	];
-
-console.log("hi phuong");
 const rawPrice = {
           "2018-01-29" : {
                       "GOOGL" : 1186.48,
@@ -32,6 +30,7 @@ const rawPrice = {
                                   "AAPL" : 167.78
                                             }
 };
+/*
 //convert to Map
 const map = new Map();
 Object.keys(rawPrice).forEach(key => {
@@ -48,8 +47,7 @@ map.forEach(function(price,date)
 			data2.push(entry);
            
 		});
-console.log(data2);
-
+*/
 class GraphContainer extends Component {
 	constructor(props) {
 		super(props);
@@ -57,7 +55,7 @@ class GraphContainer extends Component {
 				data: false
 		};
 	}
-/*
+	
 	componentDidMount() {
 		var _self = this;
 		fetch('http://localhost:4567/stockdata/?user=phuong', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
@@ -65,27 +63,46 @@ class GraphContainer extends Component {
 			// convert to JSON
 			return response.json();
 		})
-		.then(function(data) {
+		.then(function(rawData) {
 			// save JSON stock data to render later
-			console.log(data);
+			console.log(rawData);
+			//map where key is date, and value is {ticker:price}
+			const map = new Map();
+			Object.keys(rawData).forEach(key => {
+			            map.set(key, rawData[key]);
+			});
+			//array of objects
+			const data = [];
+			map.forEach(function(price,date)
+			        {
+			            let entry = new Object();
+			            entry["date"]= date;
+						Object.keys(price).forEach(symbol => {
+			                entry[symbol] = price[symbol];
+						});
+						data.push(entry);
+			           
+					});
+
 			_self.setState({data});
 		})
 		.catch(function(error) {
 			console.log(error);
 		});
-	}*/
+	}
 	render() {
 		return (
-				<LineChart width={600} height={300} data={data2}
+				<LineChart width={800} height={400} data={this.state.data}
 				margin={{top: 5, right: 30, left: 20, bottom: 5}}>
 				<XAxis dataKey="date"/>
 				<YAxis/>
 				<CartesianGrid strokeDasharray="3 3"/>
 					<Tooltip/>
 				<Legend />
-				<Line type="monotone" dataKey="AAPL" stroke="#8884d8" />
-				<Line type="monotone" dataKey="GOOGL" stroke="#82449d" />
-						</LineChart>
+				<Line type="monotone" dataKey="AAPL" dot={false} stroke="#8884d8" />
+				<Line type="monotone" dataKey="GOOGL" dot={false} stroke="#82449d" />
+				<Line type="monotone" dataKey="MSFT" dot={false} stroke="#00ff00" />		
+					</LineChart>
 		);
 	}
 }
