@@ -90,11 +90,12 @@ class GraphContainer extends Component {
 			console.log(error);
 		});
 	}
+	
 	render() {
 		return (
-				<LineChart width={800} height={400} data={this.state.data}
+				<LineChart width={1000} height={400} data={this.state.data}
 				margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-				<XAxis dataKey="date"/>
+				<XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
 				<YAxis/>
 				<CartesianGrid strokeDasharray="3 3"/>
 					<Tooltip/>
