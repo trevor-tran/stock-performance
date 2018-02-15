@@ -5,3 +5,4 @@ npm i react react-dom --save-dev
 npm i prop-types --save-dev
 npm i html-webpack-plugin html-loader --save-dev
 npm i babel-plugin-recharts recharts
+npm i jquery --save
