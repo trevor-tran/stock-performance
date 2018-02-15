@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -90,8 +91,8 @@ public class StockDao {
 		return uri;
 	}
 	private static Map<String,Map<String,Float>> reformatJson(JsonArray dataArr){
-		//Map<date:prices>
-		Map<String,Map<String,Float>> priceMap = new HashMap<String,Map<String,Float>>();
+		//MUST use TreeMap here to order dates
+		Map<String,Map<String,Float>> priceMap = new TreeMap<String,Map<String,Float>>();
 		for ( JsonElement element : dataArr)
 		{
 			JsonArray e = element.getAsJsonArray();
