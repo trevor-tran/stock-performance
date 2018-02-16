@@ -52,7 +52,7 @@ class GraphContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				data: false
+				data: []
 		};
 	}
 	
@@ -63,32 +63,28 @@ class GraphContainer extends Component {
 			// convert to JSON
 			return response.json();
 		})
-		.then(function(rawData) {
-			// save JSON stock data to render later
-			console.log(rawData);
-			//map where key is date, and value is {ticker:price}
-			const map = new Map();
-			Object.keys(rawData).forEach(key => {
-			            map.set(key, rawData[key]);
+		.then(function(json) {
+			//map where key is date, and value is objects
+			var _map = new Map();
+			Object.keys(json).forEach(key => {
+			            _map.set(key, json[key]);
 			});
-			//array of objects
-			const data = [];
-			map.forEach(function(price,date)
-			        {
-			            let entry = new Object();
-			            entry["date"]= date;
-						Object.keys(price).forEach(symbol => {
-			                entry[symbol] = price[symbol];
-						});
-						data.push(entry);
-			           
-					});
-
-			_self.setState({data});
+			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
+			var _inputData = [];
+			_map.forEach(function(price,date) {
+				var entry = new Object();
+				entry["date"]= date;
+				Object.keys(price).forEach(symbol => {
+					entry[symbol] = price[symbol];
+				});
+				_inputData.push(entry);
+			});
+			_self.setState({data:_inputData});
 		})
 		.catch(function(error) {
 			console.log(error);
 		});
+		console.log("having this line to set a break point");
 	}
 	
 	render() {
