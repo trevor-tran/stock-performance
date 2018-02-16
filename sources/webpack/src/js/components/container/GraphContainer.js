@@ -46,7 +46,7 @@ class GraphContainer extends Component {
 	render() {
 		var lines = [];
 		if (this.state.data != null){
-			var colors = ['#82449d', '#8884d8', '#FF0000', '#00FF00', '#0000FF', '#000000' ];
+			var colors = ['#603a93', '#02edc6', '#ffc875', '#bdf2ff', '#ffac97','#f07b50','#413e42','#77b82c','#5c8cb0','#e57cf9' ];
 			var colorIndex = 0;
 			var obj1 = this.state.data[0]; // extract a object.
 			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
@@ -60,7 +60,7 @@ class GraphContainer extends Component {
 			return (
 				<LineChart width={1000} height={400} data={this.state.data} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
 					<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
-					<YAxis/>
+					<YAxis unit="$"/>
 					<CartesianGrid strokeDasharray="3 3"/>
 					<Tooltip/>
 					<Legend />
