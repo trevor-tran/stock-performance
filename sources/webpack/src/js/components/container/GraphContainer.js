@@ -2,52 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 //import Input from "../presentational/Input";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
-
-const data1 = [
-	{date: '10/20/1017', AAPL: 400, GOOGL:150},
-	{date: '10/10/2018', AAPL: 200, GOOGL:560},
-	{date: '10/20/2018', AAPL: 300, GOOGL:160},
-	];
-const rawPrice = {
-          "2018-01-29" : {
-                      "GOOGL" : 1186.48,
-                          "AAPL" : 167.96
-                                    },
-            "2018-01-30" : {
-                        "GOOGL" : 1177.37,
-                            "AAPL" : 166.97
-                                      },
-              "2018-01-31" : {
-                          "GOOGL" : 1182.22,
-                              "AAPL" : 167.43
-                                        },
-                "2018-02-02" : {
-                            "GOOGL" : 1119.2,
-                                "AAPL" : 160.37
-                                          },
-                  "2018-02-01" : {
-                              "GOOGL" : 1181.59,
-                                  "AAPL" : 167.78
-                                            }
-};
-/*
-//convert to Map
-const map = new Map();
-Object.keys(rawPrice).forEach(key => {
-            map.set(key, rawPrice[key]);
-});
-const data2 = [];
-map.forEach(function(price,date)
-        {
-            let entry = new Object();
-            entry["date"]=date;
-			Object.keys(price).forEach(symbol => {
-                entry[symbol] = price[symbol];
-			});
-			data2.push(entry);
-           
-		});
-*/
+import $ from 'jquery';
 class GraphContainer extends Component {
 	constructor(props) {
 		super(props);
@@ -70,16 +25,16 @@ class GraphContainer extends Component {
 			            _map.set(key, json[key]);
 			});
 			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
-			var _inputData = [];
+			var _input = [];
 			_map.forEach(function(price,date) {
 				var entry = new Object();
 				entry["date"]= date;
 				Object.keys(price).forEach(symbol => {
 					entry[symbol] = price[symbol];
 				});
-				_inputData.push(entry);
+				_input.push(entry);
 			});
-			_self.setState({data:_inputData});
+			_self.setState({data:_input});
 		})
 		.catch(function(error) {
 			console.log(error);
@@ -88,19 +43,32 @@ class GraphContainer extends Component {
 	}
 	
 	render() {
-		return (
-				<LineChart width={1000} height={400} data={this.state.data}
-				margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-				<XAxis dataKey="date" angle={-30} textAnchor="end" height={60} />
-				<YAxis/>
-				<CartesianGrid strokeDasharray="3 3"/>
+		var lines = [];
+		if (this.state.data != null){
+			var colors = ['#82449d', '#8884d8', '#FF0000', '#00FF00', '#0000FF', '#000000' ];
+			var colorIndex = 0;
+			var obj1 = this.state.data[0]; // extract a object.
+			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
+			$.each(obj1, function(key, value) {
+				if(key!="date") {
+					var color = colors [ colorIndex++ % colors.length]; // rotate colors
+					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} stroke={color}/>);
+				}
+			});
+			return (
+				<LineChart width={1000} height={400} data={this.state.data} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+					<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
+					<YAxis/>
+					<CartesianGrid strokeDasharray="3 3"/>
 					<Tooltip/>
-				<Legend />
-				<Line type="monotone" dataKey="AAPL" dot={false} stroke="#8884d8" />
-				<Line type="monotone" dataKey="GOOGL" dot={false} stroke="#82449d" />
-				<Line type="monotone" dataKey="MSFT" dot={false} stroke="#00ff00" />		
-					</LineChart>
-		);
+					<Legend />
+					{lines}	
+				</LineChart>
+			);
+		}
+		else {
+			return false;
+		}
 	}
 }
 
