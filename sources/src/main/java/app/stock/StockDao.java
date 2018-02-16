@@ -38,6 +38,7 @@ import org.apache.http.impl.client.HttpClients;
 public class StockDao {
 	//quandel api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
+	private static final String apiKey2 = "gCex5psCGUqRBsjyXAxs";
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
@@ -46,6 +47,7 @@ public class StockDao {
 			URI uri = setUri(symbol, startDate, endDate);
 			CloseableHttpClient httpclient = HttpClients.createDefault();
 			HttpGet httpget = new HttpGet(uri);
+			System.out.println(httpget.getURI());//TODO: uri printing
 			ResponseHandler<JsonObject> rh = new ResponseHandler<JsonObject>() {
 
 				@Override
@@ -70,7 +72,7 @@ public class StockDao {
 			};
 			JsonObject myjson = httpclient.execute(httpget,rh);
 			JsonArray dataArr = myjson.getAsJsonObject("datatable").getAsJsonArray("data");
-			return reformatJson(dataArr);
+			return reformatJson(dataArr);//TODO: experiencing data loss with large amount.
 		} 
 		catch(Exception ex){
 			System.out.println(ex.getMessage());
