@@ -13,7 +13,7 @@ class GraphContainer extends Component {
 	
 	componentDidMount() {
 		var _self = this;
-		fetch('http://localhost:4567/stockdata/?user=phuong', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		fetch('http://localhost:4567/home/', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
 			// convert to JSON
 			return response.json();
@@ -28,7 +28,8 @@ class GraphContainer extends Component {
 			var _input = [];
 			_map.forEach(function(price,date) {
 				var entry = new Object();
-				entry["date"]= date;
+				var d = new Date(date).toDateString().substring(4);//reformat date
+				entry["date"]= d;
 				Object.keys(price).forEach(symbol => {
 					entry[symbol] = price[symbol];
 				});
@@ -54,6 +55,7 @@ class GraphContainer extends Component {
 					var color = colors [ colorIndex++ % colors.length]; // rotate colors
 					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} stroke={color}/>);
 				}
+				
 			});
 			return (
 				<LineChart width={1000} height={400} data={this.state.data} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
