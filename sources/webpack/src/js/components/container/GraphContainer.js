@@ -53,14 +53,14 @@ class GraphContainer extends Component {
 			$.each(obj1, function(key, value) {
 				if(key!="date") {
 					var color = colors [ colorIndex++ % colors.length]; // rotate colors
-					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} stroke={color}/>);
+					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} unit=" USD" stroke={color}/>);
 				}
 				
 			});
 			return (
-				<LineChart width={1000} height={400} data={this.state.data} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+				<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 15, left: 10, bottom: 5}}>
 					<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
-					<YAxis unit="$"/>
+					<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 					<CartesianGrid strokeDasharray="3 3"/>
 					<Tooltip/>
 					<Legend />
