@@ -1,14 +1,13 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<h1>home page</h1>
-<div class="row row-3">
-    
-    
-    <div class="container">
-        <p>Stock Performance</p>
-        <div id="graph">
-            <!-- rechart graph -->
-        </div>
+<h2>home page</h2> 
+    <div class="symbolcontainer">
+		<label>Stock symbol:</label>
+		<input id="symbolinput" type="text" name="symbol" placeholder="e.g. AAPL,MSFT">
+		<input id="symbolsubmit" type="submit">
     </div>
     
-</div>#end
+    <div id="graph">
+             <!--rechart graph -->
+    </div>  
+#end
