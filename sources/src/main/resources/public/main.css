@@ -71,7 +71,7 @@ a {
 }
 
 main {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 15px;
 }
@@ -122,15 +122,50 @@ nav ul, nav li {
     -webkit-transform: translateY(10px);
     transform: translateY(10px);
 }
+.symbolcontainer{
+	
+	position:relative;
+	top: 50px;
+	left: 900px;
+	width:250px;
+	background-color: lightblue;
+}
+/* need to get these nice and clean */
+.symbolcontainer input[id="symbolinput"] {
+    position:relative;
+    top: 30px;
+    left: 0px;
+    border: 1px solid #ddd;
+    padding: 5px 12px;
+    width: 80px;
+    border-radius: 3px;
+    /*margin: 2px 0 20px 0;*/
+}
+.symbolcontainer input[id="symbolsubmit"] {
+    position:relative;
+    top: 30px;
+    left: 100px;
+    border: 1px solid #ddd;
+    padding: 5px 12px;
+    width: 80px;
+    border-radius: 3px;
+    /*margin: 2px 0 20px 0;*/
+}
 
-#graph {
-  -webkit-box-sizing: border-box;
+
+div #graph {
+	position:relative;
+	bottom: 100px;
+	left:-10px;
+	width: 900px;
+	height: 400px;
+  /*-webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   padding: 10px;
   width: 800px;
   height: 800px;
-  background-color: #fff;
+  background-color: #fff;*/
 }
 
 /*  signin and signup form */
