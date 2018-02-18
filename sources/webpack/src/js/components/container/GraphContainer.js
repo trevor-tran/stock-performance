@@ -58,7 +58,7 @@ class GraphContainer extends Component {
 				
 			});
 			return (
-				<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 15, left: 10, bottom: 5}}>
+				<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
 					<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
 					<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 					<CartesianGrid strokeDasharray="3 3"/>
