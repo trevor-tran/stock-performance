@@ -1,13 +1,28 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<h2>home page</h2> 
+<form id="home">
     <div class="symbolcontainer">
-		<label>Stock symbol:</label>
-		<input id="symbolinput" type="text" name="symbol" placeholder="e.g. AAPL,MSFT">
-		<input id="symbolsubmit" type="submit">
+    	<label>Enter stock symbol:</label>
+		<form id="requeststock" method="post" enctype='application/json'>
+			<input id="symbolinput" type="text" name="symbol" placeholder="e.g. AAPL,MSFT" required>
+			<button onclick="postSymbol()" >Go</button>
+			<script>
+				function postSymbol() {
+      				return fetch('http://localhost:4567/home/', { 
+      					headers: { 
+      						'Content-Type': 'application/json', 
+      						'Accept': 'application/json' 
+      					} 
+      				})
+		
+				}
+			</script>
+			</script>
+		<form>
     </div>
     
     <div id="graph">
              <!--rechart graph -->
     </div>  
+ </form>
 #end
