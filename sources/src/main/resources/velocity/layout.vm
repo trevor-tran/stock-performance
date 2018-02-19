@@ -4,6 +4,7 @@
 	<title>Stock Performance</title>
 	<link rel="stylesheet" href="/main.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script type="text/javascript" src="/js/validation.js"></script>
 	<script type"text/javascript" src="/js/GoogleSignin.js"></script>
 	<!-- Google Sign-in https://developers.google.com/identity/sign-in/web/ -->
@@ -48,13 +49,7 @@
 </main>
 <footer>
 </footer>
-<script type"text/javascript" src="/js/main.js?ver=build_1"></script>
+<script type"text/javascript" src="/js/main.js?ver=build_260"></script>
 </body>
 </html>
 #end
-
-
-
-
-
-
