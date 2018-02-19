@@ -8,5 +8,3 @@ npm i prop-types --save-dev
 npm i html-webpack-plugin html-loader --save-dev
 npm i babel-plugin-recharts recharts
 npm i jquery --save
-npm i react-datepicker --save
-npm i moment --save
