@@ -3,22 +3,21 @@
 <form id="home">
     <div class="symbolcontainer">
     	<label>Enter stock symbol:</label>
-		<form id="requeststock" method="post" enctype='application/json'>
+		<form id="requeststock">
 			<input id="symbolinput" type="text" name="symbol" placeholder="e.g. AAPL,MSFT" required>
-			<button onclick="postSymbol()" >Go</button>
+			<button>Go</button>
 			<script>
 				function postSymbol() {
-      				return fetch('http://localhost:4567/home/', { 
+      				fetch('http://localhost:4567/home/', { 
       					headers: { 
       						'Content-Type': 'application/json', 
       						'Accept': 'application/json' 
       					} 
-      				})
+      				});
 		
 				}
-			</script>
-			</script>
-		<form>
+			</script>		
+			</form>
     </div>
     
     <div id="graph">
