@@ -10,10 +10,13 @@ class GraphContainer extends Component {
 				data: []
 		};
 	}
-	
+
 	componentDidMount() {
 		var _self = this;
-		fetch('http://localhost:4567/home/', { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		//following url does not work as having params
+		//var url = 'http://localhost:4567/home/';
+		var url = window.location.href;
+		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
 			// convert to JSON
 			return response.json();
@@ -22,7 +25,7 @@ class GraphContainer extends Component {
 			//map where key is date, and value is objects
 			var _map = new Map();
 			Object.keys(json).forEach(key => {
-			            _map.set(key, json[key]);
+				_map.set(key, json[key]);
 			});
 			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
 			var _input = [];
@@ -42,7 +45,7 @@ class GraphContainer extends Component {
 		});
 		console.log("having this line to set a break point");
 	}
-	
+
 	render() {
 		var lines = [];
 		if (this.state.data != null){
@@ -55,18 +58,18 @@ class GraphContainer extends Component {
 					var color = colors [ colorIndex++ % colors.length]; // rotate colors
 					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} unit=" USD" stroke={color}/>);
 				}
-				
+
 			});
-			return (
-				<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
-					<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
-					<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
-					<CartesianGrid strokeDasharray="3 3"/>
-					<Tooltip/>
-					<Legend />
-					{lines}	
-				</LineChart>
-			);
+					return (
+							<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
+							<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
+							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
+							<CartesianGrid strokeDasharray="3 3"/>
+								<Tooltip/>
+							<Legend />
+							{lines}	
+							</LineChart>
+					);
 		}
 		else {
 			return false;
