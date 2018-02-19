@@ -18,7 +18,6 @@ public class HomeController {
 
 	public static Route fetchAllStocks = (Request request, Response response) -> {
 		//LoginController.ensureUserIsLoggedIn(request, response);
-		String symbol = request.queryParams("symbol");
 		if (clientAcceptsHtml(request)) {
 			HashMap<String, Object> model = new HashMap<>();
 			//model.put("stocks", StockDao.getAllStocks());
@@ -26,9 +25,9 @@ public class HomeController {
 		}
 		if (clientAcceptsJson(request)) {
 			Map<String,Map<String,Float>> data;
+			String symbol = request.queryParams("symbol");
 			if(symbol != "" && symbol!= null){
-			symbol += request.queryParams("symbol");
-			data = StockDao.getStockData("AAPL,"+symbol, "2017-1-3", "2018-2-14");
+				data = StockDao.getStockData("AAPL"+","+symbol, "2017-1-3", "2018-2-14");
 			}
 			else {
 				data = StockDao.getStockData("AAPL", "2017-1-3", "2018-2-14");
