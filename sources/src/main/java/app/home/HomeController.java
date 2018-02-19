@@ -4,13 +4,9 @@ import static app.util.RequestUtil.clientAcceptsHtml;
 import static app.util.RequestUtil.clientAcceptsJson;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.google.gson.JsonObject;
 
-import app.stock.PriceData;
-import app.stock.Stock;
 import app.stock.StockDao;
 import app.util.JsonUtil;
 import app.util.Path;
@@ -18,29 +14,47 @@ import app.util.ViewUtil;
 import spark.*;
 
 public class HomeController {
-	 
-	
+
+
 	public static Route fetchAllStocks = (Request request, Response response) -> {
-	      //LoginController.ensureUserIsLoggedIn(request, response);
-	      if (clientAcceptsHtml(request)) {
-	         HashMap<String, Object> model = new HashMap<>();
-	         //model.put("stocks", StockDao.getAllStocks());
-	         return ViewUtil.render(request, model, Path.Templates.HOME);
-	      }
-	      if (clientAcceptsJson(request)) {
-	         return dataToJson(StockDao.getStockData("AAPL", "2018-1-29", "2018-2-2"));
-	      }
-	      return ViewUtil.notAcceptable.handle(request, response);
-	   };
-	
-	   public static Route fetchRawStockData = (Request request, Response response) -> {
-	      // TODO: validate JS session!
-	      //LoginController.ensureUserIsLoggedIn(request, response);
-	      if (clientAcceptsJson(request)) {
-	         Map<String,List<PriceData>> data = StockDao.getStockData("AAPL", "2018-1-29", "2018-2-2");
-	         response.header("Content-Type", "application/json");
-	         return JsonUtil.dataToJson(data);
-	      }
-	      return ViewUtil.notAcceptable.handle(request, response);
-	   };
+		//LoginController.ensureUserIsLoggedIn(request, response);
+		String symbol = request.queryParams("symbol");
+		if (clientAcceptsHtml(request)) {
+			HashMap<String, Object> model = new HashMap<>();
+			//model.put("stocks", StockDao.getAllStocks());
+			return ViewUtil.render(request, model, Path.Templates.HOME);
+		}
+		if (clientAcceptsJson(request)) {
+			Map<String,Map<String,Float>> data;
+			if(symbol != "" && symbol!= null){
+			symbol += request.queryParams("symbol");
+			data = StockDao.getStockData("AAPL,"+symbol, "2017-1-3", "2018-2-14");
+			}
+			else {
+				data = StockDao.getStockData("AAPL", "2017-1-3", "2018-2-14");
+			}
+			response.header("Content-Type", "application/json");
+			return dataToJson(data);
+		}
+		return ViewUtil.notAcceptable.handle(request, response);
+	};
+
+	public static Route fetchRawStockData = (Request request, Response response) -> {
+		// TODO: validate JS session!
+		//LoginController.ensureUserIsLoggedIn(request, response);
+		if (clientAcceptsJson(request)) {
+
+			String symbol =",";
+			symbol += request.queryParams("symbol");
+			Map<String,Map<String,Float>> data = StockDao.getStockData("AAPL"+symbol, "2017-1-3", "2018-2-14");
+
+			response.header("Content-Type", "application/json");
+			return dataToJson(data);
+		}
+		return ViewUtil.notAcceptable.handle(request, response);
+	};
+	/* public static Route handleStockRequest = (Request request, Response response) -> {
+		 Map<String,Object> model = new HashMap<String,Object>();
+
+	   };*/
 }
