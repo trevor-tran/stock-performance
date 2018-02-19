@@ -28,8 +28,8 @@ public class StockApplication {
 			return "Hello world";
 		});
 		//get(Path.Web.HOME, 			HomeController.handleHomeDisplay);
-		get(Path.Web.HOME,         HomeController.fetchAllStocks);
-		get(Path.Web.STOCKDATA, "application/json", HomeController.fetchRawStockData);
+		get(Path.Web.HOME,       HomeController.fetchAllStocks);
+		get(Path.Web.HOME, "application/json", HomeController.fetchAllStocks);
 		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
 		post(Path.Web.SIGNIN, 		SigninController.handelSigninPost);
 		post(Path.Web.SIGNOUT, 		SigninController.handleSignoutPost);
