@@ -3,6 +3,51 @@ import ReactDOM from "react-dom";
 //import Input from "../presentational/Input";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
+
+
+function fetchUrlAndProcessStockData(url, _self) {
+	fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+	.then(function(response) {
+		// convert to JSON
+		return response.json();
+	})
+	.then(function(json) {
+		var _map = new Map();
+		Object.keys(json).forEach(key => {
+			_map.set(key, json[key]);
+		});
+		//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
+		var _input = [];
+		_map.forEach(function(price,date) {
+			var entry = new Object();
+			var d = new Date(date).toDateString().substring(4);//reformat date
+			entry["date"]= d;
+			Object.keys(price).forEach(symbol => {
+				entry[symbol] = price[symbol];
+			});
+			_input.push(entry);
+		});
+		_self.setState({data:_input});
+
+	})
+	.catch(function(error) {
+		console.log(error);
+	});
+
+}
+
+function buttonClickHandler(_self) {
+	var param="";
+	if (document.getElementById("symbolinput").value!= "" && document.getElementById("symbolinput").value!=null){
+		var symbol = document.getElementById("symbolinput").value;
+		param = '?symbol='+ symbol;
+	}
+	var url = 'http://localhost:4567/home/' + param;
+	console.log("url=", url);
+	fetchUrlAndProcessStockData(url, _self);
+}
+
+
 class GraphContainer extends Component {
 	constructor(props) {
 		super(props);
@@ -11,39 +56,41 @@ class GraphContainer extends Component {
 		};
 	}
 
+	
+
+
+	/*
+	processStockJson(json) {
+		//map where key is date, and value is objects
+		var _map = new Map();
+		Object.keys(json).forEach(key => {
+			_map.set(key, json[key]);
+		});
+		//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
+		var _input = [];
+		_map.forEach(function(price,date) {
+			var entry = new Object();
+			var d = new Date(date).toDateString().substring(4);//reformat date
+			entry["date"]= d;
+			Object.keys(price).forEach(symbol => {
+				entry[symbol] = price[symbol];
+			});
+			_input.push(entry);
+		});
+		_self.setState({data:_input});
+
+	}
+	 */
+
 	componentDidMount() {
 		var _self = this;
+		$('#symbolbutton').click(alert("clicked!");
+				//buttonClickHandler(_self));
 		//following url does not work as having params
 		//var url = 'http://localhost:4567/home/';
-		var url = window.location.href;
-		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-		.then(function(response) {
-			// convert to JSON
-			return response.json();
-		})
-		.then(function(json) {
-			//map where key is date, and value is objects
-			var _map = new Map();
-			Object.keys(json).forEach(key => {
-				_map.set(key, json[key]);
-			});
-			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
-			var _input = [];
-			_map.forEach(function(price,date) {
-				var entry = new Object();
-				var d = new Date(date).toDateString().substring(4);//reformat date
-				entry["date"]= d;
-				Object.keys(price).forEach(symbol => {
-					entry[symbol] = price[symbol];
-				});
-				_input.push(entry);
-			});
-			_self.setState({data:_input});
-		})
-		.catch(function(error) {
-			console.log(error);
-		});
-		console.log("having this line to set a break point");
+		//var url = window.location.href;
+		//fetchUrlAndProcessStockData(url, _self);
+
 	}
 
 	render() {
