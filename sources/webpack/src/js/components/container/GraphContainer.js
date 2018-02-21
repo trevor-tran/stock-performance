@@ -1,95 +1,87 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-//import Input from "../presentational/Input";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
+//import Input from "../presentational/Input";
 
-
-function fetchUrlAndProcessStockData(url, _self) {
-	fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-	.then(function(response) {
-		// convert to JSON
-		return response.json();
-	})
-	.then(function(json) {
-		var _map = new Map();
-		Object.keys(json).forEach(key => {
-			_map.set(key, json[key]);
-		});
-		//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
-		var _input = [];
-		_map.forEach(function(price,date) {
-			var entry = new Object();
-			var d = new Date(date).toDateString().substring(4);//reformat date
-			entry["date"]= d;
-			Object.keys(price).forEach(symbol => {
-				entry[symbol] = price[symbol];
-			});
-			_input.push(entry);
-		});
-		_self.setState({data:_input});
-
-	})
-	.catch(function(error) {
-		console.log(error);
-	});
-
-}
-
-function buttonClickHandler(_self) {
-	var param="";
-	if (document.getElementById("symbolinput").value!= "" && document.getElementById("symbolinput").value!=null){
-		var symbol = document.getElementById("symbolinput").value;
-		param = '?symbol='+ symbol;
-	}
-	var url = 'http://localhost:4567/home/' + param;
-	console.log("url=", url);
-	fetchUrlAndProcessStockData(url, _self);
-}
 
 
 class GraphContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				data: []
+				data: [],
+				symbol:'',
+				url : window.location.href
 		};
+		this.buttonClickHandler = this.buttonClickHandler.bind(this);
+		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
+		this.inputHandler = this.inputHandler.bind(this);
+		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
-
 	
-
-
-	/*
-	processStockJson(json) {
-		//map where key is date, and value is objects
-		var _map = new Map();
-		Object.keys(json).forEach(key => {
-			_map.set(key, json[key]);
-		});
-		//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
-		var _input = [];
-		_map.forEach(function(price,date) {
-			var entry = new Object();
-			var d = new Date(date).toDateString().substring(4);//reformat date
-			entry["date"]= d;
-			Object.keys(price).forEach(symbol => {
-				entry[symbol] = price[symbol];
+	
+	fetchUrlAndProcessStockData(url,_self) {
+		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		.then(function(response) {
+			// convert to JSON
+			return response.json();
+		})
+		.then(function(json) {
+			var _map = new Map();
+			Object.keys(json).forEach(key => {
+				_map.set(key, json[key]);
 			});
-			_input.push(entry);
+			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
+			var _input = [];
+			_map.forEach(function(price,date) {
+				var entry = new Object();
+				var d = new Date(date).toDateString().substring(4);//reformat date
+				entry["date"]= d;
+				Object.keys(price).forEach(symbol => {
+					entry[symbol] = price[symbol];
+				});
+				_input.push(entry);
+			});
+			_self.setState({data:_input});
+
+		})
+		.catch(function(error) {
+			console.log(error);
 		});
-		_self.setState({data:_input});
 
 	}
-	 */
 
+	buttonClickHandler() {
+		var _self = this;
+		var param="";
+		if (this.state.symbol != "" && this.state.symbol != null){
+			param = '?symbol='+ this.state.symbol;
+		}
+		var url = 'http://localhost:4567/home/' + param;
+		console.log("url=", url);
+		this.fetchUrlAndProcessStockData(url,_self);
+		//alert("button clicked!");
+		//this.forceUpdate();
+	}
+	
+	
+	inputHandler(e) {
+		this.setState({symbol:e.target.value});
+	}
+	
+	buttonClickHandler2() {
+		alert("show!" + this.state.symbol);
+		event.preventDefault();
+	}
+	
 	componentDidMount() {
 		var _self = this;
-		$('#symbolbutton').click(alert("clicked!");
-				//buttonClickHandler(_self));
+		//$('#symbolbutton').click(buttonClickHandler(_self));
 		//following url does not work as having params
-		//var url = 'http://localhost:4567/home/';
-		//var url = window.location.href;
-		//fetchUrlAndProcessStockData(url, _self);
+		var url = window.location.href;
+		this.fetchUrlAndProcessStockData(url,_self);
+		
 
 	}
 
@@ -107,16 +99,25 @@ class GraphContainer extends Component {
 				}
 
 			});
-					return (
-							<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
+			return (
+				<div id="parent">
+					<div className="symbolcontainer">
+						<input id="symbolinput" type="text" value={this.state.symbol} onChange={ this.inputHandler } />
+						<button type="button" onClick={this.buttonClickHandler}>Go</button>
+					</div>	
+					
+					<div id ="graphcontainer">
+						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
 							<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
-								<Tooltip/>
+							<Tooltip/>
 							<Legend />
 							{lines}	
-							</LineChart>
-					);
+						</LineChart>
+					</div>
+				</div>
+			);
 		}
 		else {
 			return false;
@@ -124,7 +125,7 @@ class GraphContainer extends Component {
 	}
 }
 
-const wrapper = document.getElementById("graph");
+const wrapper = document.getElementById("homecontainer");
 wrapper ? ReactDOM.render(<GraphContainer />, wrapper) : false;
 
 export default GraphContainer;
