@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
-//import Input from "../presentational/Input";
+
+//import presentational elements;
+import Input from "../presentational/Input";
+import Button from "../presentational/Button";
 
 
 
@@ -102,10 +105,16 @@ class HomeContainer extends Component {
 			return (
 				<div id="parent">
 					<div className="symbolcontainer">
-						<input id="symbolinput" type="text" value={this.state.symbol} onChange={ this.inputHandler } />
-						<button type="button" onClick={this.buttonClickHandler}>Go</button>
-					</div>	
-					
+						<label>"Enter Stock Symbol:"</label>
+						<Input 
+							id="symbolinput" 
+							type="text" 
+							value={this.state.symbol}
+							placeholder="e.g. AAPL,MSFT"
+							handleChange={ this.inputHandler } 
+						/>
+						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Go"></Button>	
+					</div>
 					<div id ="graphcontainer">
 						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
 							<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
