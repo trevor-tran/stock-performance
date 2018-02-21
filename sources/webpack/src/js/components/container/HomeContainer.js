@@ -6,7 +6,7 @@ import $ from 'jquery';
 
 
 
-class GraphContainer extends Component {
+class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -126,6 +126,6 @@ class GraphContainer extends Component {
 }
 
 const wrapper = document.getElementById("homecontainer");
-wrapper ? ReactDOM.render(<GraphContainer />, wrapper) : false;
+wrapper ? ReactDOM.render(<HomeContainer />, wrapper) : false;
 
-export default GraphContainer;
+export default HomeContainer;

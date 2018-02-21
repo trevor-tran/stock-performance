@@ -1,2 +1,2 @@
-import GraphContainer from "./components/container/GraphContainer";
+import GraphContainer from "./components/container/HomeContainer";
 
