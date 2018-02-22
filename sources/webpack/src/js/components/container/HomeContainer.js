@@ -18,8 +18,10 @@ class HomeContainer extends Component {
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
 		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
 		this.inputHandler = this.inputHandler.bind(this);
+		this.resetInput = this.resetInput.bind(this);
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
+	
 	fetchUrlAndProcessStockData(url,_self) {
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		//get data from server
@@ -74,14 +76,17 @@ class HomeContainer extends Component {
 		}
 		var url = 'http://localhost:4567/home/' + param;
 		console.log("url=", url);
-		window.location.href = url;
+		//window.location.href = url;
 		this.fetchUrlAndProcessStockData(url,_self);
+		this.resetInput();
 	}
 	
 	inputHandler(e) {
 		this.setState({symbol:e.target.value});
 	}
-	
+	resetInput(){
+		this.setState({symbol:""});
+	}
 	buttonClickHandler2() {
 		alert("show!" + this.state.symbol);
 		event.preventDefault();
@@ -96,7 +101,7 @@ class HomeContainer extends Component {
 	render() {
 		var lines = [];
 		if (this.state.data != null){
-			var colors = ['#603a93', '#02edc6', '#ffc875', '#bdf2ff', '#ffac97','#f07b50','#413e42','#77b82c','#5c8cb0','#e57cf9' ];
+			var colors = ['#603a93', '#02edc6', '#ffc875', '#bdf2ff','#77b82c','#f07b50','#413e42','#5c8cb0','#e57cf9','#ffac97'];
 			var colorIndex = 0;
 			var obj1 = this.state.data[0]; // extract a object.
 			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
