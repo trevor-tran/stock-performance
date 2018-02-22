@@ -122,40 +122,44 @@ nav ul, nav li {
     -webkit-transform: translateY(10px);
     transform: translateY(10px);
 }
-.symbolcontainer{
-	
+
+/* labels inputs button in home page*/
+.inputcontainer {
+    display: block;
+    width: 100%;
 	position:relative;
-	top: 50px;
-	left: 900px;
-	width:250px;
-	background-color: lightblue;
-}
-/* need to get these nice and clean */
-.symbolcontainer input[id="symbolinput"] {
-    position:relative;
-    top: 30px;
-    left: 0px;
-    border: 1px solid #ddd;
-    padding: 5px 12px;
-    width: 80px;
-    border-radius: 3px;
-    /*margin: 2px 0 20px 0;*/
-}
-.symbolcontainer input[id="symbolsubmit"] {
-    position:relative;
-    top: 30px;
-    left: 100px;
-    border: 1px solid #ddd;
-    padding: 5px 12px;
-    width: 80px;
-    border-radius: 3px;
-    /*margin: 2px 0 20px 0;*/
+    margin: 0 0 10px 5px;
 }
 
+.inputcontainer label {
+    display: inline;
+    /*margin: 0 0 auto 0;*/
+}
+
+.inputcontainer input {
+	display: inline;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    width: 150px;
+    border-radius: 3px;
+    margin: 0 20px 0 5px;
+}
+.inputcontainer button {
+	display: inline;
+    border: 1px solid #ddd;
+    width: 100px;
+    height: 30px;
+    border-radius: 3px;
+    color: white;
+    background: #274555;
+    border: 0;
+    cursor: pointer;
+    margin-left: 50px;
+}
 
 div #graph {
 	position:relative;
-	bottom: 100px;
+	bottom: 50px;
 	left:-10px;
 	width: 900px;
 	height: 400px;
