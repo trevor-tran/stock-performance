@@ -2,40 +2,38 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
+import update from 'react-addons-update';
 
 //import presentational elements;
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
-
-
 
 class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 				data: [],
-				symbol:'',
-				url : window.location.href
+				symbol:''
 		};
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
 		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
 		this.inputHandler = this.inputHandler.bind(this);
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
-	
-	
 	fetchUrlAndProcessStockData(url,_self) {
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		//get data from server
 		.then(function(response) {
 			// convert to JSON
 			return response.json();
 		})
+		// manipulate data into right format
+		//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 		.then(function(json) {
 			var _map = new Map();
 			Object.keys(json).forEach(key => {
 				_map.set(key, json[key]);
 			});
-			//array of objects. ex {date:"1993-1-1", GOOGL:123, MSFT:456}
 			var _input = [];
 			_map.forEach(function(price,date) {
 				var entry = new Object();
@@ -46,15 +44,28 @@ class HomeContainer extends Component {
 				});
 				_input.push(entry);
 			});
-			_self.setState({data:_input});
-
+			return _input;
+		})
+		//merge previous and new data 
+		.then( function(_input) {
+			
+			if (_self.state.data.length != 0) {
+				var temp = _self.state.data;
+				var newData = [];
+				for(var i = 0;i<temp.length; i++){
+					newData.push( update( temp[i] , {$merge : _input[i]} ));
+				}
+				_self.setState({data:newData}); 
+			}
+			else {
+				_self.setState({data:_input});
+			}
 		})
 		.catch(function(error) {
 			console.log(error);
 		});
-
 	}
-
+	
 	buttonClickHandler() {
 		var _self = this;
 		var param="";
@@ -63,11 +74,9 @@ class HomeContainer extends Component {
 		}
 		var url = 'http://localhost:4567/home/' + param;
 		console.log("url=", url);
+		window.location.href = url;
 		this.fetchUrlAndProcessStockData(url,_self);
-		//alert("button clicked!");
-		//this.forceUpdate();
 	}
-	
 	
 	inputHandler(e) {
 		this.setState({symbol:e.target.value});
@@ -80,12 +89,8 @@ class HomeContainer extends Component {
 	
 	componentDidMount() {
 		var _self = this;
-		//$('#symbolbutton').click(buttonClickHandler(_self));
-		//following url does not work as having params
 		var url = window.location.href;
 		this.fetchUrlAndProcessStockData(url,_self);
-		
-
 	}
 
 	render() {
