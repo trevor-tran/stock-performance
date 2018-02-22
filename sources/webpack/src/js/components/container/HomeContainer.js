@@ -12,8 +12,8 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				data: [],
-				symbol:''
+				symbol:"",
+				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
 		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
@@ -63,9 +63,21 @@ class HomeContainer extends Component {
 				_self.setState({data:_input});
 			}
 		})
+		//store data in session storage
+		.then( function () {
+			sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+		})
 		.catch(function(error) {
 			console.log(error);
 		});
+	}
+	
+	inputHandler(e) {
+		this.setState({symbol:e.target.value});
+	}
+	
+	resetInput(){
+		this.setState({symbol:""});
 	}
 	
 	buttonClickHandler() {
@@ -81,12 +93,6 @@ class HomeContainer extends Component {
 		this.resetInput();
 	}
 	
-	inputHandler(e) {
-		this.setState({symbol:e.target.value});
-	}
-	resetInput(){
-		this.setState({symbol:""});
-	}
 	buttonClickHandler2() {
 		alert("show!" + this.state.symbol);
 		event.preventDefault();
@@ -127,7 +133,7 @@ class HomeContainer extends Component {
 					</div>
 					<div id ="graphcontainer">
 						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
-							<XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
+							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
 							<Tooltip/>
