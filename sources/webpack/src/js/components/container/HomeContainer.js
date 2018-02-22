@@ -12,12 +12,18 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+				money:1,
+				start: new Date(),
+				end: new Date(),
 				symbol:"",
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
 		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
-		this.inputHandler = this.inputHandler.bind(this);
+		this.moneyHandler = this.moneyHandler.bind(this);
+		this.startDateHandler = this.startDateHandler.bind(this);
+		this.endDateHandler = this.endDateHandler.bind(this);
+		this.symbolHandler = this.symbolHandler.bind(this);
 		this.resetInput = this.resetInput.bind(this);
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
@@ -72,7 +78,16 @@ class HomeContainer extends Component {
 		});
 	}
 	
-	inputHandler(e) {
+	moneyHandler(e) {
+		this.setState({money:e.target.value});
+	}
+	startDateHandler(e) {
+		this.setState({start:e.target.value});
+	}
+	endDateHandler(e) {
+		this.setState({end:e.target.value});
+	}
+	symbolHandler(e) {
 		this.setState({symbol:e.target.value});
 	}
 	
@@ -120,16 +135,37 @@ class HomeContainer extends Component {
 			});
 			return (
 				<div id="parent">
-					<div className="symbolcontainer">
-						<label>"Enter Stock Symbol:"</label>
+					<div className="inputcontainer">
+						<label>Invest($):</label>
+						<Input 
+							id="money" 
+							type="text" 
+							value={this.state.money}
+							handleChange={ this.moneyHandler } 
+						/>
+						<label>From:</label>
+						<Input 
+							id="start" 
+							type="date" 
+							value={this.state.start}
+							handleChange={ this.startDateHandler } 
+						/>
+						<label>To:</label>
+						<Input 
+							id="end" 
+							type="date" 
+							value={this.state.end}
+							handleChange={ this.endDateHandler } 
+						/>
+						<label>Symbol:</label>
 						<Input 
 							id="symbolinput" 
 							type="text" 
 							value={this.state.symbol}
 							placeholder="e.g. AAPL,MSFT"
-							handleChange={ this.inputHandler } 
+							handleChange={ this.symbolHandler } 
 						/>
-						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Go"></Button>	
+						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
 						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
