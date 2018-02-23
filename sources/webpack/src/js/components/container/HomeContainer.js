@@ -13,8 +13,8 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				money:1,
-				start: moment().local().subtract(11,"days").format('YYYY-MM-DD'),
+				money:'1',
+				start: moment().local().subtract(31,"days").format('YYYY-MM-DD'),
 				end: moment().local().subtract(1,"days").format('YYYY-MM-DD'),
 				symbol:"",
 				data: JSON.parse(sessionStorage.getItem('data')) || []
@@ -29,9 +29,16 @@ class HomeContainer extends Component {
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
 	
-	fetchUrlAndProcessStockData(url,_self) {
+	fetchUrlAndProcessStockData(_self) {
+		//set URL
+		var param="?money=" + _self.state.money + "&start=" + _self.state.start + "&end=" + _self.state.end;
+		if (_self.state.symbol != "" && _self.state.symbol != null){
+			param += '&symbol='+ this.state.symbol;
+		}
+		var url = 'http://localhost:4567/home/' + param;
+		
+		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-		//get data from server
 		.then(function(response) {
 			// convert to JSON
 			return response.json();
@@ -78,7 +85,7 @@ class HomeContainer extends Component {
 			console.log(error);
 		});
 	}
-	
+	// Input Handers: money, dates, symbol
 	moneyHandler(e) {
 		this.setState({money:e.target.value});
 	}
@@ -87,25 +94,19 @@ class HomeContainer extends Component {
 	}
 	endDateHandler(e) {
 		this.setState({end:e.target.value});
+		//alert(e.target.value);
 	}
 	symbolHandler(e) {
 		this.setState({symbol:e.target.value});
 	}
-	
 	resetInput(){
 		this.setState({symbol:""});
 	}
 	
 	buttonClickHandler() {
 		var _self = this;
-		var param="";
-		if (this.state.symbol != "" && this.state.symbol != null){
-			param = '?symbol='+ this.state.symbol;
-		}
-		var url = 'http://localhost:4567/home/' + param;
-		console.log("url=", url);
 		//window.location.href = url;
-		this.fetchUrlAndProcessStockData(url,_self);
+		this.fetchUrlAndProcessStockData(_self);
 		this.resetInput();
 	}
 	
@@ -116,8 +117,8 @@ class HomeContainer extends Component {
 	
 	componentDidMount() {
 		var _self = this;
-		var url = window.location.href;
-		this.fetchUrlAndProcessStockData(url,_self);
+		//var url = window.location.href;
+		this.fetchUrlAndProcessStockData(_self);
 	}
 
 	render() {
