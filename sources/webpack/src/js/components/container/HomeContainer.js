@@ -14,8 +14,8 @@ class HomeContainer extends Component {
 		super(props);
 		this.state = {
 				money:'1',
-				start: moment().local().subtract(31,"days").format('YYYY-MM-DD'),
-				end: moment().local().subtract(1,"days").format('YYYY-MM-DD'),
+				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
+				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
 				symbol:"",
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
@@ -33,10 +33,11 @@ class HomeContainer extends Component {
 		//set URL
 		var param="?money=" + _self.state.money + "&start=" + _self.state.start + "&end=" + _self.state.end;
 		if (_self.state.symbol != "" && _self.state.symbol != null){
-			param += '&symbol='+ this.state.symbol;
+			param += '&symbol='+ _self.state.symbol;
 		}
-		var url = 'http://localhost:4567/home/' + param;
 		
+		var url = 'http://localhost:4567/home/' + param;
+		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
@@ -86,34 +87,43 @@ class HomeContainer extends Component {
 		});
 	}
 	// Input Handers: money, dates, symbol
-	moneyHandler(e) {
-		this.setState({money:e.target.value});
-	}
-	startDateHandler(e) {
-		this.setState({start:e.target.value});
-	}
-	endDateHandler(e) {
-		this.setState({end:e.target.value});
-		//alert(e.target.value);
-	}
+	moneyHandler(e) { this.setState({money:e.target.value}); }
+	startDateHandler(e) { this.setState({start:e.target.value}); }
+	endDateHandler(e) {	this.setState({end:e.target.value}); }
+	resetInput(){this.setState({symbol:[]}); }
 	symbolHandler(e) {
-		this.setState({symbol:e.target.value});
-	}
-	resetInput(){
-		this.setState({symbol:""});
+		var temp = this.state.symbol;
+		temp.push(e.target.value);
+		this.setState({symbol:temp}); 
 	}
 	
+	//button event
 	buttonClickHandler() {
 		var _self = this;
+		var ticker = document.getElementById('symbolinput').value;
+		console.log("ticker is:",ticker);
+		_self.setState({symbol:ticker});
+		//this.setState({symbol:this.input.value});
 		//window.location.href = url;
+		
+
 		this.fetchUrlAndProcessStockData(_self);
-		this.resetInput();
+		//this.resetInput();
 	}
 	
 	buttonClickHandler2() {
-		alert("show!" + this.state.symbol);
+		var ticker = document.getElementById('symbolinput').value;
+		this.setState({symbol:ticker});
+		//alert(this.refs.ticker.value);
 		event.preventDefault();
 	}
+	/*
+	componentDidUpdate(nextProps, prevState) {
+		var _self = this;
+		  if (this.state.symbol !== prevState.symbol) {
+		   // alert("startdate changed!");
+		  }
+	}*/
 	
 	componentDidMount() {
 		var _self = this;
@@ -139,34 +149,13 @@ class HomeContainer extends Component {
 				<div id="parent">
 					<div className="inputcontainer">
 						<label>Invest($):</label>
-						<Input 
-							id="money" 
-							type="text" 
-							value={this.state.money}
-							handleChange={ this.moneyHandler } 
-						/>
+						<Input id="money" type="text" value={this.state.money} handleClick={this.buttonClickHandler} />
 						<label>From:</label>
-						<Input 
-							id="start" 
-							type="date" 
-							value= {this.state.start}
-							handleChange={ this.startDateHandler } 
-						/>
+						<Input id="start" type="date" value={this.state.start} handleClick={this.buttonClickHandler} />
 						<label>To:</label>
-						<Input 
-							id="end" 
-							type="date" 
-							value={this.state.end}
-							handleChange={ this.endDateHandler } 
-						/>
+						<Input id="end" type="date" value={this.state.end} handleClick={this.buttonClickHandler} />
 						<label>Symbol:</label>
-						<Input 
-							id="symbolinput" 
-							type="text" 
-							value={this.state.symbol}
-							placeholder="e.g. AAPL,MSFT"
-							handleChange={ this.symbolHandler } 
-						/>
+						<Input id="symbolinput"	type="text" placeholder="e.g. AAPL,MSFT" />
 						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
