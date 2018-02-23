@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
 import update from 'react-addons-update';
+import moment from 'moment';
 
 //import presentational elements;
 import Input from "../presentational/Input";
@@ -13,8 +14,8 @@ class HomeContainer extends Component {
 		super(props);
 		this.state = {
 				money:1,
-				start: new Date(),
-				end: new Date(),
+				start: moment().local().subtract(11,"days").format('YYYY-MM-DD'),
+				end: moment().local().subtract(1,"days").format('YYYY-MM-DD'),
 				symbol:"",
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
@@ -147,7 +148,7 @@ class HomeContainer extends Component {
 						<Input 
 							id="start" 
 							type="date" 
-							value={this.state.start}
+							value= {this.state.start}
 							handleChange={ this.startDateHandler } 
 						/>
 						<label>To:</label>
