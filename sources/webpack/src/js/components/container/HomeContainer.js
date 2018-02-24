@@ -43,7 +43,7 @@ class HomeContainer extends Component {
 				money:'1',
 				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
-				symbol:["MSFT"],
+				symbols: new Set(["MSFT"]),
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
 		/*
@@ -62,7 +62,8 @@ class HomeContainer extends Component {
 	
 	fetchUrlAndProcessStockData(_self) {
 		//set URL
-		const url = setUrl(_self.state.money, _self.state.start, _self.state.end, _self.state.symbol);
+		var lastSymbol = _self.state.symbols[_self.state.symbols.length-1];
+		const url = setUrl(_self.state.money, _self.state.start, _self.state.end, lastSymbol);
 		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
@@ -123,9 +124,14 @@ class HomeContainer extends Component {
 		var symbol = document.getElementById("symbolInput").value;
 		var start = document.getElementById("startDate").value;
 		var end = document.getElementById("endDate").value;
-		_self.setState({start,end,symbol}, function() {
-			this.fetchUrlAndProcessStockData(_self);
+		_self.setState((prevState) => {
+			return {
+				start:start,
+				end:end,
+				symbols: prevState.symbols.add(symbol) };
 		});
+		
+		//this.fetchUrlAndProcessStockData(_self);
 	}
 	
 	buttonClickHandler2(e) {
@@ -144,7 +150,45 @@ class HomeContainer extends Component {
 	componentDidUpdate(nextProps, prevState) {
 		var _self = this;
 		  if (this.state.start !== prevState.start) {
-		    alert("startdate changed!");
+			  var symbols = _self.state.symbols; 
+			  
+			  symbols.forEach( function (symbol) { 
+				  const url = setUrl(_self.state.money, _self.state.start, _self.state.end,symbol);
+				  console.log("url=",url);
+				//request json from server
+				  fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+				  .then(function(response) {
+					// convert to JSON
+					  return response.json();
+				  })
+				// manipulate data into right format
+				//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
+				  .then(function(json) {
+					  return manipulateReceivedData(json);
+				  })
+				  //merge previous and new data 
+				  .then( function(_input) {
+					
+					  if (_self.state.data.length != 0) {
+						var temp = _self.state.data;
+						var newData = [];
+						for(var i = 0;i<temp.length; i++){
+							newData.push( update( temp[i] , {$merge : _input[i]} ));
+						}
+						_self.setState({data:newData}); 
+					}
+					else {
+						_self.setState({data:_input});
+					}
+				})
+				//store data in session storage
+				.then( function () {
+					sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+			  });
 		  }
 	}
 	
