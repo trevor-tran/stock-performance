@@ -16,16 +16,16 @@ class HomeContainer extends Component {
 				money:'1',
 				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
-				symbol:"",
+				symbol:"MSFT",
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
-		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
+		/*this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
 		this.moneyHandler = this.moneyHandler.bind(this);
 		this.startDateHandler = this.startDateHandler.bind(this);
 		this.endDateHandler = this.endDateHandler.bind(this);
 		this.symbolHandler = this.symbolHandler.bind(this);
-		this.resetInput = this.resetInput.bind(this);
+		this.resetInput = this.resetInput.bind(this);*/
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
 	
@@ -86,7 +86,7 @@ class HomeContainer extends Component {
 			console.log(error);
 		});
 	}
-	// Input Handers: money, dates, symbol
+	/* Input Handers: money, dates, symbol
 	moneyHandler(e) { this.setState({money:e.target.value}); }
 	startDateHandler(e) { this.setState({start:e.target.value}); }
 	endDateHandler(e) {	this.setState({end:e.target.value}); }
@@ -96,13 +96,22 @@ class HomeContainer extends Component {
 		temp.push(e.target.value);
 		this.setState({symbol:temp}); 
 	}
-	
+	*/
 	//button event
-	buttonClickHandler() {
+	buttonClickHandler(event) {
+		event.preventDefault();
 		var _self = this;
-		var ticker = document.getElementById('symbolinput').value;
-		console.log("ticker is:",ticker);
-		_self.setState({symbol:ticker});
+		var symbol = document.getElementById('symbolinput').value;
+		var start = document.getElementById("start").value;
+		var end = document.getElementById("end").value;
+		_self.setState({symbol});
+		alert(_self.state.symbol);
+		
+		_self.setState({start});
+		alert(_self.state.start);
+		
+		_self.setState({end});
+		alert(_self.state.end);
 		//this.setState({symbol:this.input.value});
 		//window.location.href = url;
 		
@@ -112,18 +121,16 @@ class HomeContainer extends Component {
 	}
 	
 	buttonClickHandler2() {
-		var ticker = document.getElementById('symbolinput').value;
-		this.setState({symbol:ticker});
 		//alert(this.refs.ticker.value);
 		event.preventDefault();
 	}
-	/*
+	
 	componentDidUpdate(nextProps, prevState) {
 		var _self = this;
-		  if (this.state.symbol !== prevState.symbol) {
-		   // alert("startdate changed!");
+		  if (this.state.start !== prevState.start) {
+		    alert("startdate changed!");
 		  }
-	}*/
+	}
 	
 	componentDidMount() {
 		var _self = this;
@@ -149,13 +156,13 @@ class HomeContainer extends Component {
 				<div id="parent">
 					<div className="inputcontainer">
 						<label>Invest($):</label>
-						<Input id="money" type="text" value={this.state.money} handleClick={this.buttonClickHandler} />
+						<input id="money" type="text" value={this.state.money} />
 						<label>From:</label>
-						<Input id="start" type="date" value={this.state.start} handleClick={this.buttonClickHandler} />
+						<input id="start" type="date" defaultValue={this.state.start}/>
 						<label>To:</label>
-						<Input id="end" type="date" value={this.state.end} handleClick={this.buttonClickHandler} />
+						<input id="end" type="date" defaultValue={this.state.end}/>
 						<label>Symbol:</label>
-						<Input id="symbolinput"	type="text" placeholder="e.g. AAPL,MSFT" />
+						<input id="symbolinput"	type="text" defaultValue={this.state.symbol} placeholder="e.g. AAPL,MSFT" />
 						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
