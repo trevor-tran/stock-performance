@@ -4,10 +4,37 @@ import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'rec
 import $ from 'jquery';
 import update from 'react-addons-update';
 import moment from 'moment';
+import PropTypes from 'react';
 
 //import presentational elements;
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
+
+function setUrl (money, start, end, symbol) {
+	var param="?money=" + money + "&start=" + start + "&end=" + end;
+	if (symbol != "" && symbol!= null){
+		param += '&symbol='+ symbol;
+	}
+	return 'http://localhost:4567/home/' + param;
+}
+
+function manipulateReceivedData(json) {
+	var _map = new Map();
+	Object.keys(json).forEach(key => {
+		_map.set(key, json[key]);
+	});
+	var _input = [];
+	_map.forEach(function(price,date) {
+		var entry = new Object();
+		var d = new Date(date).toDateString().substring(4);//reformat date
+		entry["date"]= d;
+		Object.keys(price).forEach(symbol => {
+			entry[symbol] = price[symbol];
+		});
+		_input.push(entry);
+	});
+	return _input;
+}
 
 class HomeContainer extends Component {
 	constructor(props) {
@@ -16,27 +43,26 @@ class HomeContainer extends Component {
 				money:'1',
 				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
-				symbol:"MSFT",
+				symbol:["MSFT"],
 				data: JSON.parse(sessionStorage.getItem('data')) || []
 		};
+		/*
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
-		/*this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
+		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
 		this.moneyHandler = this.moneyHandler.bind(this);
 		this.startDateHandler = this.startDateHandler.bind(this);
 		this.endDateHandler = this.endDateHandler.bind(this);
+		this.resetInput = this.resetInput.bind(this);
+		*/
+		this.buttonClickHandler = this.buttonClickHandler.bind(this);
+		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
 		this.symbolHandler = this.symbolHandler.bind(this);
-		this.resetInput = this.resetInput.bind(this);*/
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
 	
 	fetchUrlAndProcessStockData(_self) {
 		//set URL
-		var param="?money=" + _self.state.money + "&start=" + _self.state.start + "&end=" + _self.state.end;
-		if (_self.state.symbol != "" && _self.state.symbol != null){
-			param += '&symbol='+ _self.state.symbol;
-		}
-		
-		var url = 'http://localhost:4567/home/' + param;
+		const url = setUrl(_self.state.money, _self.state.start, _self.state.end, _self.state.symbol);
 		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
@@ -47,21 +73,7 @@ class HomeContainer extends Component {
 		// manipulate data into right format
 		//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 		.then(function(json) {
-			var _map = new Map();
-			Object.keys(json).forEach(key => {
-				_map.set(key, json[key]);
-			});
-			var _input = [];
-			_map.forEach(function(price,date) {
-				var entry = new Object();
-				var d = new Date(date).toDateString().substring(4);//reformat date
-				entry["date"]= d;
-				Object.keys(price).forEach(symbol => {
-					entry[symbol] = price[symbol];
-				});
-				_input.push(entry);
-			});
-			return _input;
+			return manipulateReceivedData(json);
 		})
 		//merge previous and new data 
 		.then( function(_input) {
@@ -86,43 +98,47 @@ class HomeContainer extends Component {
 			console.log(error);
 		});
 	}
-	/* Input Handers: money, dates, symbol
-	moneyHandler(e) { this.setState({money:e.target.value}); }
+	 //Input Handers: money, dates, symbol
+	/*moneyHandler(e) { this.setState({money:e.target.value}); }
 	startDateHandler(e) { this.setState({start:e.target.value}); }
 	endDateHandler(e) {	this.setState({end:e.target.value}); }
-	resetInput(){this.setState({symbol:[]}); }
+	resetInput(){this.setState({symbol:[]}); }*/
 	symbolHandler(e) {
-		var temp = this.state.symbol;
-		temp.push(e.target.value);
-		this.setState({symbol:temp}); 
+		e.preventDefault();
+		e.stopPropagation();
+		e.nativeEvent.stopImmediatePropagation();
+		//var temp = this.state.symbol;
+		//temp.push(e.target.value);
+		alert("symbol value is:", this.input.value);
+		this.setState({symbol:this.input.value});
+		
 	}
-	*/
-	//button event
-	buttonClickHandler(event) {
-		event.preventDefault();
-		var _self = this;
-		var symbol = document.getElementById('symbolinput').value;
-		var start = document.getElementById("start").value;
-		var end = document.getElementById("end").value;
-		_self.setState({symbol});
-		alert(_self.state.symbol);
-		
-		_self.setState({start});
-		alert(_self.state.start);
-		
-		_self.setState({end});
-		alert(_self.state.end);
-		//this.setState({symbol:this.input.value});
-		//window.location.href = url;
-		
 
-		this.fetchUrlAndProcessStockData(_self);
-		//this.resetInput();
+	//button event
+	buttonClickHandler(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		e.nativeEvent.stopImmediatePropagation();
+		var _self = this;
+		var symbol = document.getElementById("symbolInput").value;
+		var start = document.getElementById("startDate").value;
+		var end = document.getElementById("endDate").value;
+		_self.setState({start,end,symbol}, function() {
+			this.fetchUrlAndProcessStockData(_self);
+		});
 	}
 	
-	buttonClickHandler2() {
-		//alert(this.refs.ticker.value);
-		event.preventDefault();
+	buttonClickHandler2(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		e.nativeEvent.stopImmediatePropagation();
+		var _self = this;
+		var newSymbol = document.getElementById("symbolInput").value;
+		alert("symbol is: " + newSymbol);
+		_self.setState({symbol:newSymbol}, function() {
+			this.fetchUrlAndProcessStockData(_self);
+		});
+		
 	}
 	
 	componentDidUpdate(nextProps, prevState) {
@@ -133,6 +149,7 @@ class HomeContainer extends Component {
 	}
 	
 	componentDidMount() {
+		//this.props.onMount({symbolInput : this.symbolInput});
 		var _self = this;
 		//var url = window.location.href;
 		this.fetchUrlAndProcessStockData(_self);
@@ -156,13 +173,13 @@ class HomeContainer extends Component {
 				<div id="parent">
 					<div className="inputcontainer">
 						<label>Invest($):</label>
-						<input id="money" type="text" value={this.state.money} />
+						<input id="money" type="text" defaultValue={this.state.money} />
 						<label>From:</label>
-						<input id="start" type="date" defaultValue={this.state.start}/>
+						<input id="startDate" type="date" defaultValue={this.state.start}/>
 						<label>To:</label>
-						<input id="end" type="date" defaultValue={this.state.end}/>
+						<input id="endDate" type="date" defaultValue={this.state.end}/>
 						<label>Symbol:</label>
-						<input id="symbolinput"	type="text" defaultValue={this.state.symbol} placeholder="e.g. AAPL,MSFT" />
+						<input type="text" id="symbolInput"  placeholder="e.g. AAPL,MSFT" />
 						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
