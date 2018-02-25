@@ -10,6 +10,7 @@ import PropTypes from 'react';
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
 
+//return e.g.  http://localhost:4567/home/?money=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (money, start, end, symbol) {
 	var param="?money=" + money + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
@@ -18,6 +19,8 @@ function setUrl (money, start, end, symbol) {
 	return 'http://localhost:4567/home/' + param;
 }
 
+//manipulate data into right format
+//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 function manipulateReceivedData(json) {
 	var _map = new Map();
 	Object.keys(json).forEach(key => {
@@ -43,27 +46,22 @@ class HomeContainer extends Component {
 				money:'1',
 				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
-				symbols: new Set(["MSFT"]),
-				data: JSON.parse(sessionStorage.getItem('data')) || []
+				symbols: ["MSFT"],
+				data: JSON.parse(sessionStorage.getItem('data')) || [],
+				getLast: () => {
+					return this.state.symbols[this.state.symbols.length-1];
+				},
+				isExist: (newSymbol) => {
+					return this.state.symbols.includes(newSymbol); // case sensitive
+				}
 		};
-		/*
 		this.buttonClickHandler = this.buttonClickHandler.bind(this);
 		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
-		this.moneyHandler = this.moneyHandler.bind(this);
-		this.startDateHandler = this.startDateHandler.bind(this);
-		this.endDateHandler = this.endDateHandler.bind(this);
-		this.resetInput = this.resetInput.bind(this);
-		*/
-		this.buttonClickHandler = this.buttonClickHandler.bind(this);
-		this.buttonClickHandler2 = this.buttonClickHandler2.bind(this);
-		this.symbolHandler = this.symbolHandler.bind(this);
 		this.fetchUrlAndProcessStockData = this.fetchUrlAndProcessStockData.bind(this);
 	}
 	
 	fetchUrlAndProcessStockData(_self) {
-		//set URL
-		var lastSymbol = _self.state.symbols[_self.state.symbols.length-1];
-		const url = setUrl(_self.state.money, _self.state.start, _self.state.end, lastSymbol);
+		const url = setUrl(_self.state.money, _self.state.start, _self.state.end, _self.state.getLast() );
 		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
@@ -99,39 +97,29 @@ class HomeContainer extends Component {
 			console.log(error);
 		});
 	}
-	 //Input Handers: money, dates, symbol
-	/*moneyHandler(e) { this.setState({money:e.target.value}); }
-	startDateHandler(e) { this.setState({start:e.target.value}); }
-	endDateHandler(e) {	this.setState({end:e.target.value}); }
-	resetInput(){this.setState({symbol:[]}); }*/
-	symbolHandler(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.nativeEvent.stopImmediatePropagation();
-		//var temp = this.state.symbol;
-		//temp.push(e.target.value);
-		alert("symbol value is:", this.input.value);
-		this.setState({symbol:this.input.value});
-		
-	}
 
 	//button event
 	buttonClickHandler(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		e.nativeEvent.stopImmediatePropagation();
-		var _self = this;
-		var symbol = document.getElementById("symbolInput").value;
-		var start = document.getElementById("startDate").value;
-		var end = document.getElementById("endDate").value;
-		_self.setState((prevState) => {
-			return {
-				start:start,
-				end:end,
-				symbols: prevState.symbols.add(symbol) };
-		});
-		
-		//this.fetchUrlAndProcessStockData(_self);
+		//capitalize and trim spaces
+		var symbol = document.getElementById("symbolInput").value.toUpperCase().replace(/\s+/g, '');
+		if ( this.state.isExist(symbol) ) {
+			alert(symbol + " is already added.")
+		}
+		else if (symbol != "" && symbol != null ) {
+			var newSymbols = update(this.state.symbols, {$push:[symbol] });
+			var start = document.getElementById("startDate").value;
+			var end = document.getElementById("endDate").value;
+			this.setState(() => {
+				return {
+					start:start,
+					end:end,
+					symbols: newSymbols };
+			});
+		}
+		document.getElementById("symbolInput").value ="";
 	}
 	
 	buttonClickHandler2(e) {
@@ -149,26 +137,54 @@ class HomeContainer extends Component {
 	
 	componentDidUpdate(nextProps, prevState) {
 		var _self = this;
-		  if (this.state.start !== prevState.start) {
+		// ONLY ALLOW USERS TO ENTER ONE STOCK SYMBOL AT A TIME
+		if(this.state.symbols !== prevState.symbols) {
+			 const url = setUrl(this.state.money, this.state.start, this.state.end, this.state.getLast() );
+			  console.log("url=",url);
+			  fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+			  .then(function(response) {
+				  return response.json(); // convert to JSON
+			  })
+			  .then(function(json) {
+				  return manipulateReceivedData(json);
+			  })
+			  //merge previous and new data 
+			  .then( function(_input) {
+				  if (_self.state.data.length != 0) {
+					var temp = _self.state.data;
+					var newData = [];
+					for(var i = 0;i<temp.length; i++){
+						newData.push( update( temp[i] , {$merge : _input[i]} ));
+					}
+					_self.setState({data:newData}); 
+				}
+				else {
+					_self.setState({data:_input});
+				}
+			})
+			//store data in session storage
+			.then( function () {
+				sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
+		}
+		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
 			  var symbols = _self.state.symbols; 
 			  
 			  symbols.forEach( function (symbol) { 
 				  const url = setUrl(_self.state.money, _self.state.start, _self.state.end,symbol);
 				  console.log("url=",url);
-				//request json from server
 				  fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 				  .then(function(response) {
-					// convert to JSON
-					  return response.json();
+					  return response.json(); // convert to JSON
 				  })
-				// manipulate data into right format
-				//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 				  .then(function(json) {
 					  return manipulateReceivedData(json);
 				  })
 				  //merge previous and new data 
 				  .then( function(_input) {
-					
 					  if (_self.state.data.length != 0) {
 						var temp = _self.state.data;
 						var newData = [];
