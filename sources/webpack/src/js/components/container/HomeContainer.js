@@ -26,7 +26,7 @@ function manipulateReceivedData(json) {
 	Object.keys(json).forEach(key => {
 		_map.set(key, json[key]);
 	});
-	var _input = [];
+	var data = [];
 	_map.forEach(function(price,date) {
 		var entry = new Object();
 		var d = new Date(date).toDateString().substring(4);//reformat date
@@ -34,46 +34,34 @@ function manipulateReceivedData(json) {
 		Object.keys(price).forEach(symbol => {
 			entry[symbol] = price[symbol];
 		});
-		_input.push(entry);
+		data.push(entry);
 	});
-	return _input;
+	return data;
 }
 
-function fetchAndProcessData(_self) {
-	const url = setUrl(_self.state.money, _self.state.start, _self.state.end, _self.state.getLast() );
-	console.log("url=",url);
-	//request json from server
-	fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-	.then(function(response) {
-		// convert to JSON
-		return response.json();
-	})
-	.then(function(json) {
-		return manipulateReceivedData(json);
-	})
-	//merge previous and new data 
-	.then( function(_input) {
-		
-		if (_self.state.data.length != 0) {
-			var temp = _self.state.data;
-			var newData = [];
-			for(var i = 0;i<temp.length; i++){
-				newData.push( update( temp[i] , {$merge : _input[i]} ));
-			}
-			_self.setState({data:newData}); 
-		}
-		else {
-			_self.setState({data:_input});
-		}
-	})
-	//store data in session storage
-	.then( function () {
-		sessionStorage.setItem('data', JSON.stringify(_self.state.data));
-	})
-	.catch(function(error) {
-		console.log(error);
+function fetchData(money, startDate, endDate, ticker) {
+	return new Promise(function(resolve, reject) {
+		const url = setUrl(money, startDate, endDate, ticker);
+		console.log("url=",url);
+		//request json from server
+		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		.then(function(response) {
+			// convert to JSON
+			return response.json();
+		})
+		.then(function(json) {
+			return manipulateReceivedData(json);
+		})
+		.then( function(newData){
+			resolve(newData);
+		})
+		.catch(function(error) {
+			console.log(error);
+			reject(error);
+		});
 	});
 }
+
 
 
 class HomeContainer extends Component {
@@ -81,7 +69,7 @@ class HomeContainer extends Component {
 		super(props);
 		this.state = {
 				money:'1',
-				start: moment().utc().subtract(31,"days").format('YYYY-MM-DD'),
+				start: moment().utc().subtract(61,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
 				data: JSON.parse(sessionStorage.getItem('data')) || [],
@@ -125,53 +113,50 @@ class HomeContainer extends Component {
 	}
 	
 	componentDidUpdate(nextProps, prevState) {
+		//alert ("inside didUpdate");
 		var _self = this;
-		// ONLY ALLOW USERS TO ENTER ONE STOCK SYMBOL AT A TIME
+		var money = this.state.money;
+		var startDate = this.state.start;
+		var endDate = this.state.end;		
 		if(this.state.symbols !== prevState.symbols) {
-			fetchAndProcessData(_self);
+			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
+			.then( function(newData) {
+				if (_self.state.data.length !== 0) {
+					var data = [];
+					var currentData = _self.state.data;
+					for(var i = 0; i<currentData.length; i++){
+							data.push( update( currentData[i] , {$merge : newData[i]} ));
+						}
+					_self.setState(() => {return{data}});
+				} else {
+					_self.setState(() => { return{data:newData}; });
+				}
+			});
 		}
 		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
 			  var symbols = _self.state.symbols; 
 
 			  symbols.forEach( function (symbol) { 
-				  const url = setUrl(_self.state.money, _self.state.start, _self.state.end,symbol);
-				  console.log("url=",url);
-				  fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
-				  .then(function(response) {
-					  return response.json(); // convert to JSON
-				  })
-				  .then(function(json) {
-					  return manipulateReceivedData(json);
-				  })
-				  //merge previous and new data 
-				  .then( function(_input) {
-					  if (_self.state.data.length != 0) {
-						var temp = _self.state.data;
-						var newData = [];
-						for(var i = 0;i<temp.length; i++){
-							newData.push( update( temp[i] , {$merge : _input[i]} ));
-						}
-						_self.setState({data:newData}); 
-					}
-					else {
-						_self.setState({data:_input});
-					}
-				})
-				//store data in session storage
-				.then( function () {
-					sessionStorage.setItem('data', JSON.stringify(_self.state.data));
-				})
-				.catch(function(error) {
-					console.log(error);
-				});
+				 // fetchAndProcessData(_self,symbol, false );
 			  });
 		  }
 	}
 	
 	componentDidMount() {
-		fetchAndProcessData(this);
+		var _self = this;
+		
+		//fetchAndProcessData(_self);
+		
+		fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
+		.then( function(newData) {
+			_self.setState(() => { 
+				return{data: newData }; 
+			});
+			sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+		});
+		
 	}
-
+	
 	render() {
 		var lines = [];
 		if (this.state.data != null){
@@ -197,7 +182,7 @@ class HomeContainer extends Component {
 						<input id="endDate" type="date" defaultValue={this.state.end}/>
 						<label>Symbol:</label>
 						<input type="text" id="symbolInput"  placeholder="e.g. AAPL,MSFT" />
-						<Button type="button" id="symbolbutton" handleClick={this.buttonClickHandler} text="Update"></Button>	
+						<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
 						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
