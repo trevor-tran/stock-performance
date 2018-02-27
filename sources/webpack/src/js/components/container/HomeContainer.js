@@ -5,7 +5,7 @@ import $ from 'jquery';
 import update from 'react-addons-update';
 import moment from 'moment';
 import PropTypes from 'react';
-
+import async from 'async';
 //import presentational elements;
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
@@ -131,13 +131,30 @@ class HomeContainer extends Component {
 				} else {
 					_self.setState(() => { return{data:newData}; });
 				}
+				sessionStorage.setItem('data', JSON.stringify(_self.state.data));
 			});
 		}
 		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
 			  var symbols = _self.state.symbols; 
-
-			  symbols.forEach( function (symbol) { 
-				 // fetchAndProcessData(_self,symbol, false );
+			  var data = [];
+			  async.each(symbols, function (symbol,callback) { 
+				  fetchData( _self.state.money, _self.state.start, _self.state.end, symbol)
+				  .then( function(newData) {
+					  if(data.length != 0){
+						  for( var i = 0; i<data.length; i++) {
+							  data[i] = update(data[i], {$merge : newData[i]});
+						  }
+					  }
+					  else {
+						  data = newData;
+					  }
+					  callback();
+				  });
+				  
+			  }, 
+			  function() {
+			  _self.setState(() => { return{data}; });
+			  sessionStorage.setItem('data', JSON.stringify(_self.state.data));
 			  });
 		  }
 	}
@@ -160,7 +177,7 @@ class HomeContainer extends Component {
 	render() {
 		var lines = [];
 		if (this.state.data != null){
-			var colors = ['#603a93', '#02edc6', '#ffc875', '#bdf2ff','#77b82c','#f07b50','#413e42','#5c8cb0','#e57cf9','#ffac97'];
+			var colors = ['#8884d8', '#82ca9d', '#1c110a', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
 			var colorIndex = 0;
 			var obj1 = this.state.data[0]; // extract a object.
 			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
