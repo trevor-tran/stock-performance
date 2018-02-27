@@ -10,3 +10,4 @@ npm i babel-plugin-recharts recharts
 npm i jquery --save
 npm i react-addons-update --save
 npm i moment --save
+npm i async --save
