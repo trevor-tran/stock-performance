@@ -14,9 +14,7 @@ const Input = ({ type, id, value, placeholder, handleChange }) => (
 
 Input.propTypes = {
   type: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired
+  id: PropTypes.string.isRequired
 };
 
 export default Input;
