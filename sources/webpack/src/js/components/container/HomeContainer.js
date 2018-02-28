@@ -80,9 +80,14 @@ class HomeContainer extends Component {
 					return this.state.symbols.includes(newSymbol); // case sensitive
 				}
 		};
+		this.enterKey = this.enterKey.bind(this);
 		this.buttonHandler = this.buttonHandler.bind(this);
 	}
-	
+	enterKey(e) {
+		if(e.keyCode === 13){
+			this.buttonHandler(e);
+		}
+	}
 	//button event
 	buttonHandler(e) {
 		e.preventDefault();
@@ -198,7 +203,7 @@ class HomeContainer extends Component {
 						<label>To:</label>
 						<input id="endDate" type="date" defaultValue={this.state.end}/>
 						<label>Symbol:</label>
-						<input type="text" id="symbolInput"  placeholder="e.g. AAPL,MSFT" />
+						<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
 						<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
 					</div>
 					<div id ="graphcontainer">
