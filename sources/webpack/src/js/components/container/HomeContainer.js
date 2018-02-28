@@ -122,7 +122,8 @@ class HomeContainer extends Component {
 		var _self = this;
 		var money = this.state.money;
 		var startDate = this.state.start;
-		var endDate = this.state.end;		
+		var endDate = this.state.end;
+		//when new stock symbol entered
 		if(this.state.symbols !== prevState.symbols) {
 			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
@@ -139,6 +140,7 @@ class HomeContainer extends Component {
 				sessionStorage.setItem('data', JSON.stringify(_self.state.data));
 			});
 		}
+		//when either start date or end date changed
 		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
 			  var symbols = _self.state.symbols; 
 			  var data = [];
@@ -147,6 +149,7 @@ class HomeContainer extends Component {
 				  .then( function(newData) {
 					  if(data.length != 0){
 						  for( var i = 0; i<data.length; i++) {
+							  console.log("index i = ", i);
 							  data[i] = update(data[i], {$merge : newData[i]});
 						  }
 					  }
