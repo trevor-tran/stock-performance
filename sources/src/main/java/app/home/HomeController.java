@@ -25,16 +25,15 @@ public class HomeController {
 		}
 		if (clientAcceptsJson(request)) {
 			Map<String,Map<String,Float>> data;
+			//String money = request.queryParams("money");
+			String start = request.queryParams("start");
+			String end = request.queryParams("end");
 			String symbol = request.queryParams("symbol");
-			if(symbol != "" && symbol!= null){
-				data = StockDao.getStockData("AAPL"+","+symbol, "2017-1-3", "2018-2-14");
-			}
-			else {
-				data = StockDao.getStockData("AAPL", "2017-1-3", "2018-2-14");
-			}
+			data = StockDao.getStockData(symbol, start, end);
 			response.header("Content-Type", "application/json");
 			return dataToJson(data);
 		}
+		
 		return ViewUtil.notAcceptable.handle(request, response);
 	};
 
