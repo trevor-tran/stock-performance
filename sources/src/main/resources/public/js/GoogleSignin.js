@@ -46,7 +46,7 @@ function onSignIn()
 
 		// Pass user data to the server w/ a cookie: http://www.javascripter.net/faq/passingp.htm
 		setCookie('currentToken', id_token, 1);	        
-		setCookie('currentUser', profile.getEmail(), 1);
+		//setCookie('currentUser', profile.getEmail(), 1);
 		// This did not work:
 		//window.location.replace("http://localhost:4567/books?currentUser=phuong");
 		// Redirect after sign in to the books page
