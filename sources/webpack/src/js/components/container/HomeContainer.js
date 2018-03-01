@@ -116,7 +116,7 @@ class HomeContainer extends Component {
 		}
 		document.getElementById("symbolInput").value ="";
 	}
-	
+
 	componentDidUpdate(nextProps, prevState) {
 		//alert ("inside didUpdate");
 		var _self = this;
@@ -131,8 +131,8 @@ class HomeContainer extends Component {
 					var data = [];
 					var currentData = _self.state.data;
 					for(var i = 0; i<currentData.length; i++){
-							data.push( update( currentData[i] , {$merge : newData[i]} ));
-						}
+						data.push( update( currentData[i] , {$merge : newData[i]} ));
+					}
 					_self.setState(() => {return{data}});
 				} else {
 					_self.setState(() => { return{data:newData}; });
@@ -142,36 +142,41 @@ class HomeContainer extends Component {
 		}
 		//when either start date or end date changed
 		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
-			  var symbols = _self.state.symbols; 
-			  var data = [];
-			  async.each(symbols, function (symbol,callback) { 
-				  fetchData( _self.state.money, _self.state.start, _self.state.end, symbol)
-				  .then( function(newData) {
-					  if(data.length != 0){
-						  for( var i = 0; i<data.length; i++) {
-							  console.log("index i = ", i);
-							  data[i] = update(data[i], {$merge : newData[i]});
-						  }
-					  }
-					  else {
-						  data = newData;
-					  }
-					  callback();
-				  });
-				  
-			  }, 
-			  function() {
-			  _self.setState(() => { return{data}; });
-			  sessionStorage.setItem('data', JSON.stringify(_self.state.data));
-			  });
-		  }
+			var symbols = _self.state.symbols; 
+			var fetchTasks= [];
+			var data; 
+			symbols.forEach(function(symbol){
+				fetchTasks.push( function(callback) {
+					fetchData( _self.state.money, _self.state.start, _self.state.end, symbol)
+					.then(function(newData){
+						callback(null,newData);
+					});
+				});
+			})
+			async.parallel(fetchTasks, function (err,results) { 
+				results.forEach( function(result) {
+					if(data){
+						for( var i = 0; i<data.length; i++) {
+							console.log("index i = ", i);
+							data[i] = update(data[i], {$merge : result[i]});
+						}
+					}
+					else {
+						data = result;
+					}
+				});
+				_self.setState(() => { return{data}; });
+				sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
+			});
+
+		}
 	}
-	
+
 	componentDidMount() {
 		var _self = this;
-		
+
 		//fetchAndProcessData(_self);
-		
+
 		fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 		.then( function(newData) {
 			_self.setState(() => { 
@@ -179,9 +184,9 @@ class HomeContainer extends Component {
 			});
 			sessionStorage.setItem('data', JSON.stringify(_self.state.data));
 		});
-		
+
 	}
-	
+
 	render() {
 		var lines = [];
 		if (this.state.data != null){
@@ -196,31 +201,31 @@ class HomeContainer extends Component {
 				}
 
 			});
-			return (
-				<div id="parent">
-					<div className="inputcontainer">
-						<label>Invest($):</label>
-						<input id="money" type="text" defaultValue={this.state.money} />
-						<label>From:</label>
-						<input id="startDate" type="date" defaultValue={this.state.start}/>
-						<label>To:</label>
-						<input id="endDate" type="date" defaultValue={this.state.end}/>
-						<label>Symbol:</label>
-						<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
-						<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
-					</div>
-					<div id ="graphcontainer">
-						<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
+					return (
+							<div id="parent">
+							<div className="inputcontainer">
+							<label>Invest($):</label>
+							<input id="money" type="text" defaultValue={this.state.money} />
+							<label>From:</label>
+							<input id="startDate" type="date" defaultValue={this.state.start}/>
+							<label>To:</label>
+							<input id="endDate" type="date" defaultValue={this.state.end}/>
+							<label>Symbol:</label>
+							<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
+								<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
+							</div>
+							<div id ="graphcontainer">
+							<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
 							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
-							<Tooltip/>
+								<Tooltip/>
 							<Legend />
 							{lines}	
-						</LineChart>
-					</div>
-				</div>
-			);
+							</LineChart>
+							</div>
+							</div>
+					);
 		}
 		else {
 			return false;
