@@ -10,6 +10,7 @@ import async from 'async';
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
 import Graph from "../presentational/Graph";
+import List from "../presentational/List";
 
 //return e.g.  http://localhost:4567/home/?money=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (money, start, end, symbol) {
@@ -105,15 +106,19 @@ class HomeContainer extends Component {
 				}
 		};
 		this.enterKey = this.enterKey.bind(this);
-		this.buttonHandler = this.buttonHandler.bind(this);
+		this.updateHandler = this.updateHandler.bind(this);
+		this.deleteHandler = this.deleteHandler.bind(this);
 	}
 	enterKey(e) {
 		if(e.keyCode === 13){
-			this.buttonHandler(e);
+			this.updateHandler(e);
 		}
 	}
-	//button event
-	buttonHandler(e) {
+	//button events
+	deleteHandler(symbol){
+		console.log("ticker deleted",symbol);
+	}
+	updateHandler(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		e.nativeEvent.stopImmediatePropagation();
@@ -213,42 +218,29 @@ class HomeContainer extends Component {
 	}
 
 	render() {
-		/*var lines = [];
-		if (this.state.data != null){
-			var colors = ['#8884d8', '#82ca9d', '#1c110a', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
-			var colorIndex = 0;
-			var obj1 = this.state.data[0]; // extract a object.
-			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
-			$.each(obj1, function(key, value) {
-				if(key!="date") {
-					var color = colors [ colorIndex++ % colors.length]; // rotate colors
-					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} unit=" USD" stroke={color}/>);
-				}
 
-			});*/
-					return (
-							<div id="parent">
-							<div className="inputcontainer">
-							<label>Invest($):</label>
-							<input id="money" type="text" defaultValue={this.state.money} />
-							<label>From:</label>
-							<input id="startDate" type="date" defaultValue={this.state.start}/>
-							<label>To:</label>
-							<input id="endDate" type="date" defaultValue={this.state.end}/>
-							<label>Symbol:</label>
-							<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
-								<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
-							</div>
-							<div id ="graphcontainer">
-								<Graph data={this.state.data} />
-							
-							</div>
-							</div>
-					);
-		/*}
-		else {
-			return false;
-		}*/
+		return (
+			<div id="parent">
+				<div className="inputcontainer">
+				<label>Invest($):</label>
+				<input id="money" type="text" defaultValue={this.state.money} />
+				<label>From:</label>
+				<input id="startDate" type="date" defaultValue={this.state.start}/>
+				<label>To:</label>
+				<input id="endDate" type="date" defaultValue={this.state.end}/>
+				<label>Symbol:</label>
+				<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
+					<Button type="button" id="updatebutton" handleClick={this.updateHandler} text="Update"></Button>	
+				</div>
+				<List symbols = {this.state.symbols} 
+					handleDelete = {this.deleteHandler}
+				/>
+				<div className="graphcontainer">
+					<Graph data={this.state.data} />
+				</div>
+			</div>
+		);
+
 	}
 }
 
