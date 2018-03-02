@@ -24,7 +24,7 @@ class Graph extends Component {
 
 			});
 					return(
-							<LineChart width={900} height={400} data={data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
+							<LineChart width={900} height={400} data={data}>
 							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
