@@ -183,10 +183,7 @@ nav ul, nav li {
    	border-collapse: separate;
    	border-spacing: 15px 5px;
 }
-.symbolscontainer td[id="delete"] {
-	color:#ff0000;
-	cursor: pointer;
-}
+
 
 /*  signin and signup form */
 
