@@ -9,6 +9,7 @@ import async from 'async';
 //import presentational elements;
 import Input from "../presentational/Input";
 import Button from "../presentational/Button";
+import Graph from "../presentational/Graph";
 
 //return e.g.  http://localhost:4567/home/?money=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (money, start, end, symbol) {
@@ -18,6 +19,29 @@ function setUrl (money, start, end, symbol) {
 	}
 	return 'http://localhost:4567/home/' + param;
 }
+
+//DOES NOT WORK WELL SINCE CANNOT MERGE ARRAYS OF DIFFERENT LENGTHS
+function mergeData( currentData, newData){
+	var data = [];
+	if(currentData.length < newData.length){
+		var temp = currentData;
+		currentData = newData;
+		newData = temp;
+	}
+	for( var i=0; i<currentData.length;i++){
+		for(var j=0;j<newData.length;j++){
+			if(currentData[i]["date"] === newData[j]["date"]){
+				data.push( update( currentData[j], {$merge : newData[j]} ));
+				break;
+			}
+		}
+		//data.push(currentObj);
+	}
+	return data;
+}
+
+
+
 
 //manipulate data into right format
 //[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
@@ -156,10 +180,11 @@ class HomeContainer extends Component {
 			async.parallel(fetchTasks, function (err,results) { 
 				results.forEach( function(result) {
 					if(data){
-						for( var i = 0; i<data.length; i++) {
+						data = mergeData(data,result);
+						/*for( var i = 0; i<data.length; i++) {
 							console.log("index i = ", i);
 							data[i] = update(data[i], {$merge : result[i]});
-						}
+						}*/
 					}
 					else {
 						data = result;
@@ -188,7 +213,7 @@ class HomeContainer extends Component {
 	}
 
 	render() {
-		var lines = [];
+		/*var lines = [];
 		if (this.state.data != null){
 			var colors = ['#8884d8', '#82ca9d', '#1c110a', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
 			var colorIndex = 0;
@@ -200,7 +225,7 @@ class HomeContainer extends Component {
 					lines.push(<Line type="monotone" key={key} dataKey={key} dot={false} unit=" USD" stroke={color}/>);
 				}
 
-			});
+			});*/
 					return (
 							<div id="parent">
 							<div className="inputcontainer">
@@ -215,21 +240,15 @@ class HomeContainer extends Component {
 								<Button type="button" id="symbolbutton" handleClick={this.buttonHandler} text="Update"></Button>	
 							</div>
 							<div id ="graphcontainer">
-							<LineChart width={900} height={400} data={this.state.data} margin={{top: 5, right: 10, left: 10, bottom: 5}}>
-							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
-							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
-							<CartesianGrid strokeDasharray="3 3"/>
-								<Tooltip/>
-							<Legend />
-							{lines}	
-							</LineChart>
+								<Graph data={this.state.data} />
+							
 							</div>
 							</div>
 					);
-		}
+		/*}
 		else {
 			return false;
-		}
+		}*/
 	}
 }
 
