@@ -8,10 +8,11 @@ class List extends Component {
 
 	removeHandler(e){
 		//must work around since there is nothing attribute like "value"
-		this.props.handleDelete(e.target.parentNode.firstChild.innerText);
+		this.props.handleDelete(e.target.id);
 	}
 
 	render() {
+		const crossStyle = {color:"red",cursor:"pointer"};
 		return (
 
 				<table className="symbolscontainer">
@@ -19,7 +20,7 @@ class List extends Component {
 				{this.props.symbols.map( (symbol)=>(
 						<tr key={symbol}>
 							<td>{symbol}</td>
-							<td id="delete" title="delete?" onClick={this.removeHandler}>&#10006;</td>
+							<td id={symbol} style={crossStyle} title="delete" onClick={this.removeHandler}>&#10006;</td>
 						</tr>	
 				))}
 				</tbody>
