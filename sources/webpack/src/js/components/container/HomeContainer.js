@@ -12,6 +12,12 @@ import Button from "../presentational/Button";
 import Graph from "../presentational/Graph";
 import List from "../presentational/List";
 
+
+function saveLocal(_self){
+	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
+}
+
+
 //return e.g.  http://localhost:4567/home/?money=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (money, start, end, symbol) {
 	var param="?money=" + money + "&start=" + start + "&end=" + end;
@@ -109,15 +115,26 @@ class HomeContainer extends Component {
 		this.updateHandler = this.updateHandler.bind(this);
 		this.deleteHandler = this.deleteHandler.bind(this);
 	}
+	
 	enterKey(e) {
 		if(e.keyCode === 13){
 			this.updateHandler(e);
 		}
 	}
-	//button events
-	deleteHandler(symbol){
-		alert("ticker deleted:" + symbol);
+	
+	deleteHandler(deletedSymbol){
+		// make a clone to modify
+		var updatedData = this.state.data.slice();
+		//remove the deleted symbol from every obj
+		updatedData.forEach( function(obj){
+			delete obj[deletedSymbol];
+		});
+		//remove the symbol from the list
+		var updatedSymbols = this.state.symbols.filter(symbol => symbol !== deletedSymbol);
+		//set State and session storage
+		this.setState({data:updatedData,symbols:updatedSymbols}, () => saveLocal(this));
 	}
+	
 	updateHandler(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -130,12 +147,12 @@ class HomeContainer extends Component {
 			alert(symbol + " is already added.")
 		}
 		else if (symbol != "" && symbol != null ) {
-			var newSymbols = update(this.state.symbols, {$push:[symbol] });
+			var updatedSymbols = update(this.state.symbols, {$push:[symbol] });
 			this.setState(() => {
 				return {
 					start:start,
 					end:end,
-					symbols: newSymbols };
+					symbols: updatedSymbols };
 			});
 		}
 		else {
@@ -146,14 +163,14 @@ class HomeContainer extends Component {
 		document.getElementById("symbolInput").value ="";
 	}
 
-	componentDidUpdate(nextProps, prevState) {
-		//alert ("inside didUpdate");
+	componentDidUpdate(prevProps, prevState) {
+		//alert ("in didUpdate");
 		var _self = this;
 		var money = this.state.money;
 		var startDate = this.state.start;
 		var endDate = this.state.end;
 		//when new stock symbol entered
-		if(this.state.symbols !== prevState.symbols) {
+		if(this.state.symbols.length > prevState.symbols.length) {
 			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
@@ -166,7 +183,7 @@ class HomeContainer extends Component {
 				} else {
 					_self.setState(() => { return{data:newData}; });
 				}
-				sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+				saveLocal(_self);
 			});
 		}
 		//when either start date or end date changed
@@ -196,7 +213,7 @@ class HomeContainer extends Component {
 					}
 				});
 				_self.setState(() => { return{data}; });
-				sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
+				saveLocal(_self);
 			});
 
 		}
@@ -212,7 +229,7 @@ class HomeContainer extends Component {
 			_self.setState(() => { 
 				return{data: newData }; 
 			});
-			sessionStorage.setItem('data', JSON.stringify(_self.state.data));
+			saveLocal(_self);
 		});
 
 	}
