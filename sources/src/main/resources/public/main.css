@@ -155,14 +155,15 @@ nav ul, nav li {
     border: 0;
     cursor: pointer;
     margin-left: 50px;
+    margin-right:0;
 }
 
-div #graph {
+.graphcontainer {
 	position:relative;
-	bottom: 50px;
-	left:-10px;
+	bottom:10px;
 	width: 900px;
 	height: 400px;
+	margin-right:10px;
   /*-webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -170,6 +171,21 @@ div #graph {
   width: 800px;
   height: 800px;
   background-color: #fff;*/
+}
+
+/* table of symbols */
+.symbolscontainer {
+	position: relative;
+    top: 50px;
+    left:900px;
+   	margin-left:20px;
+   	width: 10px;
+   	border-collapse: separate;
+   	border-spacing: 15px 5px;
+}
+.symbolscontainer td[id="delete"] {
+	color:#ff0000;
+	cursor: pointer;
 }
 
 /*  signin and signup form */
