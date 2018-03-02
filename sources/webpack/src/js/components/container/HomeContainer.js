@@ -116,7 +116,7 @@ class HomeContainer extends Component {
 	}
 	//button events
 	deleteHandler(symbol){
-		console.log("ticker deleted",symbol);
+		alert("ticker deleted:" + symbol);
 	}
 	updateHandler(e) {
 		e.preventDefault();

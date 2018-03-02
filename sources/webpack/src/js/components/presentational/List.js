@@ -7,7 +7,8 @@ class List extends Component {
 	}
 
 	removeHandler(e){
-		this.props.handleDelete(e.target.value);
+		//must work around since there is nothing attribute like "value"
+		this.props.handleDelete(e.target.parentNode.firstChild.innerText);
 	}
 
 	render() {
@@ -16,9 +17,9 @@ class List extends Component {
 				<table className="symbolscontainer">
 				<tbody>
 				{this.props.symbols.map( (symbol)=>(
-						<tr value={symbol} key={symbol} onClick={this.removeHandler}>
+						<tr key={symbol}>
 							<td>{symbol}</td>
-							<td id="delete" title="delete?" >&#10006;</td>
+							<td id="delete" title="delete?" onClick={this.removeHandler}>&#10006;</td>
 						</tr>	
 				))}
 				</tbody>
