@@ -11,10 +11,10 @@ class List extends Component {
 	}
 
 	render() {
+		const name = this.props.setClass;
 		const crossStyle = {color:"red",cursor:"pointer"};
 		return (
-
-				<table className="symbolscontainer">
+				<table className={name}>
 				<tbody>
 				{this.props.symbols.map( (symbol)=>(
 						<tr key={symbol}>
