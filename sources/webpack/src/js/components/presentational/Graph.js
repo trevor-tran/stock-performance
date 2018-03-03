@@ -9,10 +9,12 @@ class Graph extends Component {
 		super(props);
 	}
 	render(){
+		//properties
 		const data = this.props.data;
+		const name = this.props.setClass;
 		let lines = [];
 		if (data != null){
-			var colors = ['#8884d8', '#82ca9d', '#1c110a', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
+			var colors = ['#8884d8', '#82ca9d', '#595163', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
 			var colorIndex = 0;
 			var obj1 = data[0]; // extract a object.
 			// loop over obj1, get keys,but "date".Add <Line> for each key, which is stock symbol.
@@ -24,6 +26,7 @@ class Graph extends Component {
 
 			});
 					return(
+						<div className = {name}>	
 							<LineChart width={900} height={400} data={data}>
 							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
@@ -32,6 +35,7 @@ class Graph extends Component {
 							<Legend />
 							{lines}	
 							</LineChart>
+						</div>
 					);
 		}
 		else {
