@@ -29,7 +29,7 @@ class Spinner extends Component {
 		};
 		return(
 			<div className={name} style={overlay}>
-				<GridLoader style={img} color="#26A65B" size="20px" margin="10px"/>
+				<GridLoader style={img} color="#000080" size="20px" margin="10px"/>
 			</div>
 		);
 	}
