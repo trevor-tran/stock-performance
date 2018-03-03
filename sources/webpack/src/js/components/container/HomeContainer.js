@@ -11,6 +11,7 @@ import Input from "../presentational/Input";
 import Button from "../presentational/Button";
 import Graph from "../presentational/Graph";
 import List from "../presentational/List";
+import Spinner from "../presentational/Spinner";
 
 
 function saveLocal(_self){
@@ -46,9 +47,6 @@ function mergeData( currentData, newData){
 	}
 	return data;
 }
-
-
-
 
 //manipulate data into right format
 //[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
@@ -93,14 +91,12 @@ function fetchData(money, startDate, endDate, ticker) {
 	});
 }
 
-
-
 class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 				money:'1',
-				start: moment().utc().subtract(61,"days").format('YYYY-MM-DD'),
+				start: moment().utc().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
 				data: JSON.parse(sessionStorage.getItem('data')) || [],
@@ -170,24 +166,29 @@ class HomeContainer extends Component {
 		var startDate = this.state.start;
 		var endDate = this.state.end;
 		//when new stock symbol entered
+		//must compare length to avoid running into it when a symbol removed
 		if(this.state.symbols.length > prevState.symbols.length) {
+			$(".spinner").show();
 			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
-					var data = [];
+					var data = data = mergeData(_self.state.data , newData);
+					/*
 					var currentData = _self.state.data;
 					for(var i = 0; i<currentData.length; i++){
 						data.push( update( currentData[i] , {$merge : newData[i]} ));
-					}
+					}*/
 					_self.setState(() => {return{data}});
 				} else {
 					_self.setState(() => { return{data:newData}; });
 				}
 				saveLocal(_self);
+				$(".spinner").hide();
 			});
 		}
 		//when either start date or end date changed
 		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
+			$(".spinner").show();
 			var symbols = _self.state.symbols; 
 			var fetchTasks= [];
 			var data; 
@@ -214,12 +215,14 @@ class HomeContainer extends Component {
 				});
 				_self.setState(() => { return{data}; });
 				saveLocal(_self);
+				$(".spinner").hide();
 			});
 
 		}
 	}
 
 	componentDidMount() {
+		$(".spinner").show();
 		var _self = this;
 
 		//fetchAndProcessData(_self);
@@ -230,6 +233,7 @@ class HomeContainer extends Component {
 				return{data: newData }; 
 			});
 			saveLocal(_self);
+			$(".spinner").hide();
 		});
 
 	}
@@ -255,6 +259,7 @@ class HomeContainer extends Component {
 				<div className="graphcontainer">
 					<Graph data={this.state.data} />
 				</div>
+				<Spinner setClass="spinner"/>
 			</div>
 		);
 
