@@ -8,7 +8,6 @@ import PropTypes from 'react';
 import async from 'async';
 //import presentational elements;
 import Input from "../presentational/Input";
-import Button from "../presentational/Button";
 import Graph from "../presentational/Graph";
 import List from "../presentational/List";
 import Spinner from "../presentational/Spinner";
@@ -28,7 +27,7 @@ function setUrl (money, start, end, symbol) {
 	return 'http://localhost:4567/home/' + param;
 }
 
-//DOES NOT WORK WELL SINCE CANNOT MERGE ARRAYS OF DIFFERENT LENGTHS
+//DOES NOT WORK AS EXPECTED
 function mergeData( currentData, newData){
 	var data = [];
 	if(currentData.length < newData.length){
@@ -107,15 +106,8 @@ class HomeContainer extends Component {
 					return this.state.symbols.includes(newSymbol); // case sensitive
 				}
 		};
-		this.enterKey = this.enterKey.bind(this);
 		this.updateHandler = this.updateHandler.bind(this);
 		this.deleteHandler = this.deleteHandler.bind(this);
-	}
-	
-	enterKey(e) {
-		if(e.keyCode === 13){
-			this.updateHandler(e);
-		}
 	}
 	
 	deleteHandler(deletedSymbol){
@@ -131,14 +123,7 @@ class HomeContainer extends Component {
 		this.setState({data:updatedData,symbols:updatedSymbols}, () => saveLocal(this));
 	}
 	
-	updateHandler(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.nativeEvent.stopImmediatePropagation();
-		var start = document.getElementById("startDate").value;
-		var end = document.getElementById("endDate").value;
-		//capitalize and trim spaces
-		var symbol = document.getElementById("symbolInput").value.toUpperCase().replace(/\s+/g, '');
+	updateHandler(start,end,symbol) {
 		if ( this.state.isExist(symbol) ) {
 			alert(symbol + " is already added.")
 		}
@@ -156,7 +141,7 @@ class HomeContainer extends Component {
 				return {start,end};
 			});
 		}
-		document.getElementById("symbolInput").value ="";
+		//document.getElementById("symbolInput").value ="";
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -242,23 +227,9 @@ class HomeContainer extends Component {
 
 		return (
 			<div id="parent">
-				<div className="inputcontainer">
-				<label>Invest($):</label>
-				<input id="money" type="text" defaultValue={this.state.money} />
-				<label>From:</label>
-				<input id="startDate" type="date" defaultValue={this.state.start}/>
-				<label>To:</label>
-				<input id="endDate" type="date" defaultValue={this.state.end}/>
-				<label>Symbol:</label>
-				<input type="text" id="symbolInput" onKeyUp={this.enterKey} placeholder="e.g. AAPL,MSFT" />
-					<Button type="button" id="updatebutton" handleClick={this.updateHandler} text="Update"></Button>	
-				</div>
-				<List symbols = {this.state.symbols} 
-					handleDelete = {this.deleteHandler}
-				/>
-				<div className="graphcontainer">
-					<Graph data={this.state.data} />
-				</div>
+				<Input setClass="inputcontainer" setSelf={this} onClickHandler={this.updateHandler}/>
+				<List setClass="symbolscontainer" symbols={this.state.symbols} handleDelete={this.deleteHandler}/>
+				<Graph setClass="graphcontainer" data={this.state.data} />
 				<Spinner setClass="spinner"/>
 			</div>
 		);
