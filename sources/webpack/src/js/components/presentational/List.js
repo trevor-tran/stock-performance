@@ -7,7 +7,6 @@ class List extends Component {
 	}
 
 	removeHandler(e){
-		//must work around since there is nothing attribute like "value"
 		this.props.handleDelete(e.target.id);
 	}
 
