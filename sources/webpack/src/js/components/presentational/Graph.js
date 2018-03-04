@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import {LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
 import PropTypes from 'react';
 
@@ -26,8 +26,9 @@ class Graph extends Component {
 
 			});
 					return(
-						<div className = {name}>	
-							<LineChart width={900} height={400} data={data}>
+						<div className = {name}>
+							<ResponsiveContainer  width='100%' height='100%'>
+							<LineChart data={data}>
 							<XAxis dataKey="date" angle={-20} textAnchor="end" height={50} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
@@ -35,6 +36,7 @@ class Graph extends Component {
 							<Legend />
 							{lines}	
 							</LineChart>
+							</ResponsiveContainer>
 						</div>
 					);
 		}
