@@ -34,9 +34,9 @@ class Input extends Component {
 				<label>Invest($):</label>
 				<input id="money" type="text" defaultValue={_self.state.money} />
 				<label>From:</label>
-				<input id="startDate" type="date" defaultValue={_self.state.start}/>
+				<input id="startDate" type="date" defaultValue={_self.state.start} required/>
 				<label>To:</label>
-				<input id="endDate" type="date" defaultValue={_self.state.end}/>
+				<input id="endDate" type="date" defaultValue={_self.state.end} required/>
 				<label>Symbol:</label>
 				<input type="text" id="symbolInput" onKeyUp={this.catchEnter} placeholder="e.g. AAPL,MSFT" />
 				<button type="button" id="updatebutton" onClick={this.buttonClick}>Update</button>	
