@@ -226,12 +226,24 @@ class HomeContainer extends Component {
 	render() {
 
 		return (
-			<div id="parent">
-				<Input setClass="inputcontainer" setSelf={this} onClickHandler={this.updateHandler}/>
-				<List setClass="symbolscontainer" symbols={this.state.symbols} handleDelete={this.deleteHandler}/>
-				<Graph setClass="graphcontainer" data={this.state.data} />
-				<Spinner setClass="spinner"/>
-			</div>
+			<table className="homecontainer">
+			<tbody>
+				<tr>
+					<td> <Input setClass="inputcontainer" setSelf={this} onClickHandler={this.updateHandler}/> </td>
+				</tr>
+				<tr>
+					<td><table><tbody>
+						<tr>
+							<td> <Graph setClass="graphcontainer" data={this.state.data} /> </td>
+							<td style={{verticalAlign:"top"}}> <List setClass="symbolscontainer" symbols={this.state.symbols} handleDelete={this.deleteHandler}/> </td>
+						</tr>
+					</tbody></table></td>
+				</tr>
+				<tr>
+					<td><Spinner setClass="spinner"/></td>
+				</tr>
+			</tbody>
+			</table>
 		);
 
 	}
