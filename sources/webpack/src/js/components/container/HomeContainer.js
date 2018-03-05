@@ -144,8 +144,7 @@ class HomeContainer extends Component {
 	updateHandler(start,end,symbol) {
 		if ( this.state.isExist(symbol) ) {
 			alert(symbol + " is already added.")
-		}
-		else if (symbol != "" && symbol != null ) {
+		}else if (symbol != "" && symbol != null ) {
 			var updatedSymbols = update(this.state.symbols, {$push:[symbol] });
 			this.setState(() => {
 				return {
@@ -153,13 +152,9 @@ class HomeContainer extends Component {
 					end:end,
 					symbols: updatedSymbols };
 			});
+		}else {
+			this.setState(() => { return {start,end}; });
 		}
-		else {
-			this.setState(() => {
-				return {start,end};
-			});
-		}
-		//document.getElementById("symbolInput").value ="";
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -169,18 +164,13 @@ class HomeContainer extends Component {
 		var startDate = this.state.start;
 		var endDate = this.state.end;
 		//when new stock symbol entered
-		//must compare length to avoid running into it when a symbol removed
+		//must compare length to avoid running into this "if" when a symbol removed
 		if(this.state.symbols.length > prevState.symbols.length) {
 			$(".spinner").show();
 			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
 					var data = mergeData(_self.state.data , newData);
-					/*
-					var currentData = _self.state.data;
-					for(var i = 0; i<currentData.length; i++){
-						data.push( update( currentData[i] , {$merge : newData[i]} ));
-					}*/
 					_self.setState(() => {return{data}});
 				} else {
 					_self.setState(() => { return{data:newData}; });
@@ -207,12 +197,7 @@ class HomeContainer extends Component {
 				results.forEach( function(result) {
 					if(data){
 						data = mergeData(data,result);
-						/*for( var i = 0; i<data.length; i++) {
-							console.log("index i = ", i);
-							data[i] = update(data[i], {$merge : result[i]});
-						}*/
-					}
-					else {
+					}else {
 						data = result;
 					}
 				});
@@ -220,16 +205,12 @@ class HomeContainer extends Component {
 				saveLocal(_self);
 				$(".spinner").hide();
 			});
-
 		}
 	}
-
+	
 	componentDidMount() {
 		$(".spinner").show();
 		var _self = this;
-
-		//fetchAndProcessData(_self);
-
 		fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 		.then( function(newData) {
 			_self.setState(() => { 
@@ -238,11 +219,9 @@ class HomeContainer extends Component {
 			saveLocal(_self);
 			$(".spinner").hide();
 		});
-
 	}
 
 	render() {
-
 		return (
 			<table className="homecontainer">
 			<tbody>
@@ -252,7 +231,7 @@ class HomeContainer extends Component {
 				<tr>
 					<td><table><tbody>
 						<tr>
-							<td> <Graph setClass="graphcontainer" data={this.state.data} /> </td>
+							<td> <Graph setClass="graphcontainer" getSymbols={this.state.symbols} data={this.state.data} /> </td>
 							<td style={{verticalAlign:"top"}}> <List setClass="symbolscontainer" symbols={this.state.symbols} handleDelete={this.deleteHandler}/> </td>
 						</tr>
 					</tbody></table></td>
@@ -263,7 +242,6 @@ class HomeContainer extends Component {
 			</tbody>
 			</table>
 		);
-
 	}
 }
 
