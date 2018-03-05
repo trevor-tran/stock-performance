@@ -1,7 +1,9 @@
 #parse("/velocity/layout.vm")
 #@mainLayout()
-<form id="homecontainer">
-    
+<form id="testpurpose">   
+             <!--test graph -->  
+</form>
+<form id="homecontainer">   
              <!--rechart graph -->  
  </form>
 #end
