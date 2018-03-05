@@ -62,8 +62,8 @@ function manipulateData(json) {
 	var data = [];
 	_map.forEach(function(price,date) {
 		var entry = new Object();
-		var d = new Date(date).toDateString().substring(4);//reformat date
-		entry["date"]= d;
+		//var d = new Date(date).toDateString().substring(4);//reformat date
+		entry["date"] = moment(date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
 		Object.keys(price).forEach(symbol => {
 			entry[symbol] = price[symbol];
 		});
@@ -100,8 +100,8 @@ class HomeContainer extends Component {
 		super(props);
 		this.state = {
 				money:'1',
-				start: moment().utc().subtract(366,"days").format('YYYY-MM-DD'),
-				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
+				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
+				end: moment().subtract(2,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
 				data: JSON.parse(sessionStorage.getItem('data')) || [],
 				getLast: () => {
