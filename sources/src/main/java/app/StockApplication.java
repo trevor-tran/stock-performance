@@ -1,6 +1,10 @@
 package app;
-import static spark.Spark.*;
-import static spark.debug.DebugScreen.*;
+import static spark.Spark.before;
+import static spark.Spark.get;
+import static spark.Spark.port;
+import static spark.Spark.post;
+import static spark.Spark.staticFiles;
+import static spark.debug.DebugScreen.enableDebugScreen;
 
 import app.home.HomeController;
 import app.signin.SigninController;
@@ -24,10 +28,6 @@ public class StockApplication {
 		before("*", Filters.addTrailingSlashes);
 
 		// Set up routes
-		get("/hello/", (req,res) -> {
-			return "Hello world";
-		});
-		//get(Path.Web.HOME, 			HomeController.handleHomeDisplay);
 		get(Path.Web.HOME,       HomeController.fetchAllStocks);
 		get(Path.Web.HOME, "application/json", HomeController.fetchAllStocks);
 		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
@@ -38,8 +38,6 @@ public class StockApplication {
 		
 		get("*", 					ViewUtil.notFound);
 		
-		after(Path.Web.HOME,       Filters.addGzipHeader);
-
+		//after(Path.Web.HOME,       Filters.addGzipHeader);
 	}
-
 }
