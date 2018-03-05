@@ -9,8 +9,9 @@ import async from 'async';
 //import presentational elements;
 import Graph from "../presentational/Graph";
 
+
 function getData(){
-	var data1 = [
+	const data1 = [
 		{"date":"2018-1-1", "MSFT":302,"AAPL":20, "GOOGL":900},
 		{"date":"2018-1-2", "MSFT":202,"AAPL":50, "GOOGL":990},
 		{"date":"2018-1-3", "MSFT":502,"AAPL":70, "GOOGL":1000},
@@ -20,7 +21,7 @@ function getData(){
 		{"date":"2018-1-7", "MSFT":590,"AAPL":120, "GOOGL": 1200}
 	];
 	
-	var data2 = [
+	const data2 = [
 		{"date":"2018-1-1", "MSFT":302,"AAPL":20, "GOOGL":900},
 		{"date":"2018-1-2", "MSFT":202,"AAPL":50,"GOOGL":990},
 		{"date":"2018-1-3", "MSFT":502,"AAPL":70},
@@ -30,7 +31,7 @@ function getData(){
 		{"date":"2018-1-7", "MSFT":590,"AAPL":120, "GOOGL": 1200}
 	];
 	
-	var data3 = [
+	const data3 = [
 		{"date":"2018-1-1", "MSFT":302,"AAPL":20},
 		{"date":"2018-1-2", "MSFT":202,"AAPL":50, "GOOGL":990},
 		{"date":"2018-1-3", "MSFT":502,"AAPL":70, "GOOGL":1000},
@@ -50,7 +51,7 @@ class TestPurpose extends Component {
 				money:'1',
 				start: moment().utc().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().utc().subtract(1,"days").format('YYYY-MM-DD'),
-				symbols: ["MSFT,GOOGL"],
+				symbols: ["MSFT","AAPL","GOOGL"],
 				data:[]
 		};
 	}
@@ -65,7 +66,7 @@ class TestPurpose extends Component {
 			<table className="testcontainer">
 			<tbody>
 				<tr>
-				<td> <Graph setClass="graphcontainer" data={this.state.data} /> </td>
+				<td> <Graph setClass="graphcontainer" getSymbols={this.state.symbols} data={this.state.data} /> </td>
 				</tr>
 			</tbody>
 			</table>
