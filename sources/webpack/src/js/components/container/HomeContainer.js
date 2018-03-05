@@ -231,7 +231,7 @@ class HomeContainer extends Component {
 				<tr>
 					<td><table><tbody>
 						<tr>
-							<td> <Graph setClass="graphcontainer" getSymbols={this.state.symbols} data={this.state.data} /> </td>
+							<td> <Graph setClass="graphcontainer" symbols={this.state.symbols} data={this.state.data} /> </td>
 							<td style={{verticalAlign:"top"}}> <List setClass="symbolscontainer" symbols={this.state.symbols} handleDelete={this.deleteHandler}/> </td>
 						</tr>
 					</tbody></table></td>

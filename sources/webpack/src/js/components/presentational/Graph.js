@@ -11,7 +11,7 @@ class Graph extends Component {
 		//properties
 		const data = this.props.data;
 		const name = this.props.setClass;
-		const symbols = this.props.getSymbols;
+		const symbols = this.props.symbols;
 		let lines = [];
 		if (data != null){
 			var colors = ['#8884d8', '#82ca9d', '#595163', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
