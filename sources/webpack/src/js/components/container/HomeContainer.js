@@ -27,16 +27,19 @@ function setUrl (money, start, end, symbol) {
 	return 'http://localhost:4567/home/' + param;
 }
 
-//DOES NOT WORK AS EXPECTED
 function mergeData( currentData, newData){
 	var data = [];
-	//var firstOfNewData = newData[0];
-	//var foundIndex = currentDa
 	if( currentData.length === newData.length){
 		for(var i=0; i< currentData.length; i++){
 		data.push( update( currentData[i], {$merge : newData[i]} ));
 		}
 	} else{
+		//swap reference
+		if(currentData.length < newData.length){
+			[currentData, newData] = [newData,currentData];
+		}
+		//if found current obj in newData, merge and push to data arr
+		//else, push current obj to data arr
 		currentData.forEach( function(currentObj){
 			var found = newData.find( newObj => newObj.date === currentObj.date);
 			if(found){
@@ -46,28 +49,12 @@ function mergeData( currentData, newData){
 			}
 		});
 	}
-	/*
-	if(currentData.length < newData.length){
-		var temp = currentData;
-		currentData = newData;
-		newData = temp;
-	}
-	for( var i=0; i<currentData.length;i++){
-		for(var j=0;j<newData.length;j++){
-			if(currentData[i]["date"] === newData[j]["date"]){
-				data.push( update( currentData[j], {$merge : newData[j]} ));
-				break;
-			}
-		}
-		//data.push(currentObj);
-	}
-	*/
 	return data;
 }
 
 //manipulate data into right format
 //[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
-function manipulateReceivedData(json) {
+function manipulateData(json) {
 	var _map = new Map();
 	Object.keys(json).forEach(key => {
 		_map.set(key, json[key]);
@@ -96,7 +83,7 @@ function fetchData(money, startDate, endDate, ticker) {
 			return response.json();
 		})
 		.then(function(json) {
-			return manipulateReceivedData(json);
+			return manipulateData(json);
 		})
 		.then( function(newData){
 			resolve(newData);
