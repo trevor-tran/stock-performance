@@ -32,11 +32,11 @@ class Input extends Component {
 		return (
 			<div className={name} >
 				<label>Invest($):</label>
-				<input id="money" type="text" defaultValue={_self.state.money} />
+				<input id="money" type="text" defaultValue={_self.state.money} onKeyUp={this.catchEnter}/>
 				<label>From:</label>
-				<input id="startDate" type="date" defaultValue={_self.state.start} required/>
+				<input id="startDate" type="date" defaultValue={_self.state.start} onKeyUp={this.catchEnter} required/>
 				<label>To:</label>
-				<input id="endDate" type="date" defaultValue={_self.state.end} required/>
+				<input id="endDate" type="date" defaultValue={_self.state.end} onKeyUp={this.catchEnter} required/>
 				<label>Symbol:</label>
 				<input type="text" id="symbolInput" onKeyUp={this.catchEnter} placeholder="e.g. AAPL,MSFT" />
 				<button type="button" id="updatebutton" onClick={this.buttonClick}>Update</button>	
