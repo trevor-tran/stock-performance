@@ -29,26 +29,20 @@ function setUrl (money, start, end, symbol) {
 
 function mergeData( currentData, newData){
 	var data = [];
-	if( currentData.length === newData.length){
-		for(var i=0; i< currentData.length; i++){
-		data.push( update( currentData[i], {$merge : newData[i]} ));
-		}
-	} else{
-		//swap reference
-		if(currentData.length < newData.length){
-			[currentData, newData] = [newData,currentData];
-		}
-		//if found current obj in newData, merge and push to data arr
-		//else, push current obj to data arr
-		currentData.forEach( function(currentObj){
-			var found = newData.find( newObj => newObj.date === currentObj.date);
-			if(found){
-				data.push( update(currentObj, {$merge:found}) );
-			}else{
-				data.push(currentObj);
-			}
-		});
+	//swap reference
+	if(currentData.length < newData.length){
+		[currentData, newData] = [newData,currentData];
 	}
+	//if found current obj in newData, merge and push to data arr
+	//else, push current obj to data arr
+	currentData.forEach( function(currentObj){
+		var found = newData.find( newObj => newObj.date === currentObj.date);
+		if(found){
+			data.push( update(currentObj, {$merge:found}) );
+		}else{
+			data.push(currentObj);
+		}
+	});
 	return data;
 }
 
@@ -62,7 +56,6 @@ function manipulateData(json) {
 	var data = [];
 	_map.forEach(function(price,date) {
 		var entry = new Object();
-		//var d = new Date(date).toDateString().substring(4);//reformat date
 		entry["date"] = moment(date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
 		Object.keys(price).forEach(symbol => {
 			entry[symbol] = price[symbol];
