@@ -30,6 +30,23 @@ function setUrl (money, start, end, symbol) {
 //DOES NOT WORK AS EXPECTED
 function mergeData( currentData, newData){
 	var data = [];
+	//var firstOfNewData = newData[0];
+	//var foundIndex = currentDa
+	if( currentData.length === newData.length){
+		for(var i=0; i< currentData.length; i++){
+		data.push( update( currentData[i], {$merge : newData[i]} ));
+		}
+	} else{
+		currentData.forEach( function(currentObj){
+			var found = newData.find( newObj => newObj.date === currentObj.date);
+			if(found){
+				data.push( update(currentObj, {$merge:found}) );
+			}else{
+				data.push(currentObj);
+			}
+		});
+	}
+	/*
 	if(currentData.length < newData.length){
 		var temp = currentData;
 		currentData = newData;
@@ -44,6 +61,7 @@ function mergeData( currentData, newData){
 		}
 		//data.push(currentObj);
 	}
+	*/
 	return data;
 }
 
@@ -157,7 +175,7 @@ class HomeContainer extends Component {
 			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
-					var data = data = mergeData(_self.state.data , newData);
+					var data = mergeData(_self.state.data , newData);
 					/*
 					var currentData = _self.state.data;
 					for(var i = 0; i<currentData.length; i++){
