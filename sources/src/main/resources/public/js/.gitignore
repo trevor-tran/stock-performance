@@ -1,0 +1,4 @@
+#ignore this file
+main.js
+#except
+!.gitignore
