@@ -33,12 +33,10 @@ public class SignupController {
 		String reenterPassword = request.queryParams("reenterpassword"); 
 		if (usernameExists(username)) {
 			model.put("usernameExists", true);
-		} 
-		else if(! Objects.equals(password, reenterPassword)) {
+		}else if(! Objects.equals(password, reenterPassword)) {
 			model.put("passwordNotMatch",true);
 			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
-		} 
-		else if (!isPasswordComplex(password)) {
+		}else if (!isPasswordComplex(password)) {
 			model.put("passwordNotComplex", true);
 		}
 		//TODO: Email Address Validation
