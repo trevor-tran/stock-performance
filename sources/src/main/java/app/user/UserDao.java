@@ -52,7 +52,7 @@ public class UserDao {
 	 * @return <i>SigninCredentials</i>, <i>null</i> if userId not exist
 	 * @throws Exception
 	 */
-	public static SigninCredentials getSigninCredentials(int userId) throws Exception{
+	public static Password getSigninCredentials(int userId) throws Exception{
 		Connection connection = DatabaseConnection.getConnection();
 		Statement statement = connection.createStatement();
 		String sql = String.format("SELECT salt,hashed_password FROM users WHERE user_id=%d",userId);
@@ -61,7 +61,7 @@ public class UserDao {
 		String salt = rs.getString(1);
 		String hashedPassword = rs.getString(2);
 		close(connection,statement,rs);
-		return new SigninCredentials(salt, hashedPassword);
+		return new Password(salt, hashedPassword);
 	}
 	public static UserInfo getUserInvestmentInfo( int userId) throws Exception{
 		Connection connection = DatabaseConnection.getConnection();

@@ -26,7 +26,7 @@ public class UserController {
 			return -1;
 		}
 		else{
-			SigninCredentials signinInfo = UserDao.getSigninCredentials(userId);
+			Password signinInfo = UserDao.getSigninCredentials(userId);
 			String hashedEnterPassword = BCrypt.hashpw(password, signinInfo.getSalt());
 			return (hashedEnterPassword.equals(signinInfo.getHashedPassword())) ? userId : -1; 
 		}

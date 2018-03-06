@@ -1,7 +1,7 @@
 package app.user;
 import lombok.*;
 @Value
-public class SigninCredentials {
+public class Password {
 
 		private String salt;
 		private String hashedPassword;
