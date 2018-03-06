@@ -1,19 +1,19 @@
 package app.signup;
 
+import static app.user.UserController.createUser;
+import static app.user.UserController.usernameExists;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-import com.google.common.base.Objects;
-
-import app.user.UserInfo;
-import static app.user.UserController.*;
-import app.user.UserDao;
 import app.util.Path;
 import app.util.ViewUtil;
-import spark.*;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
 public class SignupController {
 
@@ -21,6 +21,7 @@ public class SignupController {
 		Map<String,Object> model = new HashMap<String,Object>();
 		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 	};
+	
 	public static Route handleSignupPost = ( Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<String,Object>();
 		//extracts credentials
@@ -30,38 +31,32 @@ public class SignupController {
 		String username = request.queryParams("username");
 		String password = request.queryParams("password");
 		String reenterPassword = request.queryParams("reenterpassword"); 
-		if (usernameExists(username))
-		{
+		if (usernameExists(username)) {
 			model.put("usernameExists", true);
-			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
-		}
-		else if(! Objects.equal(password, reenterPassword))
-		{
+		} 
+		else if(! Objects.equals(password, reenterPassword)) {
 			model.put("passwordNotMatch",true);
 			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
-		}
-		else if (!isPasswordComplex(password)){
+		} 
+		else if (!isPasswordComplex(password)) {
 			model.put("passwordNotComplex", true);
-			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 		}
 		//TODO: Email Address Validation
-		else
-		{
+		else{
 			createUser(firstName, lastName, email, username, password);
 			model.put("signupSucceeded", true);
-			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 		}
-		
+		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 	};
+	
 	/**
-	 * Check if password contains at least one lower case letter, 
-	 * one upper case letter, and length of at least eight.
-	 * @see  stackoverflow.com/questions/3802192/regexp-java-for-password-validation
+	 * Check if password contains at least one lower case letter,
+	 * one upper case letter, one number, and length of at least eight.
+	 * @see <a href ="http://stackoverflow.com/questions/3802192/regexp-java-for-password-validation">link</a>
 	 * @param password
 	 * @return <i>true</i> if password is complex, <i>false</i> if not
 	 */
-	private static boolean isPasswordComplex(String password)
-	{
+	private static boolean isPasswordComplex(String password) {
 		Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
 		Matcher matcher = pattern.matcher(password);
 		return matcher.matches();
