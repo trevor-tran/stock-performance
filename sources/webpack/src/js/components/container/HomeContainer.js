@@ -35,10 +35,9 @@ function isDateSatisfied(start,end,limits){
 	return true;
 }
 
-
-//return e.g.  http://localhost:4567/home/?money=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
-function setUrl (money, start, end, symbol) {
-	var param="?money=" + money + "&start=" + start + "&end=" + end;
+//return e.g.  http://localhost:4567/home/?invest=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
+function setUrl (invest, start, end, symbol) {
+	var param="?invest=" + invest + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
 		param += '&symbol='+ symbol;
 	}
@@ -65,7 +64,7 @@ function mergeData( currentData, newData){
 }
 
 //manipulate data into right format
-//[{date:"Jan 04 1993", GOOGL:123, MSFT:456},{date:"Jan 04 1993", GOOGL:124, MSFT:457}]
+//e.g [{date:"Jan 04 1993", GOOGL:123, MSFT:456}, {date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 function manipulateData(json) {
 	var _map = new Map();
 	Object.keys(json).forEach(key => {
@@ -83,9 +82,9 @@ function manipulateData(json) {
 	return data;
 }
 
-function fetchData(money, startDate, endDate, ticker) {
+function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
-		const url = setUrl(money, startDate, endDate, ticker);
+		const url = setUrl(invest, startDate, endDate, ticker);
 		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
@@ -110,14 +109,16 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				money:'1',
+				invest:'1',
 				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
 				data: JSON.parse(sessionStorage.getItem('data')) || [],
 				limits: {
 					maxDate: moment().subtract(1,"days").format('YYYY-MM-DD'),
-					minDate: moment("1817-3-8","YYYY-MM-DD")
+					minDate: moment("1817-3-8","YYYY-MM-DD"),
+					minMoney:"1",
+					maxMoney:
 				},
 				getLast: () => {
 					return this.state.symbols[this.state.symbols.length-1];
@@ -166,13 +167,13 @@ class HomeContainer extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		//alert ("in didUpdate");
 		var _self = this;
-		var money = this.state.money;
+		var invest = this.state.invest;
 		var startDate = this.state.start;
 		var endDate = this.state.end;
 		//must compare length to avoid running into this "if" when a symbol removed
 		if(this.state.symbols.length > prevState.symbols.length) {
 			$(".spinner").show();
-			fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
+			fetchData( _self.state.invest, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
 					var data = mergeData(_self.state.data , newData);
@@ -192,7 +193,7 @@ class HomeContainer extends Component {
 			var data; 
 			symbols.forEach(function(symbol){
 				fetchTasks.push( function(callback) {
-					fetchData( _self.state.money, _self.state.start, _self.state.end, symbol)
+					fetchData( _self.state.invest, _self.state.start, _self.state.end, symbol)
 					.then(function(newData){
 						callback(null,newData);
 					});
@@ -216,7 +217,7 @@ class HomeContainer extends Component {
 	componentDidMount() {
 		$(".spinner").show();
 		var _self = this;
-		fetchData( _self.state.money, _self.state.start, _self.state.end, _self.state.getLast())
+		fetchData( _self.state.invest, _self.state.start, _self.state.end, _self.state.getLast())
 		.then( function(newData) {
 			_self.setState(() => { 
 				return{data: newData }; 

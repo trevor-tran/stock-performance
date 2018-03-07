@@ -35,7 +35,7 @@ class Input extends Component {
 		return (
 			<div className={name} >
 				<label>Invest($):</label>
-				<input id="money" type="text" defaultValue={_self.state.money} onKeyUp={this.catchEnter}/>
+				<input id="invest" type="text" defaultValue={_self.state.invest} onKeyUp={this.catchEnter}/>
 				<label>From:</label>
 				<input id="startDate" type="date" defaultValue={_self.state.start} onKeyUp={this.catchEnter} required/>
 				<label>To:</label>

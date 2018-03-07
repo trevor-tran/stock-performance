@@ -24,7 +24,7 @@ public class HomeController {
 			return ViewUtil.render(request, model, Path.Templates.HOME);
 		}
 		else if (clientAcceptsJson(request)) {
-			//String money = request.queryParams("money");
+			//String invest = request.queryParams("invest");
 			String start = request.queryParams("start");
 			String end = request.queryParams("end");
 			String symbol = request.queryParams("symbol");
