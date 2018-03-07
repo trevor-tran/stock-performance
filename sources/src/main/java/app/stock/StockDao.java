@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.annotation.processing.RoundEnvironment;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -38,7 +40,7 @@ public class StockDao {
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
-	public static Map<String,Map<String,Float>> getStockData(String symbol, String startDate, String endDate) {
+	public static Map<String,Map<String,Double>> getStockData(long invest, String symbol, String startDate, String endDate) {
 		try{
 			URI uri = getRequestUri(symbol, startDate, endDate);
 			CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -64,7 +66,7 @@ public class StockDao {
 			};
 			JsonObject quandlJson = httpclient.execute(request,rh);
 			JsonArray dataArr = quandlJson.getAsJsonObject("datatable").getAsJsonArray("data");
-			return reformatJson(dataArr);//TODO: experiencing data loss with large amount.
+			return reformartAndComputeReturn(dataArr,invest);//TODO: experiencing data loss with large amount.
 		} 
 		catch(Exception ex){
 			System.out.println(ex.getMessage());
@@ -78,7 +80,7 @@ public class StockDao {
 				.setScheme("https")
 				.setHost("quandl.com")
 				.setPath("/api/v3/datatables/WIKI/PRICES.json")
-				.setParameter("qopts.columns", "date,ticker,close")
+				.setParameter("qopts.columns", "date,ticker,close,split_ratio")
 				.setParameter("date.gte", startDate)
 				.setParameter("date.lte", endDate)
 				.setParameter("ticker", symbol)
@@ -87,24 +89,40 @@ public class StockDao {
 		return uri;
 	}
 	
-	private static Map<String,Map<String,Float>> reformatJson(JsonArray dataArr){
+	private static Map<String,Map<String,Double>> reformartAndComputeReturn(JsonArray dataArr,long invest){
 		//MUST use TreeMap here to order dates
-		Map<String,Map<String,Float>> priceMap = new TreeMap<String,Map<String,Float>>();
+		Map<String,Map<String,Double>> earningsMap = new TreeMap<String,Map<String,Double>>();
+		//compute number of shares (investment divided by price on starting date)  
+		double numberOfShares = invest / dataArr.get(0).getAsJsonArray().get(2).getAsDouble();
+		//numberOfShares = round(numberOfShares,6);
 		for ( JsonElement element : dataArr) {
-			//e.g. ["2016-12-28","MSFT",62.99]
+			//each element is ["2016-12-28","MSFT",62.99,2.0]
 			JsonArray e = element.getAsJsonArray();
 			String date = e.get(0).getAsString();
 			String ticker = e.get(1).getAsString();
-			float price = e.get(2).getAsFloat();
-			if (priceMap.containsKey(date)){
-				Map<String,Float> value = priceMap.get(date);
-				value.put(ticker, price);
+			double price = e.get(2).getAsDouble();
+			double split = e.get(3).getAsDouble();
+			if(split != 1d){
+				numberOfShares = numberOfShares * split;
+			}
+			double earning = round(numberOfShares * price, 2);
+			if (earningsMap.containsKey(date)){
+				Map<String,Double> value = earningsMap.get(date);
+				value.put(ticker, earning);
 			}else {
-				Map<String,Float> newValue = new HashMap<String,Float>();
-				newValue.put(ticker, price);
-				priceMap.put(date, newValue);
+				Map<String,Double> newValue = new HashMap<String,Double>();
+				newValue.put(ticker, earning);
+				earningsMap.put(date, newValue);
 			}
 		}
-		return priceMap;
+		return earningsMap;
+	}
+	
+	/*
+	 * round numbers to nth decimal places
+	 */
+	private static double round(double number,int n){
+		double decimal = Math.pow(10, n);
+		return Math.round(number * decimal) / decimal; 
 	}
 }
