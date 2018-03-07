@@ -167,13 +167,14 @@ class HomeContainer extends Component {
 				var updatedSymbols = update(this.state.symbols, {$push:[symbol] });
 				this.setState(() => {
 					return {
+						invest:invest,
 						start:start,
 						end:end,
 						symbols: updatedSymbols };
 				});
 				//when dates changed
 			}else {
-				this.setState(() => { return {start,end}; });
+				this.setState(() => { return {invest,start,end}; });
 			}
 		}
 	}
@@ -181,11 +182,8 @@ class HomeContainer extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		//alert ("in didUpdate");
 		var _self = this;
-		var invest = this.state.invest;
-		var startDate = this.state.start;
-		var endDate = this.state.end;
 		//must compare length to avoid running into this "if" when a symbol removed
-		if(this.state.symbols.length > prevState.symbols.length) {
+		if((this.state.symbols.length > prevState.symbols.length)) {
 			$(".spinner").show();
 			fetchData( _self.state.invest, _self.state.start, _self.state.end, _self.state.getLast())
 			.then( function(newData) {
@@ -199,8 +197,10 @@ class HomeContainer extends Component {
 				$(".spinner").hide();
 			});
 		}
-		//when either start date or end date changed
-		if (this.state.start !== prevState.start || this.state.end !== prevState.end) {
+		//when either start date, end date, or investment changed
+		if ( (this.state.start!== prevState.start) 
+				|| (this.state.end !== prevState.end)
+				|| (this.state.invest != prevState.invest)) {
 			$(".spinner").show();
 			var symbols = _self.state.symbols; 
 			var fetchTasks= [];
