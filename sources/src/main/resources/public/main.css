@@ -140,9 +140,12 @@ nav ul, nav li {
 	display: inline;
     border: 1px solid #ddd;
     padding: 6px 12px;
-    width: 150px;
+    width: 170px;
     border-radius: 3px;
     margin: 0 20px 0 5px;
+}
+.inputcontainer #money,#symbolInput{
+	width:130px;
 }
 .inputcontainer button {
 	display: inline;
