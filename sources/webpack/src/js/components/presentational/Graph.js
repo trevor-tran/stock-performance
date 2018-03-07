@@ -14,7 +14,7 @@ class Graph extends Component {
 		const symbols = this.props.symbols;
 		let lines = [];
 		if (data != null){
-			var colors = ['#8884d8', '#82ca9d', '#595163', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#e57cf9'];
+			var colors = ['#8884d8', '#82ca9d','#e57cf9', '#8b2412','#f83581','#f07b50','#0c5e59','#0011ff','#595163'];
 			var colorIndex = 0;
 			symbols.forEach( function(symbol) {
 				var color = colors [ colorIndex++ % colors.length]; // rotate colors
