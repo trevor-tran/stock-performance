@@ -11,10 +11,11 @@ import app.util.DatabaseConnection;;
 /**
  * Manage all communications with database
  * @author PhuongTran
- *
  */
 public class UserDao {
-
+	
+	public static final int INVALID_USER_ID = -1;
+	
 	public static String getUserFirstName(int userId) throws Exception{
 		Connection connection = DatabaseConnection.getConnection();
 		Statement statement = connection.createStatement();
@@ -43,7 +44,7 @@ public class UserDao {
 			return userId;
 		}
 		close(connection,statement,rs);
-		return -1 ;
+		return INVALID_USER_ID;
 	}
 
 	/**
