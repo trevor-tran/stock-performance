@@ -24,11 +24,11 @@ public class HomeController {
 			return ViewUtil.render(request, model, Path.Templates.HOME);
 		}
 		else if (clientAcceptsJson(request)) {
-			//String invest = request.queryParams("invest");
+			long invest = Long.parseLong(request.queryParams("invest"));
 			String start = request.queryParams("start");
 			String end = request.queryParams("end");
 			String symbol = request.queryParams("symbol");
-			Map<String,Map<String,Float>> data = StockDao.getStockData(symbol, start, end);
+			Map<String,Map<String,Double>> data = StockDao.getStockData(invest, symbol, start, end);
 			//TODO: handle null data
 			response.header("Content-Type", "application/json");
 			return dataToJson(data);
