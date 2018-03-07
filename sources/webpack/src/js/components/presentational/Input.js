@@ -15,10 +15,11 @@ class Input extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 		e.nativeEvent.stopImmediatePropagation();
+		var invest = document.getElementById("invest").value;
 		var start = document.getElementById("startDate").value;
 		var end = document.getElementById("endDate").value;
 		var symbol = document.getElementById("symbolInput").value.toUpperCase().replace(/\s+/g, '');
-		this.props.onClickHandler(start,end,symbol);
+		this.props.onClickHandler(invest,start,end,symbol);
 		document.getElementById("symbolInput").value ="";
 	}
 	
@@ -29,20 +30,41 @@ class Input extends Component {
 	}
 	render() {
 		const name = this.props.setClass;
-		const _self = this.props.setSelf;
-		const maxDate = this.props.maxDate;
-		const minDate = this.props.minDate;
+		const _self = this.props.getThis;
 		return (
 			<div className={name} >
 				<label>Invest($):</label>
-				<input id="invest" type="text" defaultValue={_self.state.invest} onKeyUp={this.catchEnter}/>
+				<input 
+					id="invest" 
+					type="number" 
+					defaultValue={_self.state.invest} 
+					min={_self.state.limits["minInvest"]} 
+					max={_self.state.limits["maxInvest"]} 
+					onKeyUp={this.catchEnter}/>
 				<label>From:</label>
-				<input id="startDate" type="date" defaultValue={_self.state.start} onKeyUp={this.catchEnter} required/>
+				<input 
+					id="startDate" 
+					type="date" 
+					defaultValue={_self.state.start}
+					min={_self.state.limits["minDate"]}
+					onKeyUp={this.catchEnter} required/>
 				<label>To:</label>
-				<input id="endDate" type="date" defaultValue={_self.state.end} min={minDate} max={maxDate} onKeyUp={this.catchEnter} required/>
+				<input 
+					id="endDate" 
+					type="date" 
+					defaultValue={_self.state.end} 
+					max={_self.state.limits["maxDate"]} 
+					onKeyUp={this.catchEnter} required/>
 				<label>Symbol:</label>
-				<input type="text" id="symbolInput" onKeyUp={this.catchEnter} placeholder="e.g. AAPL,MSFT" />
-				<button type="button" id="updatebutton" onClick={this.buttonClick}>Update</button>	
+				<input 
+					type="text" 
+					id="symbolInput" 
+					onKeyUp={this.catchEnter} 
+					placeholder="e.g. AAPL,MSFT" />
+				<button 
+					type="button" 
+					id="updatebutton" 
+					onClick={this.buttonClick}>Update</button>	
 			</div>
 		);
 	}
