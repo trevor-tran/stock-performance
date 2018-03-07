@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import $ from 'jquery';
+import moment from 'moment';
 
 class Input extends Component {
 	constructor(props) {
@@ -29,6 +30,8 @@ class Input extends Component {
 	render() {
 		const name = this.props.setClass;
 		const _self = this.props.setSelf;
+		const maxDate = this.props.maxDate;
+		const minDate = this.props.minDate;
 		return (
 			<div className={name} >
 				<label>Invest($):</label>
@@ -36,7 +39,7 @@ class Input extends Component {
 				<label>From:</label>
 				<input id="startDate" type="date" defaultValue={_self.state.start} onKeyUp={this.catchEnter} required/>
 				<label>To:</label>
-				<input id="endDate" type="date" defaultValue={_self.state.end} onKeyUp={this.catchEnter} required/>
+				<input id="endDate" type="date" defaultValue={_self.state.end} min={minDate} max={maxDate} onKeyUp={this.catchEnter} required/>
 				<label>Symbol:</label>
 				<input type="text" id="symbolInput" onKeyUp={this.catchEnter} placeholder="e.g. AAPL,MSFT" />
 				<button type="button" id="updatebutton" onClick={this.buttonClick}>Update</button>	
