@@ -43,7 +43,7 @@ public class StockDao {
 			URI uri = getRequestUri(symbol, startDate, endDate);
 			CloseableHttpClient httpclient = HttpClients.createDefault();
 			HttpGet request = new HttpGet(uri);
-			System.out.println("http get" + request.getURI());//TODO: uri printing, need del later
+			System.out.println("http get: " + request.getURI());//TODO: uri printing, need del later
 			ResponseHandler<JsonObject> rh = new ResponseHandler<JsonObject>() {
 
 				@Override
