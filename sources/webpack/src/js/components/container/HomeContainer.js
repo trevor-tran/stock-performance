@@ -12,18 +12,30 @@ import Graph from "../presentational/Graph";
 import List from "../presentational/List";
 import Spinner from "../presentational/Spinner";
 
-
+//save data a Session Storage
 function saveLocal(_self){
 	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
 }
 
-//limits is an object. e.g. limits{minDate:"2018-1-1" , maxDate:"2018-1-5"}
-function isDateSatisfied(start,end,limits){
+//need two properties of limits obj: minInvest, maxInvest
+function isInvestValidated(invest,limits){
+	var min = limits["minInvest"]
+	var max = limits["maxInvest"];
+	if(invest>=min && invest<=max){
+		return true;
+	}else{
+		alert("Investment must be at least $"+min+" and no more than $"+max);
+		return false;
+	}
+}
+
+//need two properties of limits obj: minDate, maxDate,dayInterrval
+function isDateValidated(start,end,limits){
 	if( !moment(start).isValid() || !moment(end).isValid() ){
 		alert("Date is invalid.");
 		return false;
-	}else if( moment(end).diff(start,"days") < 30){
-		alert("Start date must be at least 30 days prior to end date.");
+	}else if( moment(end).diff(start,"days") < limits["dayInterval"]){
+		alert("Start date must be at least "+ limits["dayInterval"] +" days prior to end date.");
 		return false;
 	}else if( moment(end).isAfter(limits["maxDate"]) ){
 		alert("End date must be before today's date.");
@@ -109,7 +121,7 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				invest:'1',
+				invest:1,
 				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
@@ -117,8 +129,9 @@ class HomeContainer extends Component {
 				limits: {
 					maxDate: moment().subtract(1,"days").format('YYYY-MM-DD'),
 					minDate: moment("1817-3-8","YYYY-MM-DD"),
-					minMoney:"1",
-					maxMoney:
+					dayInterval:30,
+					minInvest:1,
+					maxInvest:10000000
 				},
 				getLast: () => {
 					return this.state.symbols[this.state.symbols.length-1];
@@ -144,8 +157,9 @@ class HomeContainer extends Component {
 		this.setState({data:updatedData,symbols:updatedSymbols}, () => saveLocal(this));
 	}
 	
-	updateHandler(start,end,symbol) {
-		if(isDateSatisfied(start,end,this.state.limits)){
+	updateHandler(invest,start,end,symbol) {
+		var limits = this.state.limits
+		if(isInvestValidated(invest,limits) && isDateValidated(start,end,limits)){
 			if ( this.state.isExist(symbol) ) {
 				alert(symbol + " is already added.");
 				//when a new symbol added
@@ -234,9 +248,7 @@ class HomeContainer extends Component {
 				<tr>
 					<td> <Input 
 						setClass="inputcontainer" 
-						setSelf={this} 
-						minDate={this.state.limits["minDate"]} 
-						maxDate={this.state.limits["maxDate"]} 
+						getThis={this} 
 						onClickHandler={this.updateHandler}
 					/> </td>
 				</tr>
