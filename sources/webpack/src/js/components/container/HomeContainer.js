@@ -246,27 +246,23 @@ class HomeContainer extends Component {
 			<table className="homecontainer">
 			<tbody>
 				<tr>
-					<td> <Input 
+					<td colSpan="2"> <Input 
 						setClass="inputcontainer" 
 						getThis={this} 
 						onClickHandler={this.updateHandler}
-					/> </td>
+					/></td>
 				</tr>
 				<tr>
-					<td><table><tbody>
-						<tr>
-							<td> <Graph 
-								setClass="graphcontainer" 
-								symbols={this.state.symbols} 
-								data={this.state.data} 
-							/> </td>
-							<td style={{verticalAlign:"top"}}> <List 
-								setClass="symbolscontainer" 
-								symbols={this.state.symbols} 
-								handleDelete={this.deleteHandler}
-							/> </td>
-						</tr>
-					</tbody></table></td>
+					<td><Graph 
+							setClass="graphcontainer" 
+							symbols={this.state.symbols} 
+							data={this.state.data} 
+					/></td>
+					<td style={{verticalAlign:"top"}}><List 
+							setClass="symbolscontainer" 
+							symbols={this.state.symbols} 
+							handleDelete={this.deleteHandler}
+					/></td>
 				</tr>
 				<tr>
 					<td><Spinner setClass="spinner"/></td>
