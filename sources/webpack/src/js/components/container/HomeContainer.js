@@ -11,6 +11,7 @@ import Input from "../presentational/Input";
 import Graph from "../presentational/Graph";
 import List from "../presentational/List";
 import Spinner from "../presentational/Spinner";
+import Table from "../presentational/Table";
 
 //save data a Session Storage
 function saveLocal(_self){
@@ -254,14 +255,20 @@ class HomeContainer extends Component {
 				</tr>
 				<tr>
 					<td><Graph 
-							setClass="graphcontainer" 
-							symbols={this.state.symbols} 
-							data={this.state.data} 
+						setClass="graphcontainer" 
+						symbols={this.state.symbols} 
+						data={this.state.data} 
 					/></td>
 					<td style={{verticalAlign:"top"}}><List 
-							setClass="symbolscontainer" 
-							symbols={this.state.symbols} 
-							handleDelete={this.deleteHandler}
+						setClass="symbolscontainer" 
+						symbols={this.state.symbols} 
+						handleDelete={this.deleteHandler}
+					/></td>
+				</tr>
+				<tr>
+					<td colSpan="2"><Table
+						getThis={this}
+						setClass="summarycontainer"
 					/></td>
 				</tr>
 				<tr>
