@@ -24,7 +24,7 @@ class Graph extends Component {
 						<div className = {name}>
 							<ResponsiveContainer  width='100%' height='100%'>
 							<LineChart data={data}>
-							<XAxis dataKey="date" angle={-20} textAnchor="end" height={60} />
+							<XAxis dataKey="date" angle={-20} textAnchor="end" height={55} />
 							<YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
 							<CartesianGrid strokeDasharray="3 3"/>
 								<Tooltip/>
