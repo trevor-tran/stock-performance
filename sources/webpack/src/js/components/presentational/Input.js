@@ -60,7 +60,7 @@ class Input extends Component {
 					type="text" 
 					id="symbolInput" 
 					onKeyUp={this.catchEnter} 
-					placeholder="e.g. AAPL,MSFT" />
+					placeholder="e.g. MSFT" />
 				<button 
 					type="button" 
 					id="updatebutton" 
