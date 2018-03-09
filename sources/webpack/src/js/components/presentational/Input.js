@@ -15,11 +15,11 @@ class Input extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 		e.nativeEvent.stopImmediatePropagation();
-		var invest = document.getElementById("invest").value;
+		var invest = document.getElementById("investment").value;
 		var start = document.getElementById("startDate").value;
 		var end = document.getElementById("endDate").value;
 		var symbol = document.getElementById("symbolInput").value.toUpperCase().replace(/\s+/g, '');
-		this.props.onClickHandler(invest,start,end,symbol);
+		this.props.onClickHandler(invest,start,end,symbol);//prop event
 		document.getElementById("symbolInput").value ="";
 	}
 	
@@ -30,30 +30,31 @@ class Input extends Component {
 	}
 	render() {
 		const name = this.props.setClass;
-		const _self = this.props.getThis;
+		const inputContainerState = this.props.getState;
+		const limits = this.props.getLimits;
 		return (
 			<div className={name} >
-				<label>Invest($):</label>
+				<label>Investment($):</label>
 				<input 
-					id="invest" 
+					id="investment" 
 					type="number" 
-					defaultValue={_self.state.invest} 
-					min={_self.state.limits["minInvest"]} 
-					max={_self.state.limits["maxInvest"]} 
+					defaultValue={inputContainerState.investment} 
+					min={limits.minInvestment} 
+					max={limits.maxInvestment} 
 					onKeyUp={this.catchEnter}/>
 				<label>From:</label>
 				<input 
 					id="startDate" 
 					type="date" 
-					defaultValue={_self.state.start}
-					min={_self.state.limits["minDate"]}
+					defaultValue={inputContainerState.start}
+					min={limits.minDate}
 					onKeyUp={this.catchEnter} required/>
 				<label>To:</label>
 				<input 
 					id="endDate" 
 					type="date" 
-					defaultValue={_self.state.end} 
-					max={_self.state.limits["maxDate"]} 
+					defaultValue={inputContainerState.end} 
+					max={limits.maxDate} 
 					onKeyUp={this.catchEnter} required/>
 				<label>Symbol:</label>
 				<input 
