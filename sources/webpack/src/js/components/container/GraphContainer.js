@@ -17,7 +17,7 @@ function saveLocal(_self){
 
 //return e.g.  http://localhost:4567/home/?invest=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (invest, start, end, symbol) {
-	var param="?invest=" + invest + "&start=" + start + "&end=" + end;
+	var param="?investment=" + invest + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
 		param += '&symbol='+ symbol;
 	}
@@ -85,27 +85,26 @@ function fetchData(invest, startDate, endDate, ticker) {
 	});
 }
 
-
+function getLastSymbol(symbols){
+	return symbols[symbols.length-1];
+}
 
 class GraphContainer extends Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			data: JSON.parse(sessionStorage.getItem('data')) || [],
-			symbols: this.props.getSymbols,
-			invest: this.props.getInvestment,
-			start: this.props.getStartDate,
-			end: this.props.getEndDate,
-			getLast: () => {
-				return this.state.symbols[this.state.symbols.length-1];
-			}
+			data: JSON.parse(sessionStorage.getItem('data')) || []
 		}
+		this.symbols = this.props.getSymbols;
+		this.investment = this.props.getInvestment;
+		this.startDate = this.props.getStartDate;
+		this.endDate = this.props.getEndDate;
 	}
 	
 	componentDidMount() {
 		//$(".spinner").show();
 		var _self = this;
-		fetchData( _self.state.invest, _self.state.start, _self.state.end, _self.state.getLast())
+		fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(this.symbols) )
 		.then( function(newData) {
 			_self.setState(() => { 
 				return{data: newData }; 
@@ -117,9 +116,10 @@ class GraphContainer extends Component{
 	
 	render(){
 		const name = this.props.setClass;
+		
 		return(
 			<Graph setClass={name}
-				getSymbols={this.state.symbols}
+				getSymbols={this.symbols}
 				getData={this.state.data}
 			/>
 		);
