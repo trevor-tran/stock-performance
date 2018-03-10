@@ -25,7 +25,7 @@ class Table extends Component{
 			const lastObj = _self.state.data[_self.state.data.length-1];
 			var rows=[];
 			return(
-				<table className={name} border="1"><tbody>
+				<table className={name} border="1" cellpadding="5"><tbody>
 					<tr>
 						<th rowSpan="2">Stock Symbol</th>
 						<th>Balance</th>
