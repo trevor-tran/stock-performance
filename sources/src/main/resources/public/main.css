@@ -172,8 +172,8 @@ nav ul, nav li {
   background-color: #fff;*/
 }
 
-/* table of symbols */
-.symbolscontainer {
+/* table of symbols on the right side*/
+.listcontainer {
 	position: relative;
    	border-collapse: separate;
    	border-spacing: 15px 5px;
