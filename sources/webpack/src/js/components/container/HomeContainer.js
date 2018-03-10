@@ -40,56 +40,7 @@ class HomeContainer extends Component {
 		//set State and session storage
 		this.setState({data:updatedData,symbols:updatedSymbols}, () => saveLocal(this));
 	}
-/*
-	componentDidUpdate(prevProps, prevState) {
-		//alert ("in didUpdate");
-		var _self = this;
-		//must compare length to avoid running into this "if" when a symbol removed
-		if((this.state.symbols.length > prevState.symbols.length)) {
-			$(".spinner").show();
-			fetchData( _self.state.investment, _self.state.start, _self.state.end, _self.state.getLast())
-			.then( function(newData) {
-				if (_self.state.data.length !== 0) {
-					var data = mergeData(_self.state.data , newData);
-					_self.setState(() => {return{data}});
-				} else {
-					_self.setState(() => { return{data:newData}; });
-				}
-				saveLocal(_self);
-				$(".spinner").hide();
-			});
-		}
-		//when either start date, end date, or investment changed
-		if ( (this.state.start!== prevState.start) 
-				|| (this.state.end !== prevState.end)
-				|| (this.state.investment != prevState.investment)) {
-			$(".spinner").show();
-			var symbols = _self.state.symbols; 
-			var fetchTasks= [];
-			var data; 
-			symbols.forEach(function(symbol){
-				fetchTasks.push( function(callback) {
-					fetchData( _self.state.investment, _self.state.start, _self.state.end, symbol)
-					.then(function(newData){
-						callback(null,newData);
-					});
-				});
-			})
-			async.parallel(fetchTasks, function (err,results) { 
-				results.forEach( function(result) {
-					if(data){
-						data = mergeData(data,result);
-					}else {
-						data = result;
-					}
-				});
-				_self.setState(() => { return{data}; });
-				saveLocal(_self);
-				$(".spinner").hide();
-			});
-		}
-	}
-*/	
+
 	updateState(investment,start,end,symbols){
 		if(typeof symbols == "undefined"){
 			this.setState(()=>{
