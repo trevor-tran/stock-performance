@@ -11,12 +11,11 @@ class List extends Component {
 	}
 
 	render() {
-		const name = this.props.setClass;
 		const crossStyle = {color:"red",cursor:"pointer"};
 		return (
-				<table className={name}>
+				<table className={this.props.setClass}>
 				<tbody>
-				{this.props.symbols.map( (symbol)=>(
+				{this.props.getSymbols.map( (symbol)=>(
 						<tr key={symbol}>
 							<td>{symbol}</td>
 							<td id={symbol} style={crossStyle} title="delete" onClick={this.removeHandler}>&#10006;</td>
