@@ -91,7 +91,7 @@ class HomeContainer extends Component {
 	}
 */	
 	updateState(investment,start,end,symbols){
-		if(typeof symbols !== "undefined"){
+		if(typeof symbols == "undefined"){
 			this.setState(()=>{
 				return{investment,start,end};
 			});
