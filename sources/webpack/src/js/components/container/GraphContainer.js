@@ -8,7 +8,6 @@ import async from 'async';
 
 import Graph from "../presentational/Graph";
 
-
 //save data a Session Storage
 function saveLocal(_self){
 	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
@@ -92,23 +91,21 @@ class GraphContainer extends Component{
 		this.state = {
 			data: JSON.parse(sessionStorage.getItem('data')) || []
 		}
-		this.symbols = this.props.getSymbols;
-		this.investment = this.props.getInvestment;
-		this.startDate = this.props.getStartDate;
-		this.endDate = this.props.getEndDate;
 	}
 	
 	componentWillReceiveProps(nextProps){
 		var _self = this;
-		if((this.startDate!== nextProps.getStartDate) 
-				|| (this.endDate !== nextProps.getEndDate)
-				|| (this.investment != nextProps.getInvestment)) {
-			var symbols = nextProps.getSymbols; 
+		var current = this.props.getState;
+		var next = nextProps.getState;
+		if((current.start!== next.start) 
+				|| (current.end !== next.end)
+				|| (current.investment != next.investment)) {
+			var symbols = next.symbols; 
 			var fetchTasks= [];
 			var data; 
 			symbols.forEach(function(symbol){
 				fetchTasks.push( function(callback) {
-					fetchData( nextProps.getInvestment, nextProps.getStartDate, nextProps.getEndDate, symbol)
+					fetchData( next.investment, next.start, next.end, symbol)
 					.then(function(newData){
 						callback(null,newData);
 					});
@@ -124,15 +121,10 @@ class GraphContainer extends Component{
 				});
 				_self.setState(() => { return{data}; });
 				saveLocal(_self);
-				_self.symbols = nextProps.getSymbols;
-				_self.investment = nextProps.getInvestment;
-				_self.startDate = nextProps.getStartDate;
-				_self.endDate = nextProps.getEndDate;
 			});
-		}
 		//must compare length to avoid running into this "if" when a symbol removed
-		if((this.symbols.length < nextProps.getSymbols.length)) {
-			fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(nextProps.getSymbols) )
+		}else if((current.symbols.length < next.symbols.length)) {
+			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
 					var data = mergeData(_self.state.data , newData);
@@ -142,13 +134,24 @@ class GraphContainer extends Component{
 				}
 				saveLocal(_self);
 			});
-			this.symbols = nextProps.getSymbols; //update
+		//when a symbol removed
+		}else if (current.symbols.length > next.symbols.length){
+			//get symbol removed
+			var deletedSymbol= next.deletedSymbol;
+			// make a clone to modify
+			var updatedData = _self.state.data.slice();
+			//remove the deleted symbol from every obj
+			updatedData.forEach( function(obj){
+				delete obj[deletedSymbol];
+			});
+			_self.setState({data:updatedData}, () => saveLocal(_self));
 		}
 	}
 	
 	componentWillMount() {
 		var _self = this;
-		fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(this.symbols) )
+		var current = this.props.getState;
+		fetchData(current.investment, current.start, current.end, getLastSymbol(current.symbols) )
 		.then( function(newData) {
 			_self.setState(() => { 
 				return{data: newData }; 
@@ -160,7 +163,7 @@ class GraphContainer extends Component{
 	render(){
 		return(
 			<Graph setClass={this.props.setClass}
-				getSymbols={this.props.getSymbols}//should not use this.symbols
+				getSymbols={this.props.getState.symbols}
 				getData={this.state.data}
 			/>
 		);
