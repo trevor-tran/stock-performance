@@ -112,6 +112,7 @@ class GraphContainer extends Component{
 				}
 				saveLocal(_self);
 			});
+			this.symbols = nextProps.getSymbols; //update
 		}
 		
 	}
@@ -130,7 +131,7 @@ class GraphContainer extends Component{
 	render(){
 		return(
 			<Graph setClass={this.props.setClass}
-				getSymbols={this.props.getSymbols}//don't use this.symbols
+				getSymbols={this.props.getSymbols}//should not use this.symbols
 				getData={this.state.data}
 			/>
 		);
