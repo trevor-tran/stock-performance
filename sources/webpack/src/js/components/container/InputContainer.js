@@ -18,8 +18,8 @@ function isInvestmentValid(investment,limits){
 	}
 }
 
-//need two properties of limits obj: minDate, maxDate,dayInterrval
-function isDateValid(start,end,limits){
+//need two members of limits obj: minDate, maxDate,dayInterrval
+function isDateValid(start, end, limits){
 	if( !moment(start).isValid() || !moment(end).isValid() ){
 		alert("Date is invalid.");
 		return false;
@@ -36,6 +36,7 @@ function isDateValid(start,end,limits){
 	return true;
 }
 
+//get last symbol of array of symbols
 function isSymbolExist(symbols, newSymbol){
 	return symbols.includes(newSymbol);// case sensitive
 }
@@ -49,7 +50,7 @@ class InputContainer extends Component{
 			minDate: moment("1817-3-8","YYYY-MM-DD"),
 			dayInterval:30,
 			minInvestment:1,
-			maxInvestment:10000000
+			maxInvestment:1000000
 		};
 		this.updateButtonHandler = this.updateButtonHandler.bind(this);
 	}
@@ -62,10 +63,12 @@ class InputContainer extends Component{
 				//when a new symbol added
 			}else if (enteredSymbol != "" && enteredSymbol != null ) {
 				var updatedSymbols = update(this.homeContainerState.symbols, {$push:[enteredSymbol] });
-				this.props.onUpdate(investment, start, end, enteredSymbol);//prop event
+				//setState in HomeContainer
+				this.props.onUpdate(investment, start, end, updatedSymbols);
 				//when dates changed
 			}else {
-				this.props.onUpdate(investment, start, end);//prop event
+				//setState in HomeContainer
+				this.props.onUpdate(investment, start, end);
 			}
 		}
 	}
@@ -82,6 +85,5 @@ class InputContainer extends Component{
 		);
 	}
 }
-
 
 export default InputContainer;
