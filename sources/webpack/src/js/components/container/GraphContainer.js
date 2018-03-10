@@ -15,7 +15,7 @@ function saveLocal(_self){
 	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
 }
 
-//return e.g.  http://localhost:4567/home/?invest=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
+//return e.g.  http://localhost:4567/home/?investment=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (invest, start, end, symbol) {
 	var param="?investment=" + invest + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
@@ -99,6 +99,27 @@ class GraphContainer extends Component{
 		this.investment = this.props.getInvestment;
 		this.startDate = this.props.getStartDate;
 		this.endDate = this.props.getEndDate;
+	}
+	componentDidUpdate(prevProps,prevState){
+		
+		 this.symbols = this.props.getSymbols;
+		
+		var _self = this;
+		//must compare length to avoid running into this "if" when a symbol removed
+		if((this.symbols.length < prevProps.getSymbols.length)) {
+			//$(".spinner").show();
+			fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(this.symbols) )
+			.then( function(newData) {
+				if (_self.state.data.length !== 0) {
+					var data = mergeData(_self.state.data , newData);
+					_self.setState(() => {return{data}});
+				} else {
+					_self.setState(() => { return{data:newData}; });
+				}
+				saveLocal(_self);
+				//$(".spinner").hide();
+			});
+		}
 	}
 	
 	componentDidMount() {
