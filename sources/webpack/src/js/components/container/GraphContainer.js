@@ -130,7 +130,7 @@ class GraphContainer extends Component{
 	render(){
 		return(
 			<Graph setClass={this.props.setClass}
-				getSymbols={this.props.getSymbols}
+				getSymbols={this.props.getSymbols}//don't use this.symbols
 				getData={this.state.data}
 			/>
 		);
