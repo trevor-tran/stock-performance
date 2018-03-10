@@ -44,7 +44,6 @@ function isSymbolExist(symbols, newSymbol){
 class InputContainer extends Component{
 	constructor(props){
 		super(props);
-		this.homeContainerState = this.props.getState;
 		this.limits = {
 			maxDate: moment().subtract(1,"days").format('YYYY-MM-DD'),
 			minDate: moment("1817-3-8","YYYY-MM-DD"),
@@ -57,12 +56,13 @@ class InputContainer extends Component{
 
 	updateButtonHandler(investment,start,end,enteredSymbol) {
 		var limits = this.limits;
+		var symbols = this.props.getState.symbols; 
 		if(isInvestmentValid(investment,limits) && isDateValid(start,end,limits)){
-			if ( isSymbolExist(enteredSymbol) ) {
-				alert(symbol + " is already added.");
+			if ( isSymbolExist(symbols, enteredSymbol) ) {
+				alert(enteredSymbol + " is already added.");
 				//when a new symbol added
 			}else if (enteredSymbol != "" && enteredSymbol != null ) {
-				var updatedSymbols = update(this.homeContainerState.symbols, {$push:[enteredSymbol] });
+				var updatedSymbols = update(symbols, {$push:[enteredSymbol] });
 				//setState in HomeContainer
 				this.props.onUpdate(investment, start, end, updatedSymbols);
 				//when dates changed
@@ -78,7 +78,7 @@ class InputContainer extends Component{
 		return(
 			<Input
 				setClass= {name}
-				getState = {this.homeContainerState}
+				getState = {this.props.getState}
 				getLimits = {this.limits}
 				onClickHandler={this.updateButtonHandler}
 			/>
