@@ -8,12 +8,12 @@ import PropTypes from 'react';
 import async from 'async';
 
 //import presentational elements;
-import List from "../presentational/List";
 import Spinner from "../presentational/Spinner";
 import Table from "../presentational/Table";
 
 import GraphContainer from "../container/GraphContainer";
 import InputContainer from "../container/InputContainer";
+import ListContainer from "../container/ListContainer";
 
 class HomeContainer extends Component {
 	constructor(props) {
@@ -22,25 +22,24 @@ class HomeContainer extends Component {
 				investment:1,
 				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
-				symbols: ["MSFT"]
+				symbols: ["MSFT"],
+				deletedSymbol:"undefined"
 		};
-		this.deleteHandler = this.deleteHandler.bind(this);
 		this.updateState = this.updateState.bind(this);
+		this.removeSymbol = this.removeSymbol.bind(this);
 	}
 	
-	deleteHandler(deletedSymbol){
-		// make a clone to modify
-		var updatedData = this.state.data.slice();
-		//remove the deleted symbol from every obj
-		updatedData.forEach( function(obj){
-			delete obj[deletedSymbol];
-		});
+	removeSymbol(deletedSymbol){
 		//remove the symbol from the list
 		var updatedSymbols = this.state.symbols.filter(symbol => symbol !== deletedSymbol);
-		//set State and session storage
-		this.setState({data:updatedData,symbols:updatedSymbols}, () => saveLocal(this));
+		this.setState(() => {
+			return{
+				deletedSymbol,
+				symbols:updatedSymbols
+				}; 
+		});
 	}
-
+	
 	updateState(investment,start,end,symbols){
 		if(typeof symbols == "undefined"){
 			this.setState(()=>{
@@ -59,22 +58,15 @@ class HomeContainer extends Component {
 			<tbody>
 				<tr>
 					<td colSpan="2">
-						<InputContainer 
-							setClass="inputcontainer" 
-							getState={this.state}
-							onUpdate={this.updateState}
-						/>
+						<InputContainer setClass="inputcontainer" getState={this.state}	onUpdate={this.updateState} />
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<GraphContainer 
-							setClass="graphcontainer"
-							getInvestment={this.state.investment}
-							getStartDate={this.state.start}
-							getEndDate={this.state.end}
-							getSymbols={this.state.symbols} 
-						/>
+						<GraphContainer	setClass="graphcontainer" getState={this.state}	/>
+					</td>
+					<td style={{verticalAlign:"top"}}>
+						<ListContainer setClass="listcontainer"	getSymbols={this.state.symbols} onDelete={this.removeSymbol} />
 					</td>
 				</tr>
 			</tbody>
