@@ -99,8 +99,38 @@ class GraphContainer extends Component{
 	}
 	
 	componentWillReceiveProps(nextProps){
-		console.log("ComponentWillReceiveProps:",nextProps);
 		var _self = this;
+		if((this.startDate!== nextProps.getStartDate) 
+				|| (this.endDate !== nextProps.getEndDate)
+				|| (this.investment != nextProps.getInvestment)) {
+			var symbols = nextProps.getSymbols; 
+			var fetchTasks= [];
+			var data; 
+			symbols.forEach(function(symbol){
+				fetchTasks.push( function(callback) {
+					fetchData( nextProps.getInvestment, nextProps.getStartDate, nextProps.getEndDate, symbol)
+					.then(function(newData){
+						callback(null,newData);
+					});
+				});
+			})
+			async.parallel(fetchTasks, function (err,results) { 
+				results.forEach( function(result) {
+					if(data){
+						data = mergeData(data,result);
+					}else {
+						data = result;
+					}
+				});
+				_self.setState(() => { return{data}; });
+				saveLocal(_self);
+				_self.symbols = nextProps.getSymbols;
+				_self.investment = nextProps.getInvestment;
+				_self.startDate = nextProps.getStartDate;
+				_self.endDate = nextProps.getEndDate;
+			});
+		}
+		//must compare length to avoid running into this "if" when a symbol removed
 		if((this.symbols.length < nextProps.getSymbols.length)) {
 			fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(nextProps.getSymbols) )
 			.then( function(newData) {
@@ -114,7 +144,6 @@ class GraphContainer extends Component{
 			});
 			this.symbols = nextProps.getSymbols; //update
 		}
-		
 	}
 	
 	componentWillMount() {
