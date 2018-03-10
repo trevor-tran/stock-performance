@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import $ from 'jquery';
 import update from 'react-addons-update';
 import moment from 'moment';
@@ -26,12 +25,9 @@ function setUrl (invest, start, end, symbol) {
 
 function mergeData( currentData, newData){
 	var data = [];
-	//swap reference
 	if(currentData.length < newData.length){
 		[currentData, newData] = [newData,currentData];
 	}
-	//if found current obj in newData, merge and push to data arr
-	//else, push current obj to data arr
 	currentData.forEach( function(currentObj){
 		var found = newData.find( newObj => newObj.date === currentObj.date);
 		if(found){
@@ -62,6 +58,7 @@ function manipulateData(json) {
 	return data;
 }
 
+//get data from server and return formated data
 function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
 		const url = setUrl(invest, startDate, endDate, ticker);
@@ -100,15 +97,12 @@ class GraphContainer extends Component{
 		this.startDate = this.props.getStartDate;
 		this.endDate = this.props.getEndDate;
 	}
-	componentDidUpdate(prevProps,prevState){
-		
-		 this.symbols = this.props.getSymbols;
-		
+	
+	componentWillReceiveProps(nextProps){
+		console.log("ComponentWillReceiveProps:",nextProps);
 		var _self = this;
-		//must compare length to avoid running into this "if" when a symbol removed
-		if((this.symbols.length < prevProps.getSymbols.length)) {
-			//$(".spinner").show();
-			fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(this.symbols) )
+		if((this.symbols.length < nextProps.getSymbols.length)) {
+			fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(nextProps.getSymbols) )
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
 					var data = mergeData(_self.state.data , newData);
@@ -117,13 +111,12 @@ class GraphContainer extends Component{
 					_self.setState(() => { return{data:newData}; });
 				}
 				saveLocal(_self);
-				//$(".spinner").hide();
 			});
 		}
+		
 	}
 	
-	componentDidMount() {
-		//$(".spinner").show();
+	componentWillMount() {
 		var _self = this;
 		fetchData(this.investment, this.startDate, this.endDate, getLastSymbol(this.symbols) )
 		.then( function(newData) {
@@ -131,16 +124,13 @@ class GraphContainer extends Component{
 				return{data: newData }; 
 			});
 			saveLocal(_self);
-		//	$(".spinner").hide();
 		});
 	}
 	
 	render(){
-		const name = this.props.setClass;
-		
 		return(
-			<Graph setClass={name}
-				getSymbols={this.symbols}
+			<Graph setClass={this.props.setClass}
+				getSymbols={this.props.getSymbols}
 				getData={this.state.data}
 			/>
 		);
