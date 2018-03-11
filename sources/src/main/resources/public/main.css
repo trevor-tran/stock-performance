@@ -190,6 +190,7 @@ nav ul, nav li {
 .summarycontainer th{
 	color:#274555;
 	font-size:13px;
+	vertical-align: middle;
 }
 
 /*  signin and signup form */
