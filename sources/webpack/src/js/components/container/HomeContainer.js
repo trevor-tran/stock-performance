@@ -8,10 +8,10 @@ import PropTypes from 'react';
 import async from 'async';
 
 import Spinner from "../presentational/Spinner";
-
-import GraphContainer from "../container/GraphContainer";
 import InputContainer from "../container/InputContainer";
+import GraphContainer from "../container/GraphContainer";
 import ListContainer from "../container/ListContainer";
+import SummaryContainer from "../container/SummaryContainer";
 
 class HomeContainer extends Component {
 	constructor(props) {
@@ -65,6 +65,14 @@ class HomeContainer extends Component {
 					</td>
 					<td style={{verticalAlign:"top"}}>
 						<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} onDelete={this.removeSymbol} />
+					</td>
+				</tr>
+				<tr>
+					<td colSpan="2"><h3 style={{textAlign:"center"}}>Summary Table</h3></td>
+				</tr>
+				<tr>
+					<td colSpan="2">
+						<SummaryContainer setClassName="summarycontainer" />
 					</td>
 				</tr>
 			</tbody>
