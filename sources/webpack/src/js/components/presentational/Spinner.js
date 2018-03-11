@@ -8,7 +8,7 @@ class Spinner extends Component {
 		super(props);
 	}
 	render(){
-		const name = this.props.setClass;
+		const name = this.props.setClassName;
 		const overlay = {
 			    background: "#e9e9e9",
 				display: "none",

@@ -1,8 +1,4 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import PropTypes from "prop-types";
-import $ from 'jquery';
-import moment from 'moment';
 
 class Input extends Component {
 	constructor(props) {
@@ -29,7 +25,7 @@ class Input extends Component {
 		}
 	}
 	render() {
-		const name = this.props.setClass;
+		const name = this.props.setClassName;
 		const inputContainerState = this.props.getState;
 		const limits = this.props.getLimits;
 		return (

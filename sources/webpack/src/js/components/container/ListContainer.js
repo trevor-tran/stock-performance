@@ -14,7 +14,7 @@ class ListContainer extends Component{
 	render(){
 		return(
 			<List
-				setClass={this.props.setClass}
+				setClassName={this.props.setClassName}
 				getSymbols = {this.props.getSymbols}
 				handleDelete = {this.handleDelete}
 			/>

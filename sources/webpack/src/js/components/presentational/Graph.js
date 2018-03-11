@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
 import {LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
-import PropTypes from 'react';
 
 class Graph extends Component {
 	constructor(props){
@@ -10,7 +8,7 @@ class Graph extends Component {
 	render(){
 		//properties
 		const data = this.props.getData;
-		const name = this.props.setClass;
+		const name = this.props.setClassName;
 		const symbols = this.props.getSymbols;
 		let lines = [];
 		if (data != null){
@@ -39,7 +37,6 @@ class Graph extends Component {
 			return false;
 		}
 	}
-
 }
 
 export default Graph;

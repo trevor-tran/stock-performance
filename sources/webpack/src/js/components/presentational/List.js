@@ -13,7 +13,7 @@ class List extends Component {
 	render() {
 		const crossStyle = {color:"red",cursor:"pointer"};
 		return (
-				<table className={this.props.setClass}>
+				<table className={this.props.setClassName}>
 				<tbody>
 				{this.props.getSymbols.map( (symbol)=>(
 						<tr key={symbol}>

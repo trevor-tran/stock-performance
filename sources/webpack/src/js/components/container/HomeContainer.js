@@ -7,9 +7,7 @@ import moment from 'moment';
 import PropTypes from 'react';
 import async from 'async';
 
-//import presentational elements;
 import Spinner from "../presentational/Spinner";
-import Table from "../presentational/Table";
 
 import GraphContainer from "../container/GraphContainer";
 import InputContainer from "../container/InputContainer";
@@ -58,15 +56,15 @@ class HomeContainer extends Component {
 			<tbody>
 				<tr>
 					<td colSpan="2">
-						<InputContainer setClass="inputcontainer" getState={this.state}	onUpdate={this.updateState} />
+						<InputContainer setClassName="inputcontainer" getState={this.state}	onUpdate={this.updateState} />
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<GraphContainer	setClass="graphcontainer" getState={this.state}	/>
+						<GraphContainer	setClassName="graphcontainer" getState={this.state}	/>
 					</td>
 					<td style={{verticalAlign:"top"}}>
-						<ListContainer setClass="listcontainer"	getSymbols={this.state.symbols} onDelete={this.removeSymbol} />
+						<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} onDelete={this.removeSymbol} />
 					</td>
 				</tr>
 			</tbody>

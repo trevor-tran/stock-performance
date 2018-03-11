@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-import $ from 'jquery';
 import moment from 'moment';
-import PropTypes from 'react';
 import update from 'react-addons-update';
 
 import Input from "../presentational/Input";
@@ -74,10 +72,10 @@ class InputContainer extends Component{
 	}
 	
 	render(){
-		const name = this.props.setClass;
+		const name = this.props.setClassName;
 		return(
 			<Input
-				setClass= {name}
+				setClassName= {name}
 				getState = {this.props.getState}
 				getLimits = {this.limits}
 				onClickHandler={this.updateButtonHandler}

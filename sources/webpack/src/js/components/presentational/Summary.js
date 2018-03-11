@@ -18,7 +18,7 @@ class Table extends Component{
 	render(){
 		//properties
 		const _self = this.props.getThis;
-		const name = this.props.setClass;
+		const name = this.props.setClassName;
 		if(_self.state.data.length != 0){
 			const invest = _self.state.invest;
 			const firstObj = _self.state.data[0];
