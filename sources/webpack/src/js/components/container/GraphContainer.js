@@ -13,6 +13,11 @@ function saveLocal(_self){
 	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
 }
 
+//return last symbol in symbols list
+function getLastSymbol(symbols){
+	return symbols[symbols.length-1];
+}
+
 //return e.g.  http://localhost:4567/home/?investment=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
 function setUrl (invest, start, end, symbol) {
 	var param="?investment=" + invest + "&start=" + start + "&end=" + end;
@@ -22,6 +27,7 @@ function setUrl (invest, start, end, symbol) {
 	return '/home/' + param;
 }
 
+//merge current and new data
 function mergeData( currentData, newData){
 	var data = [];
 	if(currentData.length < newData.length){
@@ -81,8 +87,34 @@ function fetchData(invest, startDate, endDate, ticker) {
 	});
 }
 
-function getLastSymbol(symbols){
-	return symbols[symbols.length-1];
+//request and return new data from server for every stock in the stock symbols list
+//nextInput is equivalent to nextProps.getState 
+function fetchAllStock(nextInput){
+	return new Promise(function(resolve, reject){
+		var symbols = nextInput.symbols; 
+		var fetchTasks= [];
+		var data; 
+		symbols.forEach(function(symbol){
+			fetchTasks.push( function(callback) {
+				fetchData( nextInput.investment, nextInput.start, nextInput.end, symbol)
+				.then(function(newData){
+					callback(null,newData);//callback(error,result)
+				});
+			});
+		})
+		async.parallel(fetchTasks, function (err,results) { 
+			results.forEach( function(result) {
+				if(data){
+					data = mergeData(data,result);
+				}else {
+					data = result;
+				}
+			});
+			resolve(data);
+		});
+	}, function(err){
+		console.log(err);
+	});
 }
 
 class GraphContainer extends Component{
@@ -97,55 +129,38 @@ class GraphContainer extends Component{
 		var _self = this;
 		var current = this.props.getState;
 		var next = nextProps.getState;
-		if((current.start!== next.start) 
-				|| (current.end !== next.end)
-				|| (current.investment != next.investment)) {
-			var symbols = next.symbols; 
-			var fetchTasks= [];
-			var data; 
-			symbols.forEach(function(symbol){
-				fetchTasks.push( function(callback) {
-					fetchData( next.investment, next.start, next.end, symbol)
-					.then(function(newData){
-						callback(null,newData);
-					});
+		new Promise(function(resolve, reject){ 	
+			if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
+				fetchAllStock(next).then( function(newData){
+					resolve(newData);
 				});
-			})
-			async.parallel(fetchTasks, function (err,results) { 
-				results.forEach( function(result) {
-					if(data){
-						data = mergeData(data,result);
-					}else {
-						data = result;
+				//must compare length to avoid running into this "if" when a symbol removed
+			}else if((current.symbols.length < next.symbols.length)) {
+				fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
+				.then( function(newData) {
+					if (_self.state.data.length !== 0) {
+						resolve(mergeData(_self.state.data , newData));
+					} else {
+						resolve(newData);
 					}
 				});
-				_self.setState(() => { return{data}; });
+				//when a symbol removed
+			}else if (current.symbols.length > next.symbols.length){
+				var deletedSymbol= next.deletedSymbol;
+				var updatedData = _self.state.data.slice();
+				updatedData.forEach( function(obj){
+					delete obj[deletedSymbol];
+				});
+				resolve(updatedData);
+			}
+		})
+		.then(function(newData){
+			_self.setState({data:newData}, function(){
 				saveLocal(_self);
 			});
-		//must compare length to avoid running into this "if" when a symbol removed
-		}else if((current.symbols.length < next.symbols.length)) {
-			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
-			.then( function(newData) {
-				if (_self.state.data.length !== 0) {
-					var data = mergeData(_self.state.data , newData);
-					_self.setState(() => {return{data}});
-				} else {
-					_self.setState(() => { return{data:newData}; });
-				}
-				saveLocal(_self);
-			});
-		//when a symbol removed
-		}else if (current.symbols.length > next.symbols.length){
-			//get symbol removed
-			var deletedSymbol= next.deletedSymbol;
-			// make a clone to modify
-			var updatedData = _self.state.data.slice();
-			//remove the deleted symbol from every obj
-			updatedData.forEach( function(obj){
-				delete obj[deletedSymbol];
-			});
-			_self.setState({data:updatedData}, () => saveLocal(_self));
-		}
+		}).catch(function(err){
+			console.log(err);
+		});
 	}
 	
 	componentWillMount() {
