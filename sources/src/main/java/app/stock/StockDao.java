@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,7 +25,6 @@ import org.apache.http.impl.client.HttpClients;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 /**
  * Responsible for request stock data from quandl.com
@@ -36,8 +34,8 @@ import com.google.gson.JsonObject;
 public class StockDao {
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
-	public static Map<String,Object> summary;
-	
+	private static Map<String,Object> summary;
+
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getStockData(long invest, String symbol, String startDate, String endDate) {
@@ -73,7 +71,7 @@ public class StockDao {
 			return null;
 		}
 	}
-	
+
 	private static URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
 		//https://docs.quandl.com/docs/parameters-1
 		URI uri = new URIBuilder()
@@ -88,10 +86,14 @@ public class StockDao {
 				.build();
 		return uri;
 	}
-	
+
 	private static Map<String,Map<String,Double>> reformartAndComputeReturn(JsonArray dataArr,long invest){
 		summary = new HashMap<String,Object>();
-		
+		String summaryKey="";
+		Map<String,Object> summaryValue = new HashMap<String,Object>();
+		Map<String,String> starting = new HashMap<String,String>();
+		Map<String,String> ending = new HashMap<String,String>();
+
 		//MUST use TreeMap here to sort dates
 		Map<String,Map<String,Double>> balanceMap = new TreeMap<String,Map<String,Double>>();
 		//compute number of shares (investment divided by price on starting date)  
@@ -102,9 +104,9 @@ public class StockDao {
 			JsonArray e = dataArr.get(i).getAsJsonArray();
 			String date = e.get(0).getAsString();
 			String ticker = e.get(1).getAsString();
-			
+			summaryKey = ticker; //summary key 
 			double price = e.get(2).getAsDouble();
-			double split = e.get(3).getAsDouble();
+			double split = e.get(3).getAsDouble();			
 			if(split != 1d){
 				numberOfShares = numberOfShares * split;
 			}
@@ -117,10 +119,27 @@ public class StockDao {
 				newValue.put(ticker, balance);
 				balanceMap.put(date, newValue);
 			}
+			//summary
+			if(i==0){
+				starting.put("from", date);
+				starting.put("price", Double.toString(price));
+				starting.put("quantity",Double.toString(numberOfShares));
+			}else if(i==dataArr.size()-1){
+				ending.put("to", date);
+				ending.put("price", Double.toString(price));
+				ending.put("quantity",Double.toString(numberOfShares));
+				ending.put("balance",Double.toString(balance));
+			}
 		}
+		summaryValue.put("starting", starting);
+		summaryValue.put("ending", ending);
+		summary.put(summaryKey, summaryValue);
 		return balanceMap;
 	}
-	
+	public static Map<String,Object> getSummary(){
+		return summary;
+	}
+
 	/*
 	 * round numbers to nth decimal places
 	 */
