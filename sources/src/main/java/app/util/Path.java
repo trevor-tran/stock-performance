@@ -10,9 +10,7 @@ public class Path {
 		@Getter public static final String SIGNIN = "/signin/";
 		@Getter public static final String SIGNUP = "/signup/";
 		@Getter public static final String SIGNOUT = "/signout/";
-		@Getter public static final String PROFILE = "/profile/";
-		@Getter public static final String STOCKDATA = "/stockdata/";
-		 @Getter public static final String STOCKS = "/stocks/";
+		@Getter public static final String SUMMARY = "/summary/";
 	}
 	
 	public static class Templates {
