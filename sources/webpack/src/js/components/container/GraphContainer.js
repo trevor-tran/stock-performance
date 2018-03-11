@@ -1,9 +1,6 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import $ from 'jquery';
 import update from 'react-addons-update';
 import moment from 'moment';
-import PropTypes from 'react';
 import async from 'async';
 
 import Graph from "../presentational/Graph";
