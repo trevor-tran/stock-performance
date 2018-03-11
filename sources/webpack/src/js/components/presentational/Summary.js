@@ -19,8 +19,8 @@ class Table extends Component{
 		//properties
 		const name = this.props.setClassName;
 		return(
-			<table className={name} border="1" cellpadding="5">
-				<theader>
+			<table className={name} border="1" style={{cellpadding:"5"}}>
+				<tbody>
 					<tr>
 						<th rowSpan="2">Symbol</th>
 						<th colSpan="2">From 1/1/2013</th>
@@ -35,8 +35,6 @@ class Table extends Component{
 						<th>Quantity</th>
 						<th>Balance</th>
 					</tr>
-				</theader>
-				<tbody>
 				</tbody>
 			</table>
 		);
