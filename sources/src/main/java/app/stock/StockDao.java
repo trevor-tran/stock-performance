@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,7 +36,8 @@ import com.google.gson.JsonObject;
 public class StockDao {
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
-
+	public static Map<String,Object> summary;
+	
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getStockData(long invest, String symbol, String startDate, String endDate) {
@@ -88,32 +90,35 @@ public class StockDao {
 	}
 	
 	private static Map<String,Map<String,Double>> reformartAndComputeReturn(JsonArray dataArr,long invest){
-		//MUST use TreeMap here to order dates
-		Map<String,Map<String,Double>> earningsMap = new TreeMap<String,Map<String,Double>>();
+		summary = new HashMap<String,Object>();
+		
+		//MUST use TreeMap here to sort dates
+		Map<String,Map<String,Double>> balanceMap = new TreeMap<String,Map<String,Double>>();
 		//compute number of shares (investment divided by price on starting date)  
 		double numberOfShares = invest / dataArr.get(0).getAsJsonArray().get(2).getAsDouble();
 		//numberOfShares = round(numberOfShares,6);
-		for ( JsonElement element : dataArr) {
+		for ( int i=0 ; i<dataArr.size() ; i++) {
 			//each element is ["2016-12-28","MSFT",62.99,2.0]
-			JsonArray e = element.getAsJsonArray();
+			JsonArray e = dataArr.get(i).getAsJsonArray();
 			String date = e.get(0).getAsString();
 			String ticker = e.get(1).getAsString();
+			
 			double price = e.get(2).getAsDouble();
 			double split = e.get(3).getAsDouble();
 			if(split != 1d){
 				numberOfShares = numberOfShares * split;
 			}
-			double earning = round(numberOfShares * price, 2);
-			if (earningsMap.containsKey(date)){
-				Map<String,Double> value = earningsMap.get(date);
-				value.put(ticker, earning);
+			double balance = round(numberOfShares * price, 2);
+			if (balanceMap.containsKey(date)){
+				Map<String,Double> value = balanceMap.get(date);
+				value.put(ticker, balance);
 			}else {
 				Map<String,Double> newValue = new HashMap<String,Double>();
-				newValue.put(ticker, earning);
-				earningsMap.put(date, newValue);
+				newValue.put(ticker, balance);
+				balanceMap.put(date, newValue);
 			}
 		}
-		return earningsMap;
+		return balanceMap;
 	}
 	
 	/*
