@@ -15,7 +15,6 @@ import spark.Route;
 
 public class HomeController {
 
-
 	public static Route fetchAllStocks = (Request request, Response response) -> {
 		//LoginController.ensureUserIsLoggedIn(request, response);
 		if (clientAcceptsHtml(request)) {
