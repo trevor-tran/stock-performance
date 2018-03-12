@@ -1,4 +1,5 @@
 package app.home;
+import static app.stock.StockDao.getSummary;
 import static app.util.JsonUtil.dataToJson;
 import static app.util.RequestUtil.clientAcceptsHtml;
 import static app.util.RequestUtil.clientAcceptsJson;
@@ -31,6 +32,15 @@ public class HomeController {
 			//TODO: handle null data
 			response.header("Content-Type", "application/json");
 			return dataToJson(data);
+		}
+		return ViewUtil.notAcceptable.handle(request, response);
+	};
+	
+	public static Route fetchSummary = (Request request, Response response) -> {
+		if (clientAcceptsJson(request)){
+			Map<String,String> summary = getSummary();
+			response.header("Content-Type", "application/json");
+			return dataToJson(summary);
 		}
 		return ViewUtil.notAcceptable.handle(request, response);
 	};

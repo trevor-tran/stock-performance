@@ -7,7 +7,6 @@ import static spark.Spark.staticFiles;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
 import app.home.HomeController;
-import app.home.SummaryController;
 import app.signin.SigninController;
 import app.signup.SignupController;
 import app.util.DatabaseConnection;
@@ -31,7 +30,7 @@ public class StockApplication {
 		// Set up routes
 		get(Path.Web.HOME,       HomeController.fetchAllStocks);
 		get(Path.Web.HOME, "application/json", HomeController.fetchAllStocks);
-		get(Path.Web.SUMMARY, "application/json", SummaryController.fetchSummary);
+		get(Path.Web.SUMMARY, "application/json", HomeController.fetchSummary);
 		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
 		post(Path.Web.SIGNIN, 		SigninController.handelSigninPost);
 		post(Path.Web.SIGNOUT, 		SigninController.handleSignoutPost);
