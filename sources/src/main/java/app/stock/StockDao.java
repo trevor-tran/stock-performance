@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 public class StockDao {
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
-	private static Map<String,Object> summary;
+	private static Map<String,String> summary;
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
@@ -87,24 +87,19 @@ public class StockDao {
 		return uri;
 	}
 
-	private static Map<String,Map<String,Double>> reformartAndComputeReturn(JsonArray dataArr,long invest){
-		summary = new HashMap<String,Object>();
-		String summaryKey="";
-		Map<String,Object> summaryValue = new HashMap<String,Object>();
-		Map<String,String> starting = new HashMap<String,String>();
-		Map<String,String> ending = new HashMap<String,String>();
+	private static Map<String,Map<String,Double>> reformartAndComputeReturn(JsonArray dataArr,long investment){
+		summary = new HashMap<String,String>();
 
 		//MUST use TreeMap here to sort dates
 		Map<String,Map<String,Double>> balanceMap = new TreeMap<String,Map<String,Double>>();
 		//compute number of shares (investment divided by price on starting date)  
-		double numberOfShares = invest / dataArr.get(0).getAsJsonArray().get(2).getAsDouble();
+		double numberOfShares = investment / dataArr.get(0).getAsJsonArray().get(2).getAsDouble();
 		//numberOfShares = round(numberOfShares,6);
 		for ( int i=0 ; i<dataArr.size() ; i++) {
 			//each element is ["2016-12-28","MSFT",62.99,2.0]
 			JsonArray e = dataArr.get(i).getAsJsonArray();
 			String date = e.get(0).getAsString();
-			String ticker = e.get(1).getAsString();
-			summaryKey = ticker; //summary key 
+			String ticker = e.get(1).getAsString(); 
 			double price = e.get(2).getAsDouble();
 			double split = e.get(3).getAsDouble();			
 			if(split != 1d){
@@ -121,22 +116,22 @@ public class StockDao {
 			}
 			//summary
 			if(i==0){
-				starting.put("from", date);
-				starting.put("price", Double.toString(price));
-				starting.put("quantity",Double.toString(numberOfShares));
+				summary.put("symbol", ticker);
+				summary.put("startDate", date);
+				summary.put("startPrice", Double.toString(price));
+				summary.put("startQuantity",Double.toString(numberOfShares));
+				summary.put("startBalance", Double.toString(investment));
 			}else if(i==dataArr.size()-1){
-				ending.put("to", date);
-				ending.put("price", Double.toString(price));
-				ending.put("quantity",Double.toString(numberOfShares));
-				ending.put("balance",Double.toString(balance));
+				summary.put("endDate", date);
+				summary.put("endPrice", Double.toString(price));
+				summary.put("endQuantity",Double.toString(numberOfShares));
+				summary.put("endBalance",Double.toString(balance));
 			}
 		}
-		summaryValue.put("starting", starting);
-		summaryValue.put("ending", ending);
-		summary.put(summaryKey, summaryValue);
+		
 		return balanceMap;
 	}
-	public static Map<String,Object> getSummary(){
+	public static Map<String,String> getSummary(){
 		return summary;
 	}
 
