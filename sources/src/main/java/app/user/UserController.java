@@ -1,15 +1,20 @@
 package app.user;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserController {
 	
 	public static final int INVALID_USER_ID = -1;
+	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	public static boolean usernameExists( String username){
 		try{
 			return UserDao.getUserId(username) != -1;
 		}catch(Exception ex){
-			System.out.println("Error in usernameExists() method");
-			System.out.println(ex.getMessage());
+			logger.error("UserController: usernameExists()" + ex.getStackTrace().toString());
 			return false;
 		}
 	}
@@ -19,9 +24,9 @@ public class UserController {
 			//TODO: possible to have invalid userId,maybe need "if"
 			return UserDao.getUserFirstName(userId);
 		}catch(Exception ex){
-			System.out.println("Error in getFirstName() method");
-			System.out.println(ex.getMessage());
-			return null;
+			System.out.println("UserController class: Error in getFirstName() method");
+			ex.printStackTrace();
+			return "";
 		}
 	}
 
@@ -45,7 +50,7 @@ public class UserController {
 				return signingInUser.matches(password) ? userId : INVALID_USER_ID;
 			}
 		}catch(Exception ex){
-			System.out.println("Error in authenticate() method");
+			System.out.println("UserController class: Error in authenticate() method");
 			System.out.println(ex.getMessage());
 			return INVALID_USER_ID;
 		}
@@ -63,10 +68,10 @@ public class UserController {
 	public static void createUser(String firstName,String lastName,String email, String username,String password){
 		try{
 			Password newPassword = new Password(password);
-			UserDao.setUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
+			UserDao.createUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
 		}catch(Exception ex){
-			System.out.println("Error in  createUser() method");
-			System.out.println(ex.getMessage());
+			System.out.println("UserController class: Error in  createUser() method");
+			ex.printStackTrace();
 		}
 	}
 }

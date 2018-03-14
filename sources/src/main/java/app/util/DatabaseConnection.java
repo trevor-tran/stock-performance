@@ -1,6 +1,12 @@
 package app.util;
 
-import java.sql.*;
+import java.lang.invoke.MethodHandles;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //connect to database
 public class DatabaseConnection {
@@ -9,6 +15,7 @@ public class DatabaseConnection {
 	 * for webapp <-> MySQL connections on the same server, we may wish to disable SSL to avoid MySQL certificate errors.<br/>
 	 * @see https://stackoverflow.com/a/34449182
 	 */
+	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static boolean useSSL = false;
 	private static Connection connection = null;
 
@@ -25,7 +32,7 @@ public class DatabaseConnection {
 			//   https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-usagenotes-connect-drivermanager.html
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			logger.error("cannot initialize database connection:"+ ex.getStackTrace().toString());
 		}
 	}
 
@@ -35,11 +42,11 @@ public class DatabaseConnection {
 			String sslParam = useSSL ? "" : "?useSSL=false";
 			return DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName + sslParam, userName, password);
 		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
+			logger.error("SQLException: " + ex.getMessage());
+			logger.error("SQLState: " + ex.getSQLState());
+			logger.error("VendorError: " + ex.getErrorCode());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("getConnection() failed"+ e.getStackTrace().toString());
 		}
 		return null;
 	}
