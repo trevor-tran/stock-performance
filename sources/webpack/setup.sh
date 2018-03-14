@@ -12,3 +12,4 @@ npm i react-addons-update --save
 npm i moment --save
 npm i async --save
 npm i halogenium --save
+npm install pubsub-js --save
