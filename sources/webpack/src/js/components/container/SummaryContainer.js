@@ -17,6 +17,12 @@ function mergeData( currentData, newObj){
 return clone;
 }
 
+function setStateAndSave(_self, data){
+	_self.setState(() => {
+		return{data};
+	});
+}
+
 //fetch summary from server
 function fetchData() {
 	return new Promise(function(resolve, reject) {
@@ -46,16 +52,30 @@ class SummaryContainer extends Component{
 	
 	componentWillMount(){
 		var _self = this;
-		this.token = PubSub.subscribe('data_updated', function(){
+		//new Promise(function(resolve,reject){
+		_self.updatingToken = PubSub.subscribe('data_updated', function(){
 			fetchData().then(function(newObj){
-				 var data = mergeData(_self.state.data, newObj);
-				_self.setState(() => {
-					return{data};
-				});
+				var data = mergeData(_self.state.data, newObj);
+				setStateAndSave(_self,data);
+				//resolve(data);
 			});
-		});		
+		});
+		_self.removingToken = PubSub.subscribe('data_removed',function(msg,deletedSymbol){
+			var data = _self.state.data.filter(obj => obj.symbol !== deletedSymbol);
+			setStateAndSave(_self,data);
+			//resolve(data);
+			});
+		/*
+		}).then( function(data){
+			_self.setState(() => {
+				return{data};
+			});
+		}).catch( function(err){
+			console.log(err);
+		});
+		*/
 	}
-	
+
 	render(){
 		return(
 			<Summary 

@@ -146,6 +146,8 @@ class GraphContainer extends Component{
 				//when a symbol removed
 			}else if (current.symbols.length > next.symbols.length){
 				var deletedSymbol= next.deletedSymbol;
+				//notify to SummaryContainer
+				PubSub.publish("data_removed", deletedSymbol);
 				var clonedData = _self.state.data.slice();
 				clonedData.forEach( function(obj){
 					delete obj[deletedSymbol];
