@@ -6,9 +6,9 @@ import ReactDOM from "react-dom";
  * @param precision The number of decimal places to preserve
  * @link https://stackoverflow.com/questions/5191088/how-to-round-up-a-number-in-javascript
  */
-function roundUp(num, precision) {
+function round(num, precision) {
   precision = Math.pow(10, precision)
-  return Math.ceil(num * precision) / precision
+  return Math.round(num * precision) / precision
 }
 
 class Summary extends Component{
@@ -18,40 +18,43 @@ class Summary extends Component{
 	render(){
 		//properties
 		const name = this.props.setClassName;
-		{/*const data = this.props.getData;*/}
-		return(
-			<table className={name} border="1" style={{cellpadding:"5"}}>
-			<tbody>
-				<tr>
-					<th rowSpan="2">Symbol</th>
-					<th colSpan="2">From 1/1/2013</th>
-					<th colSpan="3">To 1/1/2016</th>
-					<th rowSpan="2">Gain/Loss($)</th>
-				</tr>
-				<tr>
-					<th>Price($)</th>
-					<th>Quantity</th>
-					<th>Price($)</th>
-					<th>Quantity</th>
-					<th>Balance($)</th>
-				</tr>
-				{/*
-					data.map( (obj)=>(
-						<tr>
+		const data = this.props.getData;
+		if(data.length!==0){
+			return(
+				<table className={name} border="1" style={{cellpadding:"5"}}>
+				<tbody>
+					<tr>
+						<th rowSpan="2">Symbol</th>
+						<th colSpan="3">From {data[0].startDate}</th>
+						<th colSpan="3">To {data[0].endDate}</th>
+						<th rowSpan="2">Gain/Loss($)</th>
+						</tr>
+					<tr>
+						<th>Price($)</th>
+						<th>Quantity</th>
+						<th>Balance($)</th>
+						<th>Price($)</th>
+						<th>Quantity</th>
+						<th>Balance($)</th>
+					</tr>
+					{
+						data.map( (obj)=>(
+						<tr key={obj.symbol}>
 							<td> {obj.symbol} </td>
 							<td> {obj.startPrice} </td>
-							<td> {obj.startQuantity} </td>
+							<td> {round(obj.startQuantity, 4)} </td>
 							<td> {obj.startBalance} </td>
 							<td> {obj.endPrice} </td>
-							<td> {obj.endQuantity} </td>
+							<td> {round(obj.endQuantity, 4)} </td>
 							<td> {obj.endBalance} </td>
-							<td> {roundUp(obj.endBalance-obj.startBalance, 2)} </td>
+							<td> {round(obj.endBalance-obj.startBalance, 2)} </td>
 						</tr>
-					))
-				*/}
-			</tbody>
-			</table>
+						))
+					}
+				</tbody>
+				</table>
 		);
+	}else{return false;}
 	}
 }
 
