@@ -65,7 +65,6 @@ function manipulateData(json) {
 function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
 		const url = setUrl(invest, startDate, endDate, ticker);
-		console.log("url=",url);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
