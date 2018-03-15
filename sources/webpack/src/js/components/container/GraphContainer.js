@@ -6,9 +6,11 @@ import PubSub from 'pubsub-js';
 
 import Graph from "../presentational/Graph";
 
-//save data a Session Storage
-function saveLocal(_self){
-	sessionStorage.setItem('data', JSON.stringify(_self.state.data));	
+//set new state and save data a Session Storage
+function setStateAndSave(_self,data){
+	_self.setState({data},() => {
+		sessionStorage.setItem('graph_data', JSON.stringify(_self.state.data));
+	});
 }
 
 //return last symbol in symbols list
@@ -25,7 +27,7 @@ function setUrl (invest, start, end, symbol) {
 	return '/home/' + param;
 }
 
-//merge current and new data
+//merge current and new data. Return merged data
 function mergeData( currentData, newData){
 	var data = [];
 	if(currentData.length < newData.length){
@@ -68,20 +70,16 @@ function fetchData(invest, startDate, endDate, ticker) {
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
-			//notify to SummaryContainer
+			//send notifation data updated
 			PubSub.publish("data_updated");
 			// convert to JSON
 			return response.json();
 		})
 		.then(function(json) {
-			return manipulateData(json);
-		})
-		.then( function(newData){
-			resolve(newData);
+			resolve( manipulateData(json));
 		})
 		.catch(function(error) {
 			console.log(error);
-			reject(error);
 		});
 	});
 }
@@ -120,7 +118,7 @@ class GraphContainer extends Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			data: JSON.parse(sessionStorage.getItem('data')) || []
+			data: JSON.parse(sessionStorage.getItem('graph_data')) || []
 		}
 	}
 	
@@ -128,52 +126,43 @@ class GraphContainer extends Component{
 		var _self = this;
 		var current = this.props.getState;
 		var next = nextProps.getState;
-		new Promise(function(resolve, reject){ 	
-			if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
-				fetchAllStock(next).then( function(newData){
-					resolve(newData);
-				});
-				//must compare length to avoid running into this "if" when a symbol removed
-			}else if((current.symbols.length < next.symbols.length)) {
-				fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
-				.then( function(newData) {
-					if (_self.state.data.length !== 0) {
-						resolve(mergeData(_self.state.data , newData));
-					} else {
-						resolve(newData);
-					}
-				});
-				//when a symbol removed
-			}else if (current.symbols.length > next.symbols.length){
-				var deletedSymbol= next.deletedSymbol;
-				//notify to SummaryContainer
-				PubSub.publish("data_removed", deletedSymbol);
-				var clonedData = _self.state.data.slice();
-				clonedData.forEach( function(obj){
-					delete obj[deletedSymbol];
-				});
-				resolve(clonedData);
-			}
-		})
-		.then(function(newData){
-			_self.setState({data:newData}, function(){
-				saveLocal(_self);
+		if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
+			fetchAllStock(next).then( function(newData){
+				setStateAndSave(_self,newData);
 			});
-		}).catch(function(err){
-			console.log(err);
-		});
+			//must compare length to avoid running into this "if" when a symbol removed
+		}else if((current.symbols.length < next.symbols.length)) {
+			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
+			.then( function(newData) {
+				if (_self.state.data.length !== 0) {
+					var mergedData = mergeData(_self.state.data , newData);
+			setStateAndSave(_self,mergedData);
+				} else {
+					setStateAndSave(_self,newData);
+				}
+			});
+			//when a symbol removed
+		}else if (current.symbols.length > next.symbols.length){
+			var deletedSymbol= next.deletedSymbol;
+			//send notification data removed
+			PubSub.publish("data_removed", deletedSymbol);
+			var clonedData = _self.state.data.slice();
+			clonedData.forEach( function(obj){
+				delete obj[deletedSymbol];
+			});
+			setStateAndSave(_self, clonedData);
+		}
 	}
-	
+
 	componentWillMount() {
 		var _self = this;
 		var current = this.props.getState;
-		fetchData(current.investment, current.start, current.end, getLastSymbol(current.symbols) )
-		.then( function(newData) {
-			_self.setState(() => { 
-				return{data: newData }; 
+		if(_self.state.data.length === 0){
+			fetchData(current.investment, current.start, current.end, getLastSymbol(current.symbols) )
+			.then( function(newData) {
+				setStateAndSave(_self, newData);
 			});
-			saveLocal(_self);
-		});
+		}
 	}
 	
 	render(){
