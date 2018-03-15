@@ -75,6 +75,9 @@ class HomeContainer extends Component {
 						<SummaryContainer setClassName="summarycontainer" />
 					</td>
 				</tr>
+				<tr>
+					<td><Spinner setClassName="spinner" /></td>
+				</tr>
 			</tbody>
 			</table>
 		);

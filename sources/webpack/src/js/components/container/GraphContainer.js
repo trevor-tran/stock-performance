@@ -3,6 +3,7 @@ import update from 'react-addons-update';
 import moment from 'moment';
 import async from 'async';
 import PubSub from 'pubsub-js';
+import $ from 'jquery';
 
 import Graph from "../presentational/Graph";
 
@@ -121,14 +122,16 @@ class GraphContainer extends Component{
 			data: JSON.parse(sessionStorage.getItem('graph_data')) || []
 		}
 	}
-	
+
 	componentWillReceiveProps(nextProps){
+		$(".spinner").show();
 		var _self = this;
 		var current = this.props.getState;
 		var next = nextProps.getState;
 		if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
 			fetchAllStock(next).then( function(newData){
 				setStateAndSave(_self,newData);
+				$(".spinner").hide();
 			});
 			//must compare length to avoid running into this "if" when a symbol removed
 		}else if((current.symbols.length < next.symbols.length)) {
@@ -136,10 +139,11 @@ class GraphContainer extends Component{
 			.then( function(newData) {
 				if (_self.state.data.length !== 0) {
 					var mergedData = mergeData(_self.state.data , newData);
-			setStateAndSave(_self,mergedData);
+					setStateAndSave(_self,mergedData);
 				} else {
 					setStateAndSave(_self,newData);
 				}
+				$(".spinner").hide();
 			});
 			//when a symbol removed
 		}else if (current.symbols.length > next.symbols.length){
@@ -151,6 +155,7 @@ class GraphContainer extends Component{
 				delete obj[deletedSymbol];
 			});
 			setStateAndSave(_self, clonedData);
+			$(".spinner").hide();
 		}
 	}
 
