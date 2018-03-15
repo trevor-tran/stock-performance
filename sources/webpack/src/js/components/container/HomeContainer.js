@@ -17,7 +17,7 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				investment:1,
+				investment:1000,
 				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
 				symbols: ["MSFT"],
