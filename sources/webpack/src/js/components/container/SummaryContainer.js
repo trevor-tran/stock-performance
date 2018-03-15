@@ -17,9 +17,10 @@ function mergeData( currentData, newObj){
 return clone;
 }
 
+//set new state and save data in session storage
 function setStateAndSave(_self, data){
-	_self.setState(() => {
-		return{data};
+	_self.setState({data},() => {
+		sessionStorage.setItem('summary_data', JSON.stringify(_self.state.data));
 	});
 }
 
@@ -46,34 +47,25 @@ class SummaryContainer extends Component{
 	constructor(props){
 		super(props);
 		this.state = {
-				data: []
+				data: JSON.parse(sessionStorage.getItem('summary_data')) || []
 		}
 	}
 	
 	componentWillMount(){
 		var _self = this;
-		//new Promise(function(resolve,reject){
-		_self.updatingToken = PubSub.subscribe('data_updated', function(){
+		//get notified from GraphContainer when data updated 
+		PubSub.subscribe('data_updated', function(){
 			fetchData().then(function(newObj){
 				var data = mergeData(_self.state.data, newObj);
 				setStateAndSave(_self,data);
-				//resolve(data);
 			});
 		});
-		_self.removingToken = PubSub.subscribe('data_removed',function(msg,deletedSymbol){
+		//get notified from GraphContainer when data removed
+		PubSub.subscribe('data_removed',function(msg,deletedSymbol){
 			var data = _self.state.data.filter(obj => obj.symbol !== deletedSymbol);
 			setStateAndSave(_self,data);
-			//resolve(data);
-			});
-		/*
-		}).then( function(data){
-			_self.setState(() => {
-				return{data};
-			});
-		}).catch( function(err){
-			console.log(err);
 		});
-		*/
+
 	}
 
 	render(){
