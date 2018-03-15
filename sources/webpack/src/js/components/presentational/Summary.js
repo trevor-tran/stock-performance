@@ -25,8 +25,8 @@ class Summary extends Component{
 				<tbody>
 					<tr>
 						<th rowSpan="2">Symbol</th>
-						<th colSpan="3">From {data[0].startDate}</th>
-						<th colSpan="3">To {data[0].endDate}</th>
+						<th colSpan="3">Start Date: {data[0].startDate}</th>
+						<th colSpan="3">End Date: {data[0].endDate}</th>
 						<th rowSpan="2">Gain/Loss($)</th>
 						</tr>
 					<tr>
