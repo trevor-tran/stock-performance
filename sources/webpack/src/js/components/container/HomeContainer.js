@@ -68,7 +68,7 @@ class HomeContainer extends Component {
 					</td>
 				</tr>
 				<tr>
-					<td colSpan="2"><h3 style={{textAlign:"center"}}>Summary Table</h3></td>
+					<td colSpan="2"><h2>Summary Table</h2></td>
 				</tr>
 				<tr>
 					<td colSpan="2">

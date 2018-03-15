@@ -21,7 +21,7 @@ class Summary extends Component{
 		const data = this.props.getData;
 		if(data.length!==0){
 			return(
-				<table className={name} border="1" style={{cellpadding:"5"}}>
+				<table className={name} border="1" cellPadding="5">
 				<tbody>
 					<tr>
 						<th rowSpan="2">Symbol</th>

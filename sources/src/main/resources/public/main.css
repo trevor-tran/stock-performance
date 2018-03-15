@@ -73,7 +73,7 @@ a {
 main {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 15px;
+    padding: 5px;
 }
 
 #content {
@@ -123,6 +123,11 @@ nav ul, nav li {
     transform: translateY(10px);
 }
 
+.homecontainer h2{
+	text-align:center;
+	margin-top:20px;
+	margin-bottom:0;
+}
 
 /* labels inputs button in home page*/
 .inputcontainer {
@@ -183,7 +188,7 @@ nav ul, nav li {
 .summarycontainer {
 	position: relative;
 	display: table; 
-	margin-top: 15px;
+	margin-top: 5px;
 	width:100%;
 	border-collapse: collapse;
 }
