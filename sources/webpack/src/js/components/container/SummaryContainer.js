@@ -1,14 +1,23 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
-import $ from 'jquery';
 import update from 'react-addons-update';
 import moment from 'moment';
-import PropTypes from 'react';
-import async from 'async';
+import PubSub from 'pubsub-js';
 
 import Summary from "../presentational/Summary";
 
+//merge current data and new obj
+function mergeData( currentData, newObj){
+	var clone = currentData.slice();
+	var foundIndex = clone.findIndex( obj => obj.symbol === newObj.symbol);
+	if(foundIndex !== -1){
+		clone[foundIndex] = newObj;
+	}else{
+		clone.push(newObj);
+	}
+return clone;
+}
+
+//fetch summary from server
 function fetchData() {
 	return new Promise(function(resolve, reject) {
 		//request json from server
@@ -37,20 +46,21 @@ class SummaryContainer extends Component{
 	
 	componentWillMount(){
 		var _self = this;
-		fetchData().then(function(data){
-			console.log("type of summary:", typeof data);
-			console.log(data);
-			_self.setState((prevState) => {
-				return{data: prevState.data.push(data) };
+		this.token = PubSub.subscribe('data_updated', function(){
+			fetchData().then(function(newObj){
+				 var data = mergeData(_self.state.data, newObj);
+				_self.setState(() => {
+					return{data};
+				});
 			});
-			console.log(this.state.data);
-		});
+		});		
 	}
 	
 	render(){
 		return(
 			<Summary 
 				setClassName={this.props.setClassName}
+				getData={this.state.data}
 			/>
 		);
 	}
