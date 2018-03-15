@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import update from 'react-addons-update';
 import moment from 'moment';
 import async from 'async';
+import PubSub from 'pubsub-js';
 
 import Graph from "../presentational/Graph";
 
@@ -68,6 +69,8 @@ function fetchData(invest, startDate, endDate, ticker) {
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
+			//notify to SummaryContainer
+			PubSub.publish("data_updated");
 			// convert to JSON
 			return response.json();
 		})
@@ -144,11 +147,11 @@ class GraphContainer extends Component{
 				//when a symbol removed
 			}else if (current.symbols.length > next.symbols.length){
 				var deletedSymbol= next.deletedSymbol;
-				var updatedData = _self.state.data.slice();
-				updatedData.forEach( function(obj){
+				var clonedData = _self.state.data.slice();
+				clonedData.forEach( function(obj){
 					delete obj[deletedSymbol];
 				});
-				resolve(updatedData);
+				resolve(clonedData);
 			}
 		})
 		.then(function(newData){
