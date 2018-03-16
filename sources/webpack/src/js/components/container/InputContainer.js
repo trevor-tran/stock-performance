@@ -52,6 +52,7 @@ class InputContainer extends Component{
 		this.updateButtonHandler = this.updateButtonHandler.bind(this);
 	}
 
+	//handle the button named "update" 
 	updateButtonHandler(investment,start,end,enteredSymbol) {
 		var limits = this.limits;
 		var symbols = this.props.getState.symbols; 
