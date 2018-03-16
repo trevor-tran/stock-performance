@@ -13,9 +13,9 @@ public class Path {
 	}
 	
 	public static class Templates {
-		public static final String HOME = "/velocity/home/home.vm";
-		public static final String SIGNIN = "/velocity/signin/signin.vm";
-		public static final String SIGNUP = "/velocity/signup/signup.vm";
+		public static final String HOME = "/velocity/home.vm";
+		public static final String SIGNIN = "/velocity/signin.vm";
+		public static final String SIGNUP = "/velocity/signup.vm";
 		public static final String NOT_FOUND = "/velocity/notFound.vm";
 	}
 }
