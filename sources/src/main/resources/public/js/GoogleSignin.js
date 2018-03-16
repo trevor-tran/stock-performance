@@ -8,16 +8,20 @@ function setCookie(name,value,days) {
 	}
 	document.cookie = name + "=" + (value || "")  + expires + "; path=/";
 }
+
 function getCookie(name) {
 	var nameEQ = name + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
-		var c = ca[i];
+	var cookies = document.cookie.split(';');
+	for(var i=0;i < cookies.length;i++) {
+		var c = cookies[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		if (c.indexOf(nameEQ) == 0) {
+			return c.substring(nameEQ.length,c.length);
+		}
 	}
 	return null;
 }
+
 function eraseCookie(name) {
 	expires = "; expires=Thu, 01 Jan 1970 00:00:00 UTC";
 	document.cookie = name + "=" + "" + expires + "; path=/";
@@ -50,8 +54,7 @@ function onSignIn()
 		// This did not work:
 		//window.location.replace("http://localhost:4567/books?currentUser=phuong");
 		// Redirect after sign in to the books page
-		window.location.replace("http://localhost:4567/home");
-		//}
+		window.location.replace( window.location.host + "/home/");
 	}
 }
 
