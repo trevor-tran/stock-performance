@@ -14,7 +14,7 @@ public class UserController {
 		try{
 			return UserDao.getUserId(username) != -1;
 		}catch(Exception ex){
-			logger.error("UserController: usernameExists()" + ex.getStackTrace().toString());
+			logger.error("UserController: usernameExists()." + ex.getStackTrace());
 			return false;
 		}
 	}
@@ -24,8 +24,7 @@ public class UserController {
 			//TODO: possible to have invalid userId,maybe need "if"
 			return UserDao.getUserFirstName(userId);
 		}catch(Exception ex){
-			System.out.println("UserController class: Error in getFirstName() method");
-			ex.printStackTrace();
+			logger.error("UserControlle: getFirstName()." + ex.getStackTrace());
 			return "";
 		}
 	}
@@ -50,8 +49,7 @@ public class UserController {
 				return signingInUser.matches(password) ? userId : INVALID_USER_ID;
 			}
 		}catch(Exception ex){
-			System.out.println("UserController class: Error in authenticate() method");
-			System.out.println(ex.getMessage());
+			logger.error("UserController:authenticate()." + ex.getStackTrace());
 			return INVALID_USER_ID;
 		}
 	}
@@ -70,8 +68,7 @@ public class UserController {
 			Password newPassword = new Password(password);
 			UserDao.createUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
 		}catch(Exception ex){
-			System.out.println("UserController class: Error in  createUser() method");
-			ex.printStackTrace();
+			logger.error("UserController: createUser()." + ex.getStackTrace());
 		}
 	}
 }
