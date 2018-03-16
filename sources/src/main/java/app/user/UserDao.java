@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,6 +156,10 @@ public class UserDao {
 			if (connection != null){connection.close();}
 		}catch(SQLException ex){
 			logger.error("Database exception:", ex);
+		}finally{
+			DbUtils.closeQuietly(connection);
+			DbUtils.closeQuietly(statement);
+			DbUtils.closeQuietly(rs);
 		}
 	}
 
@@ -170,7 +175,9 @@ public class UserDao {
 			if (connection != null){connection.close();}
 		}catch(SQLException ex){
 			logger.error("Database exception:", ex);
+		}finally{
+			DbUtils.closeQuietly(connection);
+			DbUtils.closeQuietly(statement);
 		}
 	}
-	
 }
