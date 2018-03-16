@@ -19,7 +19,9 @@ class Summary extends Component{
 		//properties
 		const name = this.props.setClassName;
 		const data = this.props.getData;
-		if(data.length!==0){
+		if(!data.length){
+			return false;
+		}else{
 			return(
 				<table className={name} border="1" cellPadding="5">
 				<tbody>
@@ -53,8 +55,8 @@ class Summary extends Component{
 					}
 				</tbody>
 				</table>
-		);
-	}else{return false;}
+			);
+		}
 	}
 }
 
