@@ -10,6 +10,4 @@ public class UserInfo {
 	Date endDate;
 	String stockSymbol;
 	double numberOfShares;
-	
-	
 }
