@@ -4,7 +4,7 @@ class Input extends Component {
 	constructor(props) {
 		super(props);
 		this.buttonClick = this.buttonClick.bind(this);
-		this.catchEnter = this.catchEnter.bind(this);
+		this.keyUpHandler = this.keyUpHandler.bind(this);
 	}
 	
 	buttonClick(e){
@@ -19,7 +19,8 @@ class Input extends Component {
 		document.getElementById("symbolInput").value ="";
 	}
 	
-	catchEnter(e){
+	keyUpHandler(e){
+		//13 is the code enter key on keyboard.
 		if(e.keyCode === 13){
 			this.buttonClick(e);
 		}
@@ -37,26 +38,26 @@ class Input extends Component {
 					defaultValue={inputContainerState.investment} 
 					min={limits.minInvestment} 
 					max={limits.maxInvestment} 
-					onKeyUp={this.catchEnter}/>
+					onKeyUp={this.keyUpHandler}/>
 				<label>From:</label>
 				<input 
 					id="startDate" 
 					type="date" 
 					defaultValue={inputContainerState.start}
 					min={limits.minDate}
-					onKeyUp={this.catchEnter} required/>
+					onKeyUp={this.keyUpHandler} required/>
 				<label>To:</label>
 				<input 
 					id="endDate" 
 					type="date" 
 					defaultValue={inputContainerState.end} 
 					max={limits.maxDate} 
-					onKeyUp={this.catchEnter} required/>
+					onKeyUp={this.keyUpHandler} required/>
 				<label>Symbol:</label>
 				<input 
 					type="text" 
 					id="symbolInput" 
-					onKeyUp={this.catchEnter} 
+					onKeyUp={this.keyUpHandler} 
 					placeholder="e.g. MSFT" />
 				<button 
 					type="button" 
