@@ -20,7 +20,7 @@ function getLastSymbol(symbols){
 }
 
 //return e.g.  http://localhost:4567/home/?investment=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
-function setUrl (invest, start, end, symbol) {
+function buildUrl (invest, start, end, symbol) {
 	var param="?investment=" + invest + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
 		param += '&symbol='+ symbol;
@@ -48,12 +48,13 @@ function mergeData( currentData, newData){
 //manipulate data into right format
 //e.g [{date:"Jan 04 1993", GOOGL:123, MSFT:456}, {date:"Jan 04 1993", GOOGL:124, MSFT:457}]
 function manipulateData(json) {
-	var _map = new Map();
+	var dateMap = new Map();
+	//each key is a date, each value is {GOOGL:123, MSFT:456}
 	Object.keys(json).forEach(key => {
-		_map.set(key, json[key]);
+		dateMap.set(key, json[key]);
 	});
 	var data = [];
-	_map.forEach(function(price,date) {
+	dateMap.forEach(function(price,date) {
 		var entry = new Object();
 		entry["date"] = moment(date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
 		Object.keys(price).forEach(symbol => {
@@ -67,7 +68,7 @@ function manipulateData(json) {
 //get data from server and return formated data
 function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
-		const url = setUrl(invest, startDate, endDate, ticker);
+		const url = buildUrl(invest, startDate, endDate, ticker);
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
