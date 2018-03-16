@@ -1,7 +1,6 @@
 package app.util;
 
-import app.util.Path.Web;
-import lombok.*;
+import lombok.Getter;
 
 public class Path {
 
