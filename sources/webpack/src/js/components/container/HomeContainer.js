@@ -27,8 +27,8 @@ class HomeContainer extends Component {
 		this.removeSymbol = this.removeSymbol.bind(this);
 	}
 	
+	//remove the symbol from this.state.symbol
 	removeSymbol(deletedSymbol){
-		//remove the symbol from the list
 		var updatedSymbols = this.state.symbols.filter(symbol => symbol !== deletedSymbol);
 		this.setState(() => {
 			return{
@@ -38,6 +38,7 @@ class HomeContainer extends Component {
 		});
 	}
 	
+	//set new state when new values received
 	updateState(investment,start,end,symbols){
 		if(typeof symbols == "undefined"){
 			this.setState(()=>{
