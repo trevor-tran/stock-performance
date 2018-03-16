@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="/main.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script type="text/javascript" src="/js/validation.js"></script>
-	<script type"text/javascript" src="/js/GoogleSignin.js"></script>
+	<script type="text/javascript" src="/js/GoogleSignin.js"></script>
 	<!-- Google Sign-in https://developers.google.com/identity/sign-in/web/ -->
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com"> 
@@ -27,13 +27,14 @@
 	<nav>
 		<ul id="menu">
 			#if($firstName)
-				<li><a href="$WebPath.getPROFILE()"">$firstName</a></li>
+				<li><a>Hi, $firstName</a></li>
 			#end
 			#if($currentUserId)
 				<li>
                     <form method="post" action="$WebPath.getSIGNOUT()">
                         <button id="signout" onclick="signOut();">sign out</button>
                     </form>
+               	</li>
      		#else
      			<li><a href="$WebPath.getSIGNIN()"">sign in</a></li>	
 			#end
@@ -48,7 +49,7 @@
 </main>
 <footer>
 </footer>
-<script type="text/javascript" src="/js/main.js?ver=build_6"></script>
+<script type="text/javascript" src="/js/main.js?ver=build_33"></script>
 </body>
 </html>
 #end
