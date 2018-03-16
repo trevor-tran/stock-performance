@@ -32,11 +32,11 @@ public class DatabaseConnection {
 			//   https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-usagenotes-connect-drivermanager.html
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 		} catch (Exception ex) {
-			logger.error("cannot initialize database connection:"+ ex.getStackTrace().toString());
+			logger.error("cannot initialize database connection:"+ ex.getStackTrace());
 		}
 	}
 
-	private static Connection getConnection(String dbName, String userName, String password) throws Exception
+	private static Connection getConnection(String dbName, String userName, String password)
 	{
 		try {
 			String sslParam = useSSL ? "" : "?useSSL=false";
@@ -46,7 +46,7 @@ public class DatabaseConnection {
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
 		} catch (Exception e) {
-			logger.error("getConnection() failed"+ e.getStackTrace().toString());
+			logger.error("getConnection() failed"+ e.getStackTrace());
 		}
 		return null;
 	}
