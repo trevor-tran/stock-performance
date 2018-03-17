@@ -1,29 +1,22 @@
 package app.stock;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
+import org.apache.http.HttpException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 /**
@@ -35,6 +28,8 @@ public class StockDao {
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
 	private static Map<String,String> summary;
+	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
@@ -44,34 +39,30 @@ public class StockDao {
 			CloseableHttpClient httpclient = HttpClients.createDefault();
 			HttpGet request = new HttpGet(uri);
 			System.out.println("http get: " + request.getURI());//TODO: uri printing, need del later
-			ResponseHandler<JsonObject> rh = new ResponseHandler<JsonObject>() {
-
-				@Override
-				public JsonObject handleResponse(final HttpResponse response) throws IOException {
-					StatusLine statusLine = response.getStatusLine();
-					HttpEntity entity = response.getEntity();
-					if (statusLine.getStatusCode() >= 300) {
-						throw new HttpResponseException(statusLine.getStatusCode(),statusLine.getReasonPhrase());
-					}else if (entity == null) {
-						throw new ClientProtocolException("Response contains no content");
-					}
-					Gson gson = new GsonBuilder().create();
-					ContentType contentType = ContentType.getOrDefault(entity);
-					Charset charset = contentType.getCharset();
-					Reader reader = new InputStreamReader(entity.getContent(), charset);
-					return gson.fromJson(reader, JsonObject.class);
-				}
-			};
-			JsonObject quandlJson = httpclient.execute(request,rh);
-			JsonArray dataArr = quandlJson.getAsJsonObject("datatable").getAsJsonArray("data");
-			return reformartAndComputeReturn(dataArr,invest);//TODO: experiencing data loss with large amount.
-		} 
-		catch(Exception ex){
-			System.out.println(ex.getMessage());
-			return null;
+			ResponseHandler<Map<String,JsonObject>> rh = new QuandlResponseHandler();
+			Map<String,JsonObject> quandlResponse = httpclient.execute(request,rh);
+			//throw error message if failed to request data
+			if(quandlResponse.containsKey("failure")){
+				JsonObject error = quandlResponse.get("failure").getAsJsonObject("quandl_error");
+				String code = error.get("code").getAsString();
+				String msg = error.get("message").getAsString();
+				throw new HttpException("Quandl error code: " + code + ". Message: " + msg);
+			}else{
+				//handle data if success
+				JsonArray dataArr = quandlResponse.get("success").getAsJsonObject("datatable").getAsJsonArray("data");
+				return reformartAndComputeReturn(dataArr,invest);//TODO: experiencing data loss with large amount.
+			} 
+		}catch (HttpException ex){
+			logger.error(ex.getMessage());
+		}catch(ClientProtocolException ex){
+			logger.error(ex.getMessage());
+		}catch(Exception ex){
+			logger.error(ex.getStackTrace().toString());	
 		}
+		return null;
 	}
 
+	//build URL to request data from Quandl
 	private static URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
 		//https://docs.quandl.com/docs/parameters-1
 		URI uri = new URIBuilder()
@@ -135,9 +126,7 @@ public class StockDao {
 		return summary;
 	}
 
-	/*
-	 * round numbers to nth decimal places
-	 */
+	// round numbers to nth decimal places
 	private static double round(double number,int n){
 		double decimal = Math.pow(10, n);
 		return Math.round(number * decimal) / decimal; 
