@@ -31,15 +31,13 @@ function buildUrl (invest, start, end, symbol) {
 //merge current and new data. Return merged data
 function mergeData( currentData, newData){
 	var data = [];
-	if(currentData.length < newData.length){
+	if(currentData.length > newData.length){
 		[currentData, newData] = [newData,currentData];
 	}
 	currentData.forEach( function(currentObj){
 		var found = newData.find( newObj => newObj.date === currentObj.date);
 		if(found){
 			data.push( update(currentObj, {$merge:found}) );
-		}else{
-			data.push(currentObj);
 		}
 	});
 	return data;
