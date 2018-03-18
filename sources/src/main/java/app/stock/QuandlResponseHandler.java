@@ -39,12 +39,12 @@ public class QuandlResponseHandler implements ResponseHandler<Map<String,JsonObj
 			}else {
 				throw new HttpResponseException(statusLine.getStatusCode(),statusLine.getReasonPhrase());
 			}
-		}else if (entity == null) {
+		}
+		if (entity == null) {
 			throw new ClientProtocolException("Response contains no content");
 		}
 		//return data if succeeded
 		quandlResponse.put("success", gson.fromJson(reader, JsonObject.class));
-		
 		return quandlResponse;
 	}
 }
