@@ -8,7 +8,7 @@ class ListContainer extends Component{
 	}
 	
 	handleDelete(deletedSymbol){
-		this.props.onDelete(deletedSymbol);
+		this.props.deleteSymbol(deletedSymbol);
 	}
 	
 	render(){
