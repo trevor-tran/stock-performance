@@ -36,9 +36,9 @@
                     </form>
                	</li>
      		#else
-     			<li><a href="$WebPath.getSIGNIN()"">sign in</a></li>	
+     			<li><a href="$WebPath.getSIGNIN()">sign in</a></li>	
 			#end
-				<li><a href="$WebPath.getSIGNUP()"">sign up</a></li>
+				<li><a href="$WebPath.getSIGNUP()">sign up</a></li>
 		</ul>
 	</nav>
 </header>
@@ -47,9 +47,11 @@
         $bodyContent
     </div>
 </main>
+<script type="text/javascript" src="/js/main.js?ver=build_108"></script>
 <footer>
+		Source code at <a href="https://github.com/PhuongDTran/stock-performance" target="_blank">Github</li>		
+	</nav>
 </footer>
-<script type="text/javascript" src="/js/main.js?ver=build_41"></script>
 </body>
 </html>
 #end
