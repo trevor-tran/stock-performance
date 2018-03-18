@@ -139,18 +139,15 @@ class GraphContainer extends Component{
 		}else if((current.symbols.length < next.symbols.length)) {
 			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
 			.then( function(newData) {
-				if (_self.state.data.length !== 0) {
-					var mergedData = mergeData(_self.state.data , newData);
-					setStateAndSave(_self,mergedData);
-				} else {
-					setStateAndSave(_self,newData);
-				}
+				var mergedData = mergeData(_self.state.data , newData);
+				setStateAndSave(_self,mergedData);
 				$(".spinner").hide();
 			}).catch(function(err){
 				$(".spinner").hide();
 				if(err.message==="not_found"){
+					var unfound = getLastSymbol(next.symbols);
 					_self.props.deleteSymbol(getLastSymbol(next.symbols));
-					alert("could not find entered stock symbol.");
+					alert("could not find the symbol: " + unfound);
 				}
 				console.log(err);
 			});
