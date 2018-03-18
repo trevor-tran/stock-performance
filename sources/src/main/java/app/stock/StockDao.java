@@ -50,6 +50,9 @@ public class StockDao {
 			}else{
 				//handle data if success
 				JsonArray dataArr = quandlResponse.get("success").getAsJsonObject("datatable").getAsJsonArray("data");
+				if(dataArr.size() == 0){
+					return null;
+				}
 				return reformartAndComputeReturn(dataArr,invest);//TODO: experiencing data loss with large amount.
 			} 
 		}catch (HttpException ex){
@@ -59,7 +62,7 @@ public class StockDao {
 		}catch(Exception ex){
 			logger.error(ex.getStackTrace().toString());	
 		}
-		return null;
+		return null; //TODO: need a proper return 
 	}
 
 	//build URL to request data from Quandl
