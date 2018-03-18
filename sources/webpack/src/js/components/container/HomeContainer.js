@@ -62,10 +62,10 @@ class HomeContainer extends Component {
 				</tr>
 				<tr>
 					<td>
-						<GraphContainer	setClassName="graphcontainer" getState={this.state}	/>
+						<GraphContainer	setClassName="graphcontainer" getState={this.state} deleteSymbol={this.removeSymbol} />
 					</td>
 					<td style={{verticalAlign:"top"}}>
-						<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} onDelete={this.removeSymbol} />
+						<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} deleteSymbol={this.removeSymbol} />
 					</td>
 				</tr>
 				<tr>

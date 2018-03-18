@@ -72,16 +72,17 @@ function fetchData(invest, startDate, endDate, ticker) {
 		//request json from server
 		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
 		.then(function(response) {
-			//send notifation data updated
-			PubSub.publish("data_updated");
 			// convert to JSON
 			return response.json();
 		})
 		.then(function(json) {
-			resolve( manipulateData(json));
-		})
-		.catch(function(error) {
-			console.log(error);
+			if(!json){
+				reject(new Error("not_found"));
+			}else{
+				//send notifation data updated
+				PubSub.publish("data_updated");
+				resolve( manipulateData(json));
+			}
 		});
 	});
 }
@@ -134,7 +135,7 @@ class GraphContainer extends Component{
 				setStateAndSave(_self,newData);
 				$(".spinner").hide();
 			});
-			//must compare length to avoid running into this "if" when a symbol removed
+		//must compare length to avoid running into this "if" when a symbol removed
 		}else if((current.symbols.length < next.symbols.length)) {
 			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
 			.then( function(newData) {
@@ -145,6 +146,13 @@ class GraphContainer extends Component{
 					setStateAndSave(_self,newData);
 				}
 				$(".spinner").hide();
+			}).catch(function(err){
+				$(".spinner").hide();
+				if(err.message==="not_found"){
+					_self.props.deleteSymbol(getLastSymbol(next.symbols));
+					alert("could not find entered stock symbol.");
+				}
+				console.log(err);
 			});
 			//when a symbol removed
 		}else if (current.symbols.length > next.symbols.length){
