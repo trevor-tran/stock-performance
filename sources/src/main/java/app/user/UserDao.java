@@ -22,6 +22,7 @@ public class UserDao {
 	public static final int INVALID_USER_ID = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+	
 	public static String getUserFirstName(int userId) {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
@@ -131,8 +132,8 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("INSERT INTO users(first_name,last_name,email,username,salt,hashed_password) "
-					+ "VALUES('%s','%s','%s','%s','%s','%s')", firstName,lastName,email,username,salt,hashedPassword);
+			String sql = String.format("INSERT INTO users(first_name,last_name,email,username,salt,hashed_password,google_user) "
+					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
 			statement.executeUpdate(sql);
 			close(connection,statement);
 		}catch (SQLException ex) {
