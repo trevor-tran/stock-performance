@@ -67,8 +67,11 @@ function manipulateData(json) {
 function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
 		const url = buildUrl(invest, startDate, endDate, ticker);
-		//request json from server
-		fetch(url, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
+		fetch(url,{
+			credentials: 'include',//crucial to have this to send sessions, cookies,.... 
+			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'  } 
+		})
 		.then(function(response) {
 			// convert to JSON
 			return response.json();
@@ -77,7 +80,7 @@ function fetchData(invest, startDate, endDate, ticker) {
 			if(!json){
 				reject(new Error("not_found"));
 			}else{
-				//send notifation data updated
+				//send notification data updated
 				PubSub.publish("data_updated");
 				resolve( manipulateData(json));
 			}
