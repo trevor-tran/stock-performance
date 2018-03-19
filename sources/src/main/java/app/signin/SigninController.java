@@ -59,28 +59,26 @@ public class SigninController {
 		response.redirect(Path.Web.HOME);
 		return null;
 	};
-	//TODO: will use later to guarantee signed in before query user data
+	
+	/**
+	 * Check if user uses native sign-in or google sign-in.
+	 * @see <a href="https://developers.google.com/identity/sign-in/web/backend-auth">developers.google.com</a> 
+	 * @see	<a href="https://cloud.google.com/java/getting-started/authenticate-users">cloud.google.com</a>
+	 */
 	public static boolean isSignIn(Request request, Response response) throws Exception {
 		String googleToken = request.cookie("currentToken");
-		//String nativeUserId = (String)(request.session().attribute("currentUserId"));
-		if ( getSessionUserId(request) == null) {
-			if( googleToken!=null){
-				//https://developers.google.com/identity/sign-in/web/backend-auth
-				//https://cloud.google.com/java/getting-started/authenticate-users
-				// the current Google id token may be passed in as a cookie
-				GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
-						.setAudience(Collections.singletonList(APP_CLIENT_ID))
-						.build();
-				
-				GoogleIdToken idToken = verifier.verify(googleToken);
-				
-				if(idToken != null){
-					Payload payload = idToken.getPayload();
-					System.out.println(payload.getEmail());
-					System.out.println( (String)payload.get("given_name"));
-					System.out.println( (String)payload.get("family_name"));
-					return true;
-				}
+		if ( getSessionUserId(request) == null && googleToken!=null) {
+			// the current Google id token may be passed in as a cookie
+			GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
+					.setAudience(Collections.singletonList(APP_CLIENT_ID))
+					.build();
+			GoogleIdToken idToken = verifier.verify(googleToken);
+			if(idToken != null){
+				Payload payload = idToken.getPayload();
+				System.out.println(payload.getEmail());
+				System.out.println( (String)payload.get("given_name"));
+				System.out.println( (String)payload.get("family_name"));
+				return true;
 			}
 			response.redirect(Path.Web.SIGNIN);
 			return false;
