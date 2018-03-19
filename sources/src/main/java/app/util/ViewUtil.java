@@ -1,5 +1,8 @@
 package app.util;
 
+import static app.util.RequestUtil.getSessionUserId;
+import static app.util.RequestUtil.getQueryFirstName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +21,8 @@ public class ViewUtil {
     Renders a template given a model and a request
     */
 	public static String render (Request request, Map<String,Object> model, String templatePath ) {
-		model.put("currentUserId", request.session().attribute("currentUserId"));
-		model.put("firstName", request.session().attribute("firstName"));
+		model.put("currentUserId", getSessionUserId(request));
+		model.put("firstName", getQueryFirstName(request));
 		model.put("WebPath", Path.Web.class);  // Access application URLs from templates
 		return strictVelocityEngine().render( new ModelAndView(model, templatePath));
 	}
