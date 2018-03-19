@@ -128,7 +128,7 @@ public class UserDao {
 	 * @param hashedPassword
 	 * @throws Exception
 	 */
-	public static void createUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
+	public static void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();

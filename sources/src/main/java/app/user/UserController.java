@@ -66,7 +66,7 @@ public class UserController {
 	public static void createUser(String firstName,String lastName,String email, String username,String password){
 		try{
 			Password newPassword = new Password(password);
-			UserDao.createUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
+			UserDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
 		}catch(Exception ex){
 			logger.error("UserController: createUser()." + ex.getStackTrace());
 		}
