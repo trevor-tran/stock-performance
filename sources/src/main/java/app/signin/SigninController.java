@@ -2,9 +2,21 @@ package app.signin;
 
 import static app.user.UserController.authenticate;
 import static app.user.UserController.getFirstName;
+import static app.util.RequestUtil.getQueryPassword;
+import static app.util.RequestUtil.getQueryUsername;
+import static app.util.RequestUtil.getSessionUserId;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 
 import app.util.Path;
 import app.util.ViewUtil;
@@ -13,16 +25,20 @@ import spark.Response;
 import spark.Route;
 
 public class SigninController {
+	
+	  private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+	  private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+	  private static final String APP_CLIENT_ID = "60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com";
 
 	public static Route handleSigninDisplay = (Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<String,Object>();
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
 
-	public static Route handelSigninPost = (Request request, Response response) -> {
+	public static Route handleSigninPost = (Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<String,Object>();
-		String username = request.queryParams("username");
-		String password = request.queryParams("password");
+		String username = getQueryUsername(request);
+		String password = getQueryPassword(request);
 		if ( username.contains(" ")){
 			model.put("usernameContainsSpace", true);
 		}
@@ -45,13 +61,28 @@ public class SigninController {
 	};
 	//TODO: will use later to guarantee signed in before query user data
 	public static boolean isSignIn(Request request, Response response) throws Exception {
-		if (request.session().attribute("currentUserId") == null) {
-			// the current username/email may be passed to us in a cookie
-			//String userCookie = request.cookie("currentUser");
-			//if (userCookie != null && userCookie.length() > 0) {
-			// save the username in a session variable with the same key name
-			//request.session().attribute("currentUser", userCookie);
-			//handleGoogleSignIn(userCookie);
+		String googleToken = request.cookie("currentToken");
+		//String nativeUserId = (String)(request.session().attribute("currentUserId"));
+		if ( getSessionUserId(request) == null) {
+			if( googleToken!=null){
+				//https://developers.google.com/identity/sign-in/web/backend-auth
+				//https://cloud.google.com/java/getting-started/authenticate-users
+				// the current Google id token may be passed in as a cookie
+				GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
+						.setAudience(Collections.singletonList(APP_CLIENT_ID))
+						.build();
+				
+				GoogleIdToken idToken = verifier.verify(googleToken);
+				
+				if(idToken != null){
+					Payload payload = idToken.getPayload();
+					System.out.println(payload.getEmail());
+					System.out.println( (String)payload.get("given_name"));
+					System.out.println( (String)payload.get("family_name"));
+					return true;
+				}
+			}
+			response.redirect(Path.Web.SIGNIN);
 			return false;
 		}
 		return true;
