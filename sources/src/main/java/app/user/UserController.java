@@ -1,5 +1,7 @@
 package app.user;
 
+import static app.user.UserDao.INVALID_USER_ID;
+
 import java.lang.invoke.MethodHandles;
 
 import org.slf4j.Logger;
@@ -7,12 +9,11 @@ import org.slf4j.LoggerFactory;
 
 public class UserController {
 	
-	public static final int INVALID_USER_ID = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
 	public static boolean usernameExists( String username){
 		try{
-			return UserDao.getUserId(username) != -1;
+			return UserDao.getUserId(username) != INVALID_USER_ID;
 		}catch(Exception ex){
 			logger.error("UserController: usernameExists()." + ex.getStackTrace());
 			return false;
@@ -41,7 +42,7 @@ public class UserController {
 				return INVALID_USER_ID;
 			}
 			int userId = UserDao.getUserId(username);
-			if(userId == -1){
+			if(userId == INVALID_USER_ID){
 				return INVALID_USER_ID;
 			}
 			else{
@@ -63,7 +64,7 @@ public class UserController {
 	 * @param password
 	 * @throws Exception
 	 */
-	public static void createUser(String firstName,String lastName,String email, String username,String password){
+	public static void addUser(String firstName,String lastName,String email, String username,String password){
 		try{
 			Password newPassword = new Password(password);
 			UserDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;

@@ -1,6 +1,6 @@
 package app.signup;
 
-import static app.user.UserController.createUser;
+import static app.user.UserController.addUser;
 import static app.user.UserController.usernameExists;
 
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class SignupController {
 		}
 		//TODO: Email Address Validation
 		else{
-			createUser(firstName, lastName, email, username, password);
+			addUser(firstName, lastName, email, username, password);
 			model.put("signupSucceeded", true);
 		}
 		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
