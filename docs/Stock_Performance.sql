@@ -9,6 +9,7 @@ create table users( user_id int auto_increment,
                     investment decimal(13,2),
                     start_date date,
                     end_date date,
+					google_user tinyint(1) not null,
                     primary key(user_id));
                     
 create table stocks( stock_id int auto_increment,

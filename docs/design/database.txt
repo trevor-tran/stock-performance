@@ -9,6 +9,7 @@ Table users:
 	end_date date
 	salt varchar(100)
 	hashed_password varchar(100)
+	google_user tinyint(1)
 Table stocks:
 	stock_id int primary
 	symbol varchar(10)
