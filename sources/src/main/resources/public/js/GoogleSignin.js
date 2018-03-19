@@ -35,21 +35,17 @@ function onSignIn()
 	if ( googleAuth.isSignedIn.get() )
 	{
 		var googleUser = googleAuth.currentUser.get();
-		// Useful data for your client-side scripts:
-		var profile = googleUser.getBasicProfile();
-		console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-		console.log('Full Name: ' + profile.getName());
-		console.log('Given Name: ' + profile.getGivenName());
-		console.log('Family Name: ' + profile.getFamilyName());
-		console.log("Image URL: " + profile.getImageUrl());
-		console.log("Email: " + profile.getEmail());
-
 		// The ID token you need to pass to your backend:
 		var id_token = googleUser.getAuthResponse().id_token;
 		console.log("ID Token: " + id_token);
-
 		// Pass user data to the server w/ a cookie: http://www.javascripter.net/faq/passingp.htm
-		setCookie('currentToken', id_token, 1);	        
+		setCookie('currentToken', id_token, 1);
+		
+		//var xhr = new XMLHttpRequest();
+		//xhr.open('POST', window.location.host +'/signin/');
+		//xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		//xhr.send('idToken=' + id_token);
+		
 		//setCookie('currentUser', profile.getEmail(), 1);
 		// This did not work:
 		//window.location.replace("http://localhost:4567/books?currentUser=phuong");
