@@ -132,14 +132,35 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("INSERT INTO users(first_name,last_name,email,username,salt,hashed_password,google_user) "
+			String sql = String.format("INSERT INTO users( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
 			statement.executeUpdate(sql);
 			close(connection,statement);
 		}catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
 		}catch (Exception ex) {
-			logger.error("createUser() failed:" + ex);
+			logger.error("addUser() failed:" + ex);
+		}
+	}
+	
+	/**
+	 * execute INSERT query to add new Google user to users_table
+	 * @param firstName
+	 * @param lastName
+	 * @param email
+	 */
+	public static void addGoogleUser(String gId, String firstName,String lastName,String email){
+		try{
+			Connection connection = DatabaseConnection.getConnection();
+			Statement statement = connection.createStatement();
+			String sql = String.format("INSERT INTO users(username, first_name, last_name, email, google_user) "
+					+ "VALUES('%s','%s','%s','%s',%d)", gId, firstName, lastName, email, 1);
+			statement.executeUpdate(sql);
+			close(connection,statement);
+		}catch (SQLException ex) {
+			logger.error("Database exception: " + ex);
+		}catch (Exception ex) {
+			logger.error("addGoogleUser() failed:" + ex);
 		}
 	}
 

@@ -36,21 +36,17 @@ function onSignIn()
 	{
 		var googleUser = googleAuth.currentUser.get();
 		// The ID token you need to pass to your backend:
-		var id_token = googleUser.getAuthResponse().id_token;
-		console.log("ID Token: " + id_token);
+		var idToken = googleUser.getAuthResponse().id_token;
 		// Pass user data to the server w/ a cookie: http://www.javascripter.net/faq/passingp.htm
-		setCookie('currentToken', id_token, 1);
+		setCookie('currentToken', idToken, 1);
+		window.location.replace("http://" + window.location.host + "/home/");
 		
-		//var xhr = new XMLHttpRequest();
-		//xhr.open('POST', window.location.host +'/signin/');
-		//xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		//xhr.send('idToken=' + id_token);
-		
-		//setCookie('currentUser', profile.getEmail(), 1);
-		// This did not work:
-		//window.location.replace("http://localhost:4567/books?currentUser=phuong");
-		// Redirect after sign in to the books page
-		window.location.replace( window.location.host + "/home/");
+		//https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api#example_post_requests
+		/*fetch("http://" + window.location.host + '/signin/',{
+			method: 'POST',
+			headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+			body:'idtoken='+idToken
+		});*/
 	}
 }
 
