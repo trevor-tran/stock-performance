@@ -28,11 +28,11 @@ public class StockApplication {
 		before("*", Filters.addTrailingSlashes);
 
 		// Set up routes
-		get(Path.Web.HOME,       HomeController.fetchAllStocks);
-		get(Path.Web.HOME, "application/json", HomeController.fetchAllStocks);
+		get(Path.Web.HOME,       HomeController.fetchOneStock);
+		get(Path.Web.HOME, "application/json", HomeController.fetchOneStock);
 		get(Path.Web.SUMMARY, "application/json", HomeController.fetchSummary);
 		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
-		post(Path.Web.SIGNIN, 		SigninController.handelSigninPost);
+		post(Path.Web.SIGNIN, 		SigninController.handleSigninPost);
 		post(Path.Web.SIGNOUT, 		SigninController.handleSignoutPost);
 		get(Path.Web.SIGNUP, 		SignupController.handleSignupDisplay);
 		post(Path.Web.SIGNUP, 		SignupController.handleSignupPost);
