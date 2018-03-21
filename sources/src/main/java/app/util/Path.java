@@ -10,6 +10,7 @@ public class Path {
 		@Getter public static final String SIGNUP = "/signup/";
 		@Getter public static final String SIGNOUT = "/signout/";
 		@Getter public static final String SUMMARY = "/summary/";
+		@Getter public static final String GOOGLESIGNIN = "/googlesignin/"; 
 	}
 	
 	public static class Templates {
