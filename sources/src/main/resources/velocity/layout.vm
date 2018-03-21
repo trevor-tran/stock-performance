@@ -14,8 +14,7 @@
 		//https://developers.google.com/identity/sign-in/web/reference#googleauthgrantofflineaccessoptions
 		function onLoad() 
 		{	
-        	// make sure auth2 is initialized at page load
-         	// https://stackoverflow.com/a/29833065
+        	//make sure auth2 is initialized at page load (ref: https://stackoverflow.com/a/29833065 )
          	gapi.load('auth2', function() {
             	gapi.auth2.init();
          	});
@@ -36,9 +35,9 @@
                     </form>
                	</li>
      		#else
-     			<li><a href="$WebPath.getSIGNIN()">sign in</a></li>	
+				<li><a href="$WebPath.getSIGNIN()">sign in</a></li>
+				<li><a href="$WebPath.getSIGNUP()">sign up</a></li>	
 			#end
-				<li><a href="$WebPath.getSIGNUP()">sign up</a></li>
 		</ul>
 	</nav>
 </header>
@@ -47,7 +46,7 @@
         $bodyContent
     </div>
 </main>
-<script type="text/javascript" src="/js/main.js?ver=build_170"></script>
+<script type="text/javascript" src="/js/main.js?ver=build_188"></script>
 <footer>
 		Source code at <a href="https://github.com/PhuongDTran/stock-performance" target="_blank">Github</li>		
 	</nav>
