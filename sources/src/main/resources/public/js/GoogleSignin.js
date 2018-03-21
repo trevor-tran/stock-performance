@@ -3,6 +3,7 @@ function onSignIn() {
 	var googleAuth = gapi.auth2.getAuthInstance();
 	if ( googleAuth.isSignedIn.get()) {
 		var googleUser = googleAuth.currentUser.get();
+		// The ID token passed to your back-end:
 		var idToken = googleUser.getAuthResponse().id_token;
 		//https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api#example_post_requests
 		fetch("http://" + window.location.host + '/googlesignin/', {
