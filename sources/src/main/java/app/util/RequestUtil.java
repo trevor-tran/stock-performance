@@ -23,6 +23,10 @@ public class RequestUtil {
         }
         return null;
     }
+    
+    public static String getQueryGoogleToken(Request request){
+    	return request.queryParams("idtoken");
+    }
 
     public static boolean clientAcceptsHtml(Request request) {
         String accept = request.headers("Accept");
