@@ -5,14 +5,16 @@ import static app.user.UserController.getFirstName;
 import static app.user.UserDao.INVALID_USER_ID;
 import static app.user.UserDao.addGoogleUser;
 import static app.user.UserDao.getUserId;
+import static app.util.RequestUtil.getQueryGoogleToken;
 import static app.util.RequestUtil.getQueryPassword;
 import static app.util.RequestUtil.getQueryUsername;
 import static app.util.RequestUtil.getSessionUserId;
-import static app.util.RequestUtil.getQueryGoogleToken;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -22,10 +24,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
-
 import app.util.Path;
 import app.util.ViewUtil;
-import static spark.Spark.redirect;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -54,7 +54,7 @@ public class SigninController {
 		if(userId == INVALID_USER_ID){
 			model.put("authenticationFailed", true);
 		}else{
-			request.session().attribute("firstName", getFirstName(userId));
+			request.session().attribute("firstName", StringUtils.capitalize( getFirstName(userId)));
 			request.session().attribute("currentUserId", userId);
 			response.redirect(Path.Web.HOME);
 		}
@@ -80,7 +80,7 @@ public class SigninController {
 				request.session().attribute("firstName", getFirstName(userId));
 				response.redirect(Path.Web.HOME,200);
 				return null;
-				
+
 			}
 		}
 		model.put("authenticationFailed", true);
