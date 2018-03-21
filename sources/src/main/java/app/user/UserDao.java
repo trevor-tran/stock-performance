@@ -149,12 +149,12 @@ public class UserDao {
 	 * @param lastName
 	 * @param email
 	 */
-	public static void addGoogleUser(String gId, String firstName,String lastName,String email){
+	public static void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
 			String sql = String.format("INSERT INTO users(username, first_name, last_name, email, google_user) "
-					+ "VALUES('%s','%s','%s','%s',%d)", gId, firstName, lastName, email, 1);
+					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);
 			statement.executeUpdate(sql);
 			close(connection,statement);
 		}catch (SQLException ex) {
