@@ -25,6 +25,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import app.util.Path;
 import app.util.ViewUtil;
+import static spark.Spark.redirect;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -77,9 +78,12 @@ public class SigninController {
 				int userId = getGoogleUserId(payload);
 				request.session().attribute("currentUserId", userId);
 				request.session().attribute("firstName", getFirstName(userId));
-				response.redirect(Path.Web.HOME);
+				response.redirect(Path.Web.HOME,200);
+				return null;
+				
 			}
 		}
+		model.put("authenticationFailed", true);
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
 
