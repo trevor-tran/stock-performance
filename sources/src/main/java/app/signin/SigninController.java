@@ -1,10 +1,6 @@
 package app.signin;
 
-import static app.user.UserController.authenticate;
-import static app.user.UserController.getFirstName;
 import static app.user.UserDao.INVALID_USER_ID;
-import static app.user.UserDao.addGoogleUser;
-import static app.user.UserDao.getUserId;
 import static app.util.RequestUtil.getQueryGoogleToken;
 import static app.util.RequestUtil.getQueryPassword;
 import static app.util.RequestUtil.getQueryUsername;
@@ -24,6 +20,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import app.user.UserController;
 import app.util.Path;
 import app.util.ViewUtil;
 import spark.Request;
@@ -50,11 +47,12 @@ public class SigninController {
 		if ( username.contains(" ")){
 			model.put("usernameContainsSpace", true);
 		}
-		int userId = authenticate(username, password);
+		int userId = UserController.authenticate(username, password);
 		if(userId == INVALID_USER_ID){
 			model.put("authenticationFailed", true);
 		}else{
-			request.session().attribute("firstName", StringUtils.capitalize( getFirstName(userId)));
+			String firstName = UserController.getFirstName(userId);
+			request.session().attribute("firstName", StringUtils.capitalize(firstName));
 			request.session().attribute("currentUserId", userId);
 			response.redirect(Path.Web.HOME);
 		}
@@ -63,26 +61,29 @@ public class SigninController {
 
 	//https://developers.google.com/identity/sign-in/web/backend-auth
 	public static Route handleGoogleSignin = (Request request, Response response) -> {
-		Map<String,Object> model = new HashMap<String,Object>();
-		//after sign in successfully with Google account, 
-		//an idToken will be sent to server to verify the account and obtain personal information
+		//verify the id token obtained from front-end
 		String idToken = getQueryGoogleToken(request);
 		if( idToken != null) {
 			GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
 					.setAudience(Collections.singletonList(APP_CLIENT_ID))
 					.build();
+			
 			GoogleIdToken gToken = verifier.verify(idToken);
+			
 			if( gToken != null){
 				Payload payload = gToken.getPayload();
 				//similar to native users, sign in by Google account saved in database with unique id
-				int userId = getGoogleUserId(payload);
-				request.session().attribute("currentUserId", userId);
-				request.session().attribute("firstName", getFirstName(userId));
-				response.redirect(Path.Web.HOME,200);
-				return null;
-
+				int userId = UserController.addGoogleAndGetId(payload);
+				if(userId != INVALID_USER_ID){
+					request.session().attribute("currentUserId", userId);
+					String firstName = UserController.getFirstName(userId);
+					request.session().attribute("firstName", StringUtils.capitalize(firstName));
+					response.redirect(Path.Web.HOME,200);
+					return null;
+				}
 			}
 		}
+		Map<String,Object> model = new HashMap<String,Object>();
 		model.put("authenticationFailed", true);
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
@@ -101,25 +102,4 @@ public class SigninController {
 		}
 		return true;
 	};
-
-	/**
-	 * look up google account in database, add to database if not already added
-	 * @param payload
-	 * @return userID in database table
-	 */
-	private static int getGoogleUserId(Payload payload){
-		//use this as username in database. e.g gUserIdentifier == "212312312312321"
-		String gUserIdentifier = payload.getSubject();
-		int userId = getUserId(gUserIdentifier); 
-		if( userId != INVALID_USER_ID){
-			return userId;
-		}else{
-			String email = payload.getEmail();
-			String firstName = (String)payload.get("given_name");
-			String lastName = (String)payload.get("family_name");
-			// username is gUserIdentifier
-			addGoogleUser( gUserIdentifier, firstName, lastName, email);
-			return getUserId(gUserIdentifier);
-		}
-	}
 }

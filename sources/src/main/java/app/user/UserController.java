@@ -7,6 +7,8 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+
 public class UserController {
 	
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -54,6 +56,32 @@ public class UserController {
 			return INVALID_USER_ID;
 		}
 	}
+	
+	/**
+	 * look up google account in database, add to database if not already added
+	 * @param payload
+	 * @return userID in database table
+	 */
+	public static int addGoogleAndGetId(Payload payload) {
+		try{
+			//e.g gUserIdentifier == "212312312312321"
+			String gUserIdentifier = payload.getSubject();
+			// username is gUserIdentifier
+			int userId = UserDao.getUserId(gUserIdentifier); 
+			if( userId != INVALID_USER_ID){
+				return userId;
+			}else{
+				String email = payload.getEmail();
+				String firstName = (String)payload.get("given_name");
+				String lastName = (String)payload.get("family_name");
+				UserDao.addGoogleUser(gUserIdentifier, firstName, lastName, email);
+				return UserDao.getUserId(gUserIdentifier);
+			}
+		}catch(Exception ex){
+			logger.error("UserController: addUser()." + ex.getStackTrace());
+			return INVALID_USER_ID;
+		}
+	}
 
 	/**
 	 * Hash password and create a new user in database
@@ -69,7 +97,7 @@ public class UserController {
 			Password newPassword = new Password(password);
 			UserDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
 		}catch(Exception ex){
-			logger.error("UserController: createUser()." + ex.getStackTrace());
+			logger.error("UserController: addUser()." + ex.getStackTrace());
 		}
-	}
+	}	
 }
