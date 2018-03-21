@@ -32,7 +32,7 @@
 			#if($currentUserId)
 				<li>
                     <form method="post" action="$WebPath.getSIGNOUT()">
-                        <button id="signout" onclick="signOut();">sign out</button>
+                        <button id="signout" onclick="onSignOut();">sign out</button>
                     </form>
                	</li>
      		#else
@@ -47,7 +47,7 @@
         $bodyContent
     </div>
 </main>
-<script type="text/javascript" src="/js/main.js?ver=build_108"></script>
+<script type="text/javascript" src="/js/main.js?ver=build_170"></script>
 <footer>
 		Source code at <a href="https://github.com/PhuongDTran/stock-performance" target="_blank">Github</li>		
 	</nav>
