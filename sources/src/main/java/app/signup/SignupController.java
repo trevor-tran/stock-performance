@@ -2,6 +2,7 @@ package app.signup;
 
 import static app.user.UserController.addUser;
 import static app.user.UserController.usernameExists;
+import static app.util.RequestUtil.getSessionUserId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +19,14 @@ import spark.Route;
 public class SignupController {
 
 	public static Route handleSignupDisplay = (Request request, Response response ) -> {
-		Map<String,Object> model = new HashMap<String,Object>();
-		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
+		String currentUserId = getSessionUserId(request);
+		//allow to sign up a new account when no user has not signed in
+		if(currentUserId == null){
+			Map<String,Object> model = new HashMap<String,Object>();
+			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
+		}
+		//TODO:Should I do anything here if currentUserId is not null
+		return null;
 	};
 	
 	public static Route handleSignupPost = ( Request request, Response response) -> {
