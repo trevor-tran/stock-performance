@@ -27,7 +27,7 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("SELECT first_name FROM users WHERE user_id=%d" , userId);
+			String sql = String.format("SELECT first_name FROM UserInfo WHERE user_id=%d" , userId);
 			ResultSet rs = statement.executeQuery(sql);
 			if(!rs.next()){
 				return "";
@@ -53,7 +53,7 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("SELECT user_id FROM users WHERE username='%s'" , username);
+			String sql = String.format("SELECT user_id FROM UserInfo WHERE username='%s'" , username);
 			ResultSet rs = statement.executeQuery(sql);
 			if(rs.next()){
 				int userId = rs.getInt(1);
@@ -80,7 +80,7 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("SELECT salt,hashed_password FROM users WHERE user_id=%d",userId);
+			String sql = String.format("SELECT salt,hashed_password FROM UserInfo WHERE user_id=%d",userId);
 			ResultSet rs = statement.executeQuery(sql);
 			rs.next();
 			String salt = rs.getString(1);
@@ -99,8 +99,8 @@ public class UserDao {
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
 			String sql = String.format("SELECT user.first_name,user.investment,user.start_date,user.end_date,stocks.symbol,stock.number_of_shares"
-					+ " FROM users WHERE users.user_id=%d"
-					+ " AND users.user_id=stocks.user_id",userId);
+					+ " FROM UserInfo WHERE UserInfo.user_id=%d"
+					+ " AND UserInfo.user_id=stocks.user_id",userId);
 			ResultSet rs = statement.executeQuery(sql);
 			rs.next();
 			BigDecimal investment = rs.getBigDecimal(1);
@@ -132,7 +132,7 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("INSERT INTO users( first_name, last_name, email, username, salt, hashed_password, google_user) "
+			String sql = String.format("INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
 			statement.executeUpdate(sql);
 			close(connection,statement);
@@ -153,7 +153,7 @@ public class UserDao {
 		try{
 			Connection connection = DatabaseConnection.getConnection();
 			Statement statement = connection.createStatement();
-			String sql = String.format("INSERT INTO users(username, first_name, last_name, email, google_user) "
+			String sql = String.format("INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
 					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);
 			statement.executeUpdate(sql);
 			close(connection,statement);
