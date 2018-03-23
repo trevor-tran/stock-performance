@@ -1,22 +1,27 @@
 use stock_performance;
 
--- https://stackoverflow.com/questions/7296846/how-to-implement-one-to-one-one-to-many-and-many-to-many-relationships-while-de
-create table StockSymbol( symbol_id int auto_increment not null,
+
+-- number of tables(AAPL, MSFT...) increases when more symbols added to Symbols_table                         
+create table Symbols( symbol_id int auto_increment not null,
 						symbol varchar(10) not null,
-                        primary key (symbol_id));
-                        
-create table StockPrice( price_id int auto_increment not null,
+                        primary key (symbol));
+insert into symbols(symbol) values('AAPL');
+create table AAPL( ticker_id int auto_increment not null,
+						symbol_id int not null,
 						price_date date not null,
                         price decimal(13,2) not null,
                         split_ratio double not null,
-                        primary key (price_id));
-                        
-create table StockSymbolStockPrice( symbol_price_id int auto_increment not null,
-							price_id int not null,
-                            symbol_id int not null,
-                            primary key (symbol_price_id),
-                            foreign key ( price_id) references StockPrice(price_id),
-                            foreign key ( symbol_id) references StockSymbol(symbol_id));
+                        primary key (ticker_id),
+                        foreign key (symbol_id) references Symbols(symbol_id));
+insert into symbols(symbol) values('MSFT');
+create table MSFT( ticker_id int auto_increment not null,
+						symbol_id int not null,
+						price_date date not null,
+                        price decimal(13,2) not null,
+                        split_ratio double not null,
+                        primary key (ticker_id),
+                        foreign key (symbol_id) references Symbols(symbol_id));
+
 
 create table UserInfo( user_id int auto_increment,
 					first_name varchar(20) not null,
