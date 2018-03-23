@@ -1,5 +1,5 @@
 package app.home;
-import static app.stock.StockDao.getSummary;
+import static app.stock.StockController.getSummary;
 import static app.util.JsonUtil.dataToJson;
 import static app.util.RequestUtil.clientAcceptsHtml;
 import static app.util.RequestUtil.clientAcceptsJson;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.signin.SigninController;
-import app.stock.StockDao;
+import app.stock.StockController;
 import app.util.Path;
 import app.util.ViewUtil;
 import spark.Request;
@@ -25,11 +25,11 @@ public class HomeController {
 				return ViewUtil.render(request, model, Path.Templates.HOME);
 			}
 			else if (clientAcceptsJson(request)) {
-				long invest = Long.parseLong(request.queryParams("investment"));
+				long investment = Long.parseLong(request.queryParams("investment"));
 				String start = request.queryParams("start");
 				String end = request.queryParams("end");
 				String symbol = request.queryParams("symbol");
-				Map<String,Map<String,Double>> data = StockDao.getStockData(invest, symbol, start, end);
+				Map<String,Map<String,Double>> data = StockController.getData(investment, symbol, start, end);
 				//TODO: handle null data
 				response.header("Content-Type", "application/json");
 				return dataToJson(data);
