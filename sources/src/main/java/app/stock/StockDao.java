@@ -36,14 +36,16 @@ public class StockDao {
 			QueryHandler queryHandler = new QueryHandler();
 			Statement statement = queryHandler.getStatement();
 			if(findSymbol(statement, symbol) == NOT_FOUND){
-				update(statement, symbol, startDate, endDate);
+				insertData(statement, symbol, startDate, endDate);
+			}else{
+				updateTable(statement, symbol, startDate, endDate);
 			}
 			String sql = String.format( 
-								"SELECT t.price_date, s.symbol, t.price, t.split_ratio "
+								"SELECT t.date_as_id, s.symbol, t.price, t.split_ratio "
 							+	"FROM %s AS t "
 							+	"INNER JOIN Symbols AS s "
 							+	"WHERE t.symbol_id = s.symbol_id "
-							+ 	"AND t.price_date BETWEEN '%s' AND '%s'", symbol, startDate, endDate);
+							+ 	"AND t.date_as_id BETWEEN '%s' AND '%s'", symbol, startDate, endDate);
 			
 			queryHandler.executeQuery(sql);
 			return queryHandler;
@@ -53,7 +55,24 @@ public class StockDao {
 		return null;
 	}
 	
-	private static void update(Statement statement, String symbol, String startDate, String endDate){
+	private static void updateTable(Statement statement, String symbol, String startDate,String endDate) {
+		try{
+			String sql = String.format("CALL END_DATE_OF_QUANDL_REQUEST('%s', '%s')", symbol, startDate);
+			ResultSet rs = statement.executeQuery(sql);
+			if(rs.next()){
+				String newEndDate = rs.getString(1);
+				if(newEndDate != ""){
+					insertData(statement, symbol, startDate, newEndDate);
+				}else{
+					insertData(statement, symbol, startDate, endDate);
+				}
+			}
+		}catch(Exception ex){
+			logger.error(ex.getMessage());
+		}
+	}
+	
+	private static void insertData(Statement statement, String symbol, String startDate, String endDate){
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
@@ -67,13 +86,12 @@ public class StockDao {
 					String date = e.get(0).getAsString(); 
 					double price = e.get(2).getAsDouble();
 					double split = e.get(3).getAsDouble();
-					String sql = String.format("INSERT INTO %s( price_date, price, split_ratio, symbol_id) "
-											+ "VALUES( '%s', %f, %f,%d)", symbol,date,price,split,symbolId);
+					String sql = String.format("INSERT INTO %s VALUES('%s', %f, %f,%d)", symbol,date,price,split,symbolId);
 					statement.executeUpdate(sql);
 				}
 			}
 		}catch(Exception ex){
-			logger.error(ex.getStackTrace().toString());
+			logger.error(ex.getMessage());
 		}
 	}	
 	
@@ -86,12 +104,11 @@ public class StockDao {
 			//create new table for new symbol added
 			sql = String.format(
 					"CREATE TABLE %s ("
-							+"ticker_id int auto_increment not null,"
-							+"symbol_id int not null,"
-							+"price_date date not null,"
+							+"date_as_id date not null,"
 							+"price decimal(13,2) not null,"
 							+"split_ratio double not null,"
-							+"primary key (ticker_id),"
+							+"symbol_id int not null,"
+							+"primary key (date_as_id),"
 							+"foreign key (symbol_id) references Symbols(symbol_id))", symbol);
 			statement.executeUpdate(sql);
 			
@@ -99,9 +116,9 @@ public class StockDao {
 			return findSymbol(statement,symbol);
 		
 		}catch(SQLException ex){
-			logger.error(ex.getStackTrace().toString());
+			logger.error(ex.getMessage());
 		}catch(Exception ex){
-			logger.error(ex.getStackTrace().toString());
+			logger.error(ex.getMessage());
 		}
 		return NOT_FOUND;
 	}
@@ -117,9 +134,9 @@ public class StockDao {
 				return symbolId;
 			}
 		}catch(SQLException ex){
-			logger.error(ex.getStackTrace().toString());
+			logger.error(ex.getMessage());
 		}catch(Exception ex){
-			logger.error(ex.getStackTrace().toString());
+			logger.error(ex.getMessage());
 		}
 		return NOT_FOUND;
 	}
@@ -153,7 +170,7 @@ public class StockDao {
 		}catch(ClientProtocolException ex){
 			logger.error(ex.getMessage());
 		}catch(Exception ex){
-			logger.error(ex.getStackTrace().toString());	
+			logger.error(ex.getMessage());	
 		}
 		return null; //TODO: need a proper return 
 	}

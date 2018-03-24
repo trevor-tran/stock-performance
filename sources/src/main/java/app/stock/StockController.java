@@ -39,7 +39,7 @@ public class StockController {
 						numberOfShares = investment / rs.getDouble("price");
 					}
 
-					String date = rs.getString("price_date");
+					String date = rs.getString("date_as_id");
 					String ticker = rs.getString("symbol"); 
 					double price = rs.getDouble("price");
 					double split = rs.getDouble("split_ratio");			
@@ -73,7 +73,7 @@ public class StockController {
 				return balanceMap;	
 			}
 		}catch(Exception ex){
-			logger.error("getData() failed." + ex.getStackTrace());	
+			logger.error("getData() failed." + ex.getMessage());	
 		}
 		return null; //TODO: need a proper return
 
