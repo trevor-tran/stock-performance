@@ -3,13 +3,11 @@ package app.stock;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.http.HttpException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -24,7 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import app.util.DatabaseConnection;
+import app.util.QueryHandler;
 
 public class StockDao {
 
@@ -33,10 +31,10 @@ public class StockDao {
 	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static ResultSet queryStockData(String symbol, String startDate, String endDate){
+	public static QueryHandler queryStockData(String symbol, String startDate, String endDate){
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
+			QueryHandler queryHandler = new QueryHandler();
+			Statement statement = queryHandler.getStatement();
 			if(findSymbol(statement, symbol) == NOT_FOUND){
 				update(statement, symbol, startDate, endDate);
 			}
@@ -46,13 +44,11 @@ public class StockDao {
 							+	"INNER JOIN Symbols AS s "
 							+	"WHERE t.symbol_id = s.symbol_id "
 							+ 	"AND t.price_date BETWEEN '%s' AND '%s'", symbol, startDate, endDate);
-			ResultSet rs = statement.executeQuery(sql);
 			
-			//close(connection, statement);
-			return rs;
-		}catch(SQLException ex){
-			logger.error(ex.getMessage());
+			queryHandler.executeQuery(sql);
+			return queryHandler;
 		}catch(Exception ex){
+			logger.error(ex.getMessage());
 		}
 		return null;
 	}
@@ -177,44 +173,4 @@ public class StockDao {
 				.build();
 		return uri;
 	}
-
-	/**
-	 * close <i>Connection,Statement, ResultSet</i>
-	 * @param connection
-	 * @param statement
-	 * @param rs
-	 * @throws SQLException
-	 */
-	private static void close(Connection connection, Statement statement, ResultSet rs){
-		try{
-			if(rs != null){rs.close();}
-			if( statement != null){ statement.close();}
-			if (connection != null){connection.close();}
-		}catch(SQLException ex){
-			logger.error("Database exception:", ex);
-		}finally{
-			DbUtils.closeQuietly(connection);
-			DbUtils.closeQuietly(statement);
-			DbUtils.closeQuietly(rs);
-		}
-	}
-
-	/**
-	 * close <i>Connection, Statement</i>
-	 * @param connection
-	 * @param statement
-	 * @throws SQLException
-	 */
-	private static void close(Connection connection, Statement statement){
-		try{
-			if( statement != null){ statement.close();}
-			if (connection != null){connection.close();}
-		}catch(SQLException ex){
-			logger.error("Database exception:", ex);
-		}finally{
-			DbUtils.closeQuietly(connection);
-			DbUtils.closeQuietly(statement);
-		}
-	}
-
 }

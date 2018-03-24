@@ -2,17 +2,14 @@ package app.user;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Date;
 
-import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import app.util.DatabaseConnection;;
+import app.util.QueryHandler;;
 /**
  * Manage all communications with database
  * @author PhuongTran
@@ -22,18 +19,18 @@ public class UserDao {
 	public static final int INVALID_USER_ID = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	
+
 	public static String getUserFirstName(int userId) {
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("SELECT first_name FROM UserInfo WHERE user_id=%d" , userId);
-			ResultSet rs = statement.executeQuery(sql);
+			QueryHandler queryHandler = new QueryHandler();
+			queryHandler.executeQuery(sql);
+			ResultSet rs = queryHandler.getResultSet();
 			if(!rs.next()){
 				return "";
 			}
 			String firstName = rs.getString(1);
-			close(connection,statement,rs);
+			queryHandler.close();
 			return firstName;
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
@@ -51,16 +48,16 @@ public class UserDao {
 	 */
 	public static int getUserId(String username) {
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("SELECT user_id FROM UserInfo WHERE username='%s'" , username);
-			ResultSet rs = statement.executeQuery(sql);
+			QueryHandler queryHandler = new QueryHandler();
+			queryHandler.executeQuery(sql);
+			ResultSet rs = queryHandler.getResultSet();
 			if(rs.next()){
 				int userId = rs.getInt(1);
-				close(connection,statement,rs);
+				queryHandler.close();
 				return userId;
 			}
-			close(connection,statement,rs);
+			queryHandler.close();
 			return INVALID_USER_ID;
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
@@ -78,14 +75,14 @@ public class UserDao {
 	 */
 	public static Password getSigninCredentials(int userId) {
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("SELECT salt,hashed_password FROM UserInfo WHERE user_id=%d",userId);
-			ResultSet rs = statement.executeQuery(sql);
+			QueryHandler queryHandler = new QueryHandler();
+			queryHandler.executeQuery(sql);
+			ResultSet rs = queryHandler.getResultSet();
 			rs.next();
 			String salt = rs.getString(1);
 			String hashedPassword = rs.getString(2);
-			close(connection,statement,rs);
+			queryHandler.close();
 			return new Password(salt, hashedPassword);
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
@@ -96,19 +93,19 @@ public class UserDao {
 	}
 	public static UserInfo getUserInvestmentInfo( int userId){
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("SELECT user.first_name,user.investment,user.start_date,user.end_date,stocks.symbol,stock.number_of_shares"
 					+ " FROM UserInfo WHERE UserInfo.user_id=%d"
 					+ " AND UserInfo.user_id=stocks.user_id",userId);
-			ResultSet rs = statement.executeQuery(sql);
+			QueryHandler queryHandler = new QueryHandler();
+			queryHandler.executeQuery(sql);
+			ResultSet rs = queryHandler.getResultSet();
 			rs.next();
 			BigDecimal investment = rs.getBigDecimal(1);
 			Date startDate = rs.getDate(2);
 			Date endDate = rs.getDate(3);
 			String stockSymbol = rs.getString(4);
 			double numberOfShares = rs.getInt(5);
-			close(connection,statement,rs);
+			queryHandler.close();
 			return new UserInfo(investment, startDate, endDate, stockSymbol, numberOfShares);
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
@@ -130,19 +127,16 @@ public class UserDao {
 	 */
 	public static void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
-			statement.executeUpdate(sql);
-			close(connection,statement);
-		}catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
+			QueryHandler queryHandler = new QueryHandler();		
+			queryHandler.executeUpdate(sql);
+			queryHandler.close();
 		}catch (Exception ex) {
 			logger.error("addUser() failed:" + ex);
 		}
 	}
-	
+
 	/**
 	 * execute INSERT query to add new Google user to users_table
 	 * @param firstName
@@ -151,55 +145,13 @@ public class UserDao {
 	 */
 	public static void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
 		try{
-			Connection connection = DatabaseConnection.getConnection();
-			Statement statement = connection.createStatement();
 			String sql = String.format("INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
 					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);
-			statement.executeUpdate(sql);
-			close(connection,statement);
-		}catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
+			QueryHandler queryHandler = new QueryHandler();		
+			queryHandler.executeUpdate(sql);
+			queryHandler.close();
 		}catch (Exception ex) {
 			logger.error("addGoogleUser() failed:" + ex);
-		}
-	}
-
-	/**
-	 * close <i>Connection,Statement, ResultSet</i>
-	 * @param connection
-	 * @param statement
-	 * @param rs
-	 * @throws SQLException
-	 */
-	private static void close(Connection connection, Statement statement, ResultSet rs){
-		try{
-			if(rs != null){rs.close();}
-			if( statement != null){ statement.close();}
-			if (connection != null){connection.close();}
-		}catch(SQLException ex){
-			logger.error("Database exception:", ex);
-		}finally{
-			DbUtils.closeQuietly(connection);
-			DbUtils.closeQuietly(statement);
-			DbUtils.closeQuietly(rs);
-		}
-	}
-
-	/**
-	 * close <i>Connection, Statement</i>
-	 * @param connection
-	 * @param statement
-	 * @throws SQLException
-	 */
-	private static void close(Connection connection, Statement statement){
-		try{
-			if( statement != null){ statement.close();}
-			if (connection != null){connection.close();}
-		}catch(SQLException ex){
-			logger.error("Database exception:", ex);
-		}finally{
-			DbUtils.closeQuietly(connection);
-			DbUtils.closeQuietly(statement);
 		}
 	}
 }

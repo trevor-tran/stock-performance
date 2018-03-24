@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mysql.jdbc.BalanceStrategy;
+
+import app.util.QueryHandler;
 /**
  * Responsible for request stock data from quandl.com
  * @author PhuongTran
@@ -37,7 +39,8 @@ public class StockController {
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
 		try{
-			ResultSet rs = StockDao.queryStockData(symbol, startDate, endDate);
+			QueryHandler queryHandler = StockDao.queryStockData(symbol, startDate, endDate);
+			ResultSet rs = queryHandler.getResultSet();
 			if(rs != null){
 				summary = new HashMap<String,String>();
 				//MUST use TreeMap here to sort dates
@@ -80,7 +83,7 @@ public class StockController {
 						summary.put("endBalance",Double.toString(balance));
 					}
 				}
-				rs.close();
+				queryHandler.close();
 				return balanceMap;	
 			}
 		}catch(Exception ex){
