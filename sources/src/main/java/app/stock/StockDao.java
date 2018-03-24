@@ -60,7 +60,7 @@ public class StockDao {
 			String sql = String.format("CALL END_DATE_OF_QUANDL_REQUEST('%s', '%s')", symbol, startDate);
 			ResultSet rs = statement.executeQuery(sql);
 			if(rs.next()){
-				String newEndDate = rs.getString("@dateBeforeFirst");
+				String newEndDate = rs.getString("@beforeFirstDate");
 				if(newEndDate != null){
 					insertData(statement, symbol, startDate, newEndDate);
 				}else{

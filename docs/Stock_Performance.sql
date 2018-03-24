@@ -68,13 +68,13 @@ begin
     if @diff<0 then
 		begin
 			call FIRST_DATE_IN_TABLE(ticker,@firstDate);
-			set @dateBefore = subdate(@firstDate,1);
+			set @beforeFirstDate = subdate(@firstDate,1);
 		end;
     else 
-		set @dateBefore = null;
+		set @beforeFirstDate = null;
     end if;
 
-    select @dateBeforeFirst;
+    select @beforeFirstDate;
 end;$$
 delimiter ;
 
