@@ -25,25 +25,70 @@ create table Symbols( symbol_id int auto_increment not null,
 						symbol varchar(10) not null,
                         primary key (symbol_id));
 
--- create procedure to get the date prior to the date in first row if startDate before firstDate
--- e.g. firstDate="2000-1-3" and startDate="1999-1-1". endDate would be "2000-1-3"
+
+
+
+-- get date_as_id field from the first row in table, "ticker" is the name of table
 delimiter $$
-drop procedure if exists END_DATE_OF_QUANDL_REQUEST $$
-create procedure END_DATE_OF_QUANDL_REQUEST(in ticker varchar(10), in startDate date)
+drop procedure if exists FIRST_DATE_IN_TABLE $$
+create procedure FIRST_DATE_IN_TABLE(ticker varchar(10),inout firstDate date)
 begin
 	-- get first date in the table
-	 set @query = concat('select date_as_id from ',ticker,' limit 1 into @firstDate');
-     prepare stmt from @query;
-     execute stmt;
-     deallocate prepare stmt;
-    -- the numbers of days from startDate to @firstDate
-    set @diff = datediff(startDate, @firstDate);
-    -- return the date prior to @firstDate if startDate before @firstDate
-    set @endDate = if(@diff<0, subdate(@firstDate,1), "");
-    select @endDate;
+	set @query = concat('select date_as_id into @firstDate from ', ticker, ' limit 1');
+    prepare stmt from @query;
+	execute stmt;
+	deallocate prepare stmt;
+    set firstDate = @firstDate;
 end;$$
 delimiter ;
 
+
+
+-- the number of days from dateInput to the date of first row in the table("ticker" is the name of table).
+-- e.g. dateInput:2000-1-1, firstDate:2000-1-10 => diff is -9
+delimiter $$
+drop procedure if exists DIFF_FROM_FIRST_DATE $$
+create procedure DIFF_FROM_FIRST_DATE(ticker varchar(10), dateInput date, inout diff int)
+begin
+	-- get first date in the table
+	call FIRST_DATE_IN_TABLE(ticker,@firstDate);
+	set diff = datediff(dateInput, @firstDate);
+end;$$
+delimiter ;
+
+
+-- if dateInput prior to first date in table, get the date before first date.
+-- if not get null  
+delimiter $$
+drop procedure if exists DATE_BEFORE_FIRST_DATE $$
+create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(10), dateInput date)
+begin
+	call DIFF_FROM_FIRST_DATE(ticker,dateInput,@diff);
+    
+    if @diff<0 then
+		begin
+			call FIRST_DATE_IN_TABLE(ticker,@firstDate);
+			set @dateBefore = subdate(@firstDate,1);
+		end;
+    else 
+		set @dateBefore = null;
+    end if;
+
+    select @dateBeforeFirst;
+end;$$
+delimiter ;
+
+call DATE_BEFORE_FIRST_DATE('msft','1993-01-01');
+
+
+
+
+
+
+
+
+
+CALL END_DATE_OF_QUANDL_REQUEST('msft', '2017-1-1');
 
 
 insert into UserInfo(first_name,last_name,username,salt,hashed_password,google_user) values ('phuong','tran','phuong', '$2a$10$YawZPDb7OLQ66FQuMCyW0e','$2a$10$YawZPDb7OLQ66FQuMCyW0e0d2r2Qd1kFLgHLhJqJwaypsQdnYX7fi',0);
