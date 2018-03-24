@@ -35,7 +35,7 @@ public class StockDao {
 		try{
 			QueryHandler queryHandler = new QueryHandler();
 			Statement statement = queryHandler.getStatement();
-			if(findSymbol(statement, symbol) == NOT_FOUND){
+			if(getSymbolId(statement, symbol) == NOT_FOUND){
 				insertData(statement, symbol, startDate, endDate);
 			}else{
 				updateTable(statement, symbol, startDate, endDate);
@@ -60,8 +60,8 @@ public class StockDao {
 			String sql = String.format("CALL END_DATE_OF_QUANDL_REQUEST('%s', '%s')", symbol, startDate);
 			ResultSet rs = statement.executeQuery(sql);
 			if(rs.next()){
-				String newEndDate = rs.getString(1);
-				if(newEndDate != ""){
+				String newEndDate = rs.getString("@dateBeforeFirst");
+				if(newEndDate != null){
 					insertData(statement, symbol, startDate, newEndDate);
 				}else{
 					insertData(statement, symbol, startDate, endDate);
@@ -76,7 +76,7 @@ public class StockDao {
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
-				int symbolId = findSymbol(statement, symbol);
+				int symbolId = getSymbolId(statement, symbol);
 				if(symbolId == NOT_FOUND){
 					symbolId = addSymbolAndCreateTable(statement, symbol);
 				}
@@ -113,7 +113,7 @@ public class StockDao {
 			statement.executeUpdate(sql);
 			
 			//return symbol_id from Symbols table
-			return findSymbol(statement,symbol);
+			return getSymbolId(statement,symbol);
 		
 		}catch(SQLException ex){
 			logger.error(ex.getMessage());
@@ -123,7 +123,7 @@ public class StockDao {
 		return NOT_FOUND;
 	}
 	
-	private static int findSymbol(Statement statement, String symbol) {
+	private static int getSymbolId(Statement statement, String symbol) {
 		try{
 			String sql = String.format( "SELECT symbol_id FROM Symbols WHERE symbol='%s'",symbol);
 			ResultSet rs = statement.executeQuery(sql);
