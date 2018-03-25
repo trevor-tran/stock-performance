@@ -40,7 +40,7 @@ begin
     -- create table. name of the table is value of the ticker param
     set @createTable = concat('create table ',ticker,'( 
 					date_as_id date not null,
-                    price decimal(13,4) not null,
+                    price decimal(13,2) not null,
                     split_ratio double not null,
 					symbol_id int not null,
                     primary key (date_as_id),
