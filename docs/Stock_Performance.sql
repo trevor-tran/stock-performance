@@ -29,8 +29,8 @@ create table Symbols( symbol_id int auto_increment not null,
 -- ################ THIS PROCEDURE IS TO ADD NEW SYMBOL TO SYMBOLS TABLE ############
 -- ################ AND CREATE NEW TABLE NAMED AFTER THE SYMBOL ###############
 delimiter $$
-drop procedure if exists ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE $$
-create procedure ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE( ticker varchar(10))
+drop procedure if exists ADD_TO_SYMBOLS_AND_CREATE_TABLE $$
+create procedure ADD_TO_SYMBOLS_AND_CREATE_TABLE( ticker varchar(10))
 begin
 	-- add symbol to Symbols table
 	set @addToSymbols = concat('INSERT INTO Symbols(symbol) VALUES(''', ticker, ''')');
@@ -88,11 +88,12 @@ delimiter $$
 drop procedure if exists DATE_BEFORE_FIRST_DATE $$
 create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(10), dateInput date)
 begin
-	call DIFF_TO_FIRST_DATE(ticker,dateInput,@diff);
+	set @ticker = ticker;
+	call DIFF_TO_FIRST_DATE(@ticker,dateInput,@diff);
     
     if @diff<0 then
 		begin
-			call FIRST_DATE_IN_TABLE(ticker,@firstDate);
+			call FIRST_DATE_IN_TABLE(@ticker,@firstDate);
 			set @beforeFirstDate = subdate(@firstDate,1);
 		end;
     else 
