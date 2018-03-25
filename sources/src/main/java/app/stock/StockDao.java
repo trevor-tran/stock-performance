@@ -3,9 +3,10 @@ package app.stock;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
 
 import org.apache.http.HttpException;
@@ -31,71 +32,81 @@ public class StockDao {
 	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static QueryHandler queryStockData(String symbol, String startDate, String endDate){
+	public static ResultSet queryStockData(QueryHandler queryHandler, String symbol, String startDate, String endDate){
 		try{
-			QueryHandler queryHandler = new QueryHandler();
-			Statement statement = queryHandler.getStatement();
-			if(getSymbolId(statement, symbol) == NOT_FOUND){
-				insertData(statement, symbol, startDate, endDate);
+			if(getSymbolId(queryHandler, symbol) == NOT_FOUND){
+				insertData(queryHandler, symbol, startDate, endDate);
 			}else{
-				mayUpdateTable(statement, symbol, startDate, endDate);
+				mayUpdateTable(queryHandler, symbol, startDate, endDate);
 			}
-			String sql = String.format( 
-								"SELECT t.date_as_id, s.symbol, t.price, t.split_ratio "
+			
+			String sql =String.format("SELECT t.date_as_id, s.symbol, t.price, t.split_ratio "
 							+	"FROM %s AS t "
 							+	"INNER JOIN Symbols AS s "
 							+	"WHERE t.symbol_id = s.symbol_id "
-							+ 	"AND t.date_as_id BETWEEN '%s' AND '%s'", symbol, startDate, endDate);
-			
-			queryHandler.executeQuery(sql);
-			return queryHandler;
+							+ 	"AND t.date_as_id BETWEEN ? AND ?",symbol);
+			PreparedStatement pstmt = queryHandler.prepareStatement(sql);
+			pstmt.setString(1, startDate);
+			pstmt.setString(2,endDate);
+			ResultSet rs = pstmt.executeQuery();
+			return rs;
 		}catch(Exception ex){
-			logger.error(ex.getMessage());
+			logger.error("queryStockData() failed." + ex.getMessage());
 		}
 		return null;
 	}
 	
-	private static void mayUpdateTable (Statement statement, String symbol, String startDate,String endDate) {
+	private static void mayUpdateTable (QueryHandler queryHandler, String tableName, String startDate,String endDate) {
 		try{
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-8-1" to "2017-10-1"
 			//only request Quandl data from "2017-5-1" to "2017-7-31"
-			String sql = String.format("CALL DATE_BEFORE_FIRST_DATE('%s', '%s')", symbol, startDate);
-			ResultSet rs = statement.executeQuery(sql);
+			//String sql = String.format("{ CALL DATE_BEFORE_FIRST_DATE('%s', '%s') }",tableName,startDate);
+			String sql = "{CALL DATE_BEFORE_FIRST_DATE(?,?)}";
+			CallableStatement cstmt = queryHandler.prepareCall(sql);
+			cstmt.setString(1, tableName);
+			cstmt.setString(2, startDate);
+			ResultSet rs = cstmt.executeQuery();
 			if(rs.next()){
 				String newEndDate = rs.getString("@beforeFirstDate");
 				if(newEndDate != null){
-					insertData(statement, symbol, startDate, newEndDate);
+					insertData(queryHandler, tableName, startDate, newEndDate);
 				}
 			}
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-5-1" to "2017-8-1"
 			//only request Quandl data from "2017-8-2" to "2017-10-1"
-			sql = String.format("CALL DATE_AFTER_LAST_DATE('%s', '%s')", symbol, endDate);
-			rs = statement.executeQuery(sql);
+			sql = "{ CALL DATE_AFTER_LAST_DATE(?, ?) }";
+			cstmt = queryHandler.prepareCall(sql);
+			cstmt.setString(1, tableName);
+			cstmt.setString(2, endDate);
+			rs = cstmt.executeQuery();
 			if(rs.next()){
 				String newStartDate = rs.getString("@afterLastDate");
 				if(newStartDate != null){
-					insertData(statement, symbol, newStartDate, endDate);
+					insertData(queryHandler, tableName, newStartDate, endDate);
 				}
 			}
 			rs.close();
 		}catch(Exception ex){
-			logger.error(ex.getMessage());
+			logger.error("mayUpdateTable() failed."+ex.getMessage());
 		}
 	}
 	
-	private static void insertData(Statement statement, String symbol, String startDate, String endDate){
+	private static void insertData(QueryHandler queryHandler, String symbol, String startDate, String endDate){
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
-				int symbolId = getSymbolId(statement, symbol);
+				CallableStatement cstmt;
+				int symbolId = getSymbolId(queryHandler, symbol);
 				if(symbolId == NOT_FOUND){
 					//add new symbol to SYMBOLS table and create new table after the symbol
 					//e.g. "MSFT" added to SYMBOLS and the table named "MSFT" created
-					String sql = String.format("CALL ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE('%s')", symbol);
-					statement.executeUpdate(sql);
-					symbolId = getSymbolId(statement,symbol);
+					String sql = "{ CALL ADD_TO_SYMBOLS_AND_CREATE_TABLE(?) }";
+					cstmt = queryHandler.prepareCall(sql);
+					cstmt.setString(1, symbol);
+					cstmt.execute();
+					symbolId = getSymbolId(queryHandler,symbol);
 				}
 				for (JsonElement element : quandlData) {
 					//each element is [date, ticker, price, split]
@@ -104,21 +115,28 @@ public class StockDao {
 					String date = e.get(0).getAsString(); 
 					double price = e.get(2).getAsDouble();
 					double split = e.get(3).getAsDouble();
-					String sql = String.format("INSERT INTO %s VALUES('%s', %f, %f,%d)", symbol,date,price,split,symbolId);
-					statement.executeUpdate(sql);
+					//get ready to insert into table
+					String sql = String.format("INSERT INTO %s VALUES(?, ?, ?, ?)",symbol);
+					cstmt = queryHandler.prepareCall(sql);
+					cstmt.setString(1, date);
+					cstmt.setDouble(2, price);
+					cstmt.setDouble(3, split);
+					cstmt.setInt(4, symbolId);
+					cstmt.executeUpdate();
 				}
 			}
 		}catch(Exception ex){
-			logger.error(ex.getMessage());
+			logger.error("insertData() failed." + ex.getMessage());
 		}
 	}	
 	
 	//return symbol_id of the symbol in SYMBOLS table
-	private static int getSymbolId(Statement statement, String symbol) {
+	private static int getSymbolId(QueryHandler queryHandler , String symbol) {
 		try{
-			String sql = String.format( "SELECT symbol_id FROM Symbols WHERE symbol='%s'",symbol);
-			ResultSet rs = statement.executeQuery(sql);
-
+			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
+			PreparedStatement pstmt = queryHandler.prepareStatement(sql);
+			pstmt.setString(1, symbol);
+			ResultSet rs = pstmt.executeQuery();
 			if(rs.next()){
 				int symbolId = rs.getInt("symbol_id");
 				rs.close();

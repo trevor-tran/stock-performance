@@ -1,7 +1,9 @@
 package app.util;
 
 import java.lang.invoke.MethodHandles;
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,17 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
-public class QueryHandler {
-
+public class QueryHandler implements AutoCloseable {
+		private CallableStatement cstmt;
+		private PreparedStatement pstmt;
+		private Statement stmt;
 		private Connection connection;
-		@Getter private Statement statement;
-		@Getter private ResultSet resultSet;
+		
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public QueryHandler(){
 		try{
 			connection = DatabaseConnection.getConnection();
-			statement = connection.createStatement();
 		}catch(SQLException ex){
 			logger.error(ex.getMessage());
 		}catch(Exception ex){
@@ -29,47 +31,77 @@ public class QueryHandler {
 		}
 	}
 	
-	public void executeUpdate(String sql){
+	public PreparedStatement prepareStatement(String sql){
 		try{
-			statement.executeUpdate(sql);
+			pstmt = connection.prepareStatement(sql);
+			return pstmt;
 		}catch(SQLException ex){
 			logger.error(ex.getMessage());
 		}catch(Exception ex){
 			logger.error(ex.getMessage());
 		}
+		return null;
 	}
 	
-	public void executeQuery(String sql){
+	public CallableStatement prepareCall(String sql){
 		try{
-			resultSet = statement.executeQuery(sql);
+			cstmt = connection.prepareCall(sql);
+			return cstmt;
 		}catch(SQLException ex){
 			logger.error(ex.getMessage());
 		}catch(Exception ex){
 			logger.error(ex.getMessage());
-		}	
+		}
+		return null;
+	}
+	
+	public ResultSet executeQueryViaStatement(String sql){
+		try{
+			stmt = connection.createStatement();
+			return stmt.executeQuery(sql);
+		}catch(SQLException ex){
+			logger.error(ex.getMessage());
+		}catch(Exception ex){
+			logger.error(ex.getMessage());
+		}
+		return null;
+	}
+	
+	public void executeUpdateViaStatement(String sql){
+		try{
+			stmt = connection.createStatement();
+			 stmt.executeUpdate(sql);
+		}catch(SQLException ex){
+			logger.error(ex.getMessage());
+		}catch(Exception ex){
+			logger.error(ex.getMessage());
+		}
 	}
 
-	/**
-	 * close <i>Connection,Statement, ResultSet</i>
-	 * @throws SQLException
-	 */
+	@Override
 	public void close(){
 		try{
-			if(resultSet != null){
-				resultSet.close();
+			if( stmt != null){ 
+				stmt.close();
 			}
-			if( statement != null){ 
-				statement.close();
+			if( pstmt != null){ 
+				pstmt.close();
+			}
+			if( cstmt != null){ 
+				cstmt.close();
 			}
 			if (connection != null){
 				connection.close();
 			}
 		}catch(SQLException ex){
 			logger.error("Database exception:", ex);
+		}catch(Exception ex){
+			logger.error(ex.getMessage());
 		}finally{
 			DbUtils.closeQuietly(connection);
-			DbUtils.closeQuietly(statement);
-			DbUtils.closeQuietly(resultSet);
+			DbUtils.closeQuietly(stmt);
+			DbUtils.closeQuietly(pstmt);
+			DbUtils.closeQuietly(cstmt);
 		}
 	}
 

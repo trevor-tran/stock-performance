@@ -21,11 +21,9 @@ public class UserDao {
 
 
 	public static String getUserFirstName(int userId) {
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()) {
 			String sql = String.format("SELECT first_name FROM UserInfo WHERE user_id=%d" , userId);
-			QueryHandler queryHandler = new QueryHandler();
-			queryHandler.executeQuery(sql);
-			ResultSet rs = queryHandler.getResultSet();
+			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
 			if(!rs.next()){
 				return "";
 			}
@@ -47,11 +45,9 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static int getUserId(String username) {
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()) {
 			String sql = String.format("SELECT user_id FROM UserInfo WHERE username='%s'" , username);
-			QueryHandler queryHandler = new QueryHandler();
-			queryHandler.executeQuery(sql);
-			ResultSet rs = queryHandler.getResultSet();
+			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
 			if(rs.next()){
 				int userId = rs.getInt(1);
 				queryHandler.close();
@@ -74,16 +70,14 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static Password getSigninCredentials(int userId) {
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()){
 			String sql = String.format("SELECT salt,hashed_password FROM UserInfo WHERE user_id=%d",userId);
-			QueryHandler queryHandler = new QueryHandler();
-			queryHandler.executeQuery(sql);
-			ResultSet rs = queryHandler.getResultSet();
-			rs.next();
-			String salt = rs.getString(1);
-			String hashedPassword = rs.getString(2);
-			queryHandler.close();
-			return new Password(salt, hashedPassword);
+			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
+			if(rs.next()){
+				String salt = rs.getString(1);
+				String hashedPassword = rs.getString(2);
+				return new Password(salt, hashedPassword);
+			}
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
 		} catch (Exception ex) {
@@ -92,21 +86,19 @@ public class UserDao {
 		return null;
 	}
 	public static UserInfo getUserInvestmentInfo( int userId){
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()){
 			String sql = String.format("SELECT user.first_name,user.investment,user.start_date,user.end_date,stocks.symbol,stock.number_of_shares"
 					+ " FROM UserInfo WHERE UserInfo.user_id=%d"
 					+ " AND UserInfo.user_id=stocks.user_id",userId);
-			QueryHandler queryHandler = new QueryHandler();
-			queryHandler.executeQuery(sql);
-			ResultSet rs = queryHandler.getResultSet();
-			rs.next();
-			BigDecimal investment = rs.getBigDecimal(1);
-			Date startDate = rs.getDate(2);
-			Date endDate = rs.getDate(3);
-			String stockSymbol = rs.getString(4);
-			double numberOfShares = rs.getInt(5);
-			queryHandler.close();
-			return new UserInfo(investment, startDate, endDate, stockSymbol, numberOfShares);
+			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
+			if(rs.next()){
+				BigDecimal investment = rs.getBigDecimal(1);
+				Date startDate = rs.getDate(2);
+				Date endDate = rs.getDate(3);
+				String stockSymbol = rs.getString(4);
+				double numberOfShares = rs.getInt(5);
+				return new UserInfo(investment, startDate, endDate, stockSymbol, numberOfShares);
+			}
 		} catch (SQLException ex) {
 			logger.error("Database exception: " + ex);
 		} catch (Exception ex) {
@@ -126,11 +118,10 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()) {
 			String sql = String.format("INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
-			QueryHandler queryHandler = new QueryHandler();		
-			queryHandler.executeUpdate(sql);
+			queryHandler.executeUpdateViaStatement(sql);
 			queryHandler.close();
 		}catch (Exception ex) {
 			logger.error("addUser() failed:" + ex);
@@ -144,11 +135,10 @@ public class UserDao {
 	 * @param email
 	 */
 	public static void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
-		try{
+		try(QueryHandler queryHandler = new QueryHandler()) {
 			String sql = String.format("INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
-					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);
-			QueryHandler queryHandler = new QueryHandler();		
-			queryHandler.executeUpdate(sql);
+					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);	
+			queryHandler.executeUpdateViaStatement(sql);
 			queryHandler.close();
 		}catch (Exception ex) {
 			logger.error("addGoogleUser() failed:" + ex);

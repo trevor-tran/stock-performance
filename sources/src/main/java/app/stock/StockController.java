@@ -24,9 +24,8 @@ public class StockController {
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
-		try{
-			QueryHandler queryHandler = StockDao.queryStockData(symbol, startDate, endDate);
-			ResultSet rs = queryHandler.getResultSet();
+		try(QueryHandler queryHandler = new QueryHandler()) {
+			ResultSet rs = StockDao.queryStockData(queryHandler,symbol, startDate, endDate);
 			if(rs != null){
 				summary = new HashMap<String,String>();
 				//MUST use TreeMap here to sort dates
@@ -69,7 +68,7 @@ public class StockController {
 						summary.put("endBalance",Double.toString(balance));
 					}
 				}
-				queryHandler.close();
+				rs.close();
 				return balanceMap;	
 			}
 		}catch(Exception ex){
