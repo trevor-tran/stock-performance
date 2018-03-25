@@ -1,5 +1,6 @@
 use stock_performance;
 
+-- ################ TABLES CREATED ##################
 create table UserInfo( user_id int auto_increment,
 					first_name varchar(20) not null,
                     last_name varchar(20) not null,
@@ -12,22 +13,49 @@ create table UserInfo( user_id int auto_increment,
                     end_date date,
 					google_user tinyint(1) not null,
                     primary key(user_id));
-                    
 create table UserInvestment( investment_id int auto_increment,
                     user_id int not null,
                     symbol varchar(10),
                     number_of_shares double,
                     primary key(investment_id),
-                    foreign key(user_id) references UserInfo(user_id));
-                    
--- number of tables(AAPL, MSFT...) increases when more symbols added to Symbols_table                         
+                    foreign key(user_id) references UserInfo(user_id));                        
 create table Symbols( symbol_id int auto_increment not null,
 						symbol varchar(10) not null,
                         primary key (symbol_id));
 
 
 
--- ########### FOLLOWING PROCEDURES ARE TO GET THE DATE PRIOR TO THE FIRST DATE IN TABLE##################
+
+-- ################ THIS PROCEDURE IS TO ADD NEW SYMBOL TO SYMBOLS TABLE ############
+-- ################ AND CREATE NEW TABLE NAMED AFTER THE SYMBOL ###############
+delimiter $$
+drop procedure if exists ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE $$
+create procedure ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE( ticker varchar(10))
+begin
+	-- add symbol to Symbols table
+	set @addToSymbols = concat('INSERT INTO Symbols(symbol) VALUES(''', ticker, ''')');
+	prepare stmt1 from @addToSymbols;
+    execute stmt1;
+    deallocate prepare stmt1;
+    -- create table. name of the table is value of the ticker param
+    set @createTable = concat('create table ',ticker,'( 
+					date_as_id date not null,
+                    price decimal(13,4) not null,
+                    split_ratio double not null,
+					symbol_id int not null,
+                    primary key (date_as_id),
+                    foreign key (symbol_id) references Symbols(symbol_id))');
+    prepare stmt2 from @createTable;
+    execute stmt2;
+    deallocate prepare stmt2;
+    
+end; $$
+delimiter ;
+
+
+
+
+-- ################ FOLLOWING PROCEDURES ARE TO GET THE DATE PRIOR TO THE FIRST DATE IN TABLE##################
 -- get date_as_id field from the first row in table, "ticker" is the name of table
 delimiter $$
 drop procedure if exists FIRST_DATE_IN_TABLE $$
@@ -77,7 +105,8 @@ delimiter ;
 
 
 
--- ######### FOLLOWING PROCEDURES ARE TO GET THE DATE BEYOND TO THE LAST DATE IN TABLE#####################
+
+-- ############# FOLLOWING PROCEDURES ARE TO GET THE DATE BEYOND TO THE LAST DATE IN TABLE#####################
 -- get date_as_id field from the last row in table, "ticker" is the name of table
 delimiter $$
 drop procedure if exists LAST_DATE_IN_TABLE $$
@@ -133,33 +162,7 @@ delimiter ;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 insert into UserInfo(first_name,last_name,username,salt,hashed_password,google_user) values ('phuong','tran','phuong', '$2a$10$YawZPDb7OLQ66FQuMCyW0e','$2a$10$YawZPDb7OLQ66FQuMCyW0e0d2r2Qd1kFLgHLhJqJwaypsQdnYX7fi',0);
-insert into symbols(symbol) values('msft');
-create table MSFT( 
-					date_as_id date not null,
-                    price decimal(13,2) not null,
-                    split_ratio double not null,
-					symbol_id int not null,
-                    primary key (date_as_id),
-                    foreign key (symbol_id) references Symbols(symbol_id));
-
-
-select * from msft;
 
 
 
