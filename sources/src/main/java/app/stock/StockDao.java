@@ -23,7 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import app.util.QueryHandler;
+import app.util.QueryExecutionHandler;
 
 public class StockDao {
 
@@ -32,7 +32,7 @@ public class StockDao {
 	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static ResultSet queryStockData(QueryHandler queryHandler, String symbol, String startDate, String endDate){
+	public static ResultSet queryStockData(QueryExecutionHandler queryHandler, String symbol, String startDate, String endDate){
 		try{
 			if(getSymbolId(queryHandler, symbol) == NOT_FOUND){
 				insertData(queryHandler, symbol, startDate, endDate);
@@ -56,7 +56,7 @@ public class StockDao {
 		return null;
 	}
 	
-	private static void mayUpdateTable (QueryHandler queryHandler, String tableName, String startDate,String endDate) {
+	private static void mayUpdateTable (QueryExecutionHandler queryHandler, String tableName, String startDate,String endDate) {
 		try{
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-8-1" to "2017-10-1"
@@ -93,7 +93,7 @@ public class StockDao {
 		}
 	}
 	
-	private static void insertData(QueryHandler queryHandler, String symbol, String startDate, String endDate){
+	private static void insertData(QueryExecutionHandler queryHandler, String symbol, String startDate, String endDate){
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
@@ -131,7 +131,7 @@ public class StockDao {
 	}	
 	
 	//return symbol_id of the symbol in SYMBOLS table
-	private static int getSymbolId(QueryHandler queryHandler , String symbol) {
+	private static int getSymbolId(QueryExecutionHandler queryHandler , String symbol) {
 		try{
 			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
 			PreparedStatement pstmt = queryHandler.prepareStatement(sql);

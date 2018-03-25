@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
-public class QueryHandler implements AutoCloseable {
+public class QueryExecutionHandler implements AutoCloseable {
 		private CallableStatement cstmt;
 		private PreparedStatement pstmt;
 		private Statement stmt;
@@ -21,7 +21,7 @@ public class QueryHandler implements AutoCloseable {
 		
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public QueryHandler(){
+	public QueryExecutionHandler(){
 		try{
 			connection = DatabaseConnection.getConnection();
 		}catch(SQLException ex){

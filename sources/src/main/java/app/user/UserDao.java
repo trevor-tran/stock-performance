@@ -9,7 +9,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import app.util.QueryHandler;;
+import app.util.QueryExecutionHandler;;
 /**
  * Manage all communications with database
  * @author PhuongTran
@@ -21,7 +21,7 @@ public class UserDao {
 
 
 	public static String getUserFirstName(int userId) {
-		try(QueryHandler queryHandler = new QueryHandler()) {
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()) {
 			String sql = String.format("SELECT first_name FROM UserInfo WHERE user_id=%d" , userId);
 			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
 			if(!rs.next()){
@@ -45,7 +45,7 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static int getUserId(String username) {
-		try(QueryHandler queryHandler = new QueryHandler()) {
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()) {
 			String sql = String.format("SELECT user_id FROM UserInfo WHERE username='%s'" , username);
 			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
 			if(rs.next()){
@@ -70,7 +70,7 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static Password getSigninCredentials(int userId) {
-		try(QueryHandler queryHandler = new QueryHandler()){
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()){
 			String sql = String.format("SELECT salt,hashed_password FROM UserInfo WHERE user_id=%d",userId);
 			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
 			if(rs.next()){
@@ -86,7 +86,7 @@ public class UserDao {
 		return null;
 	}
 	public static UserInfo getUserInvestmentInfo( int userId){
-		try(QueryHandler queryHandler = new QueryHandler()){
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()){
 			String sql = String.format("SELECT user.first_name,user.investment,user.start_date,user.end_date,stocks.symbol,stock.number_of_shares"
 					+ " FROM UserInfo WHERE UserInfo.user_id=%d"
 					+ " AND UserInfo.user_id=stocks.user_id",userId);
@@ -118,7 +118,7 @@ public class UserDao {
 	 * @throws Exception
 	 */
 	public static void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
-		try(QueryHandler queryHandler = new QueryHandler()) {
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()) {
 			String sql = String.format("INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES('%s','%s','%s','%s','%s','%s',%d)", firstName,lastName,email,username,salt,hashedPassword,0);
 			queryHandler.executeUpdateViaStatement(sql);
@@ -135,7 +135,7 @@ public class UserDao {
 	 * @param email
 	 */
 	public static void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
-		try(QueryHandler queryHandler = new QueryHandler()) {
+		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()) {
 			String sql = String.format("INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
 					+ "VALUES('%s','%s','%s','%s',%d)", gUserIdentifier, firstName, lastName, email, 1);	
 			queryHandler.executeUpdateViaStatement(sql);
