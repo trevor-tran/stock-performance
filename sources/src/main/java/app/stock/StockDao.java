@@ -57,6 +57,9 @@ public class StockDao {
 	
 	private static void mayUpdateTable (Statement statement, String symbol, String startDate,String endDate) {
 		try{
+			//e.g. front-end request from "2017-5-1" to "2017-10-1"
+			//available data in mysql from "2017-8-1" to "2017-10-1"
+			//only request Quandl data from "2017-5-1" to "2017-7-31"
 			String sql = String.format("CALL DATE_BEFORE_FIRST_DATE('%s', '%s')", symbol, startDate);
 			ResultSet rs = statement.executeQuery(sql);
 			if(rs.next()){
@@ -65,7 +68,9 @@ public class StockDao {
 					insertData(statement, symbol, startDate, newEndDate);
 				}
 			}
-			
+			//e.g. front-end request from "2017-5-1" to "2017-10-1"
+			//available data in mysql from "2017-5-1" to "2017-8-1"
+			//only request Quandl data from "2017-8-2" to "2017-10-1"
 			sql = String.format("CALL DATE_AFTER_LAST_DATE('%s', '%s')", symbol, endDate);
 			rs = statement.executeQuery(sql);
 			if(rs.next()){
@@ -86,10 +91,15 @@ public class StockDao {
 			if(quandlData != null){
 				int symbolId = getSymbolId(statement, symbol);
 				if(symbolId == NOT_FOUND){
-					symbolId = addSymbolAndCreateTable(statement, symbol);
+					//add new symbol to SYMBOLS table and create new table after the symbol
+					//e.g. "MSFT" added to SYMBOLS and the table named "MSFT" created
+					String sql = String.format("CALL ADD_TO_SYMBOLS_AND_CREATE_TICKER_TABLE('%s')", symbol);
+					statement.executeUpdate(sql);
+					symbolId = getSymbolId(statement,symbol);
 				}
 				for (JsonElement element : quandlData) {
-					//each element is ["2016-12-28", "MSFT", 62.99, 2.0]
+					//each element is [date, ticker, price, split]
+					// e.g. ["2016-12-28", "MSFT", 62.99, 2.0]
 					JsonArray e = element.getAsJsonArray();
 					String date = e.get(0).getAsString(); 
 					double price = e.get(2).getAsDouble();
@@ -103,34 +113,7 @@ public class StockDao {
 		}
 	}	
 	
-	private static int addSymbolAndCreateTable(Statement statement,String symbol){
-		try{
-			//add new symbol to Symbols table
-			String sql = String.format("INSERT INTO Symbols(symbol) VALUES('%s')", symbol);
-			statement.executeUpdate(sql);
-			
-			//create new table for new symbol added
-			sql = String.format(
-					"CREATE TABLE %s ("
-							+"date_as_id date not null,"
-							+"price decimal(13,2) not null,"
-							+"split_ratio double not null,"
-							+"symbol_id int not null,"
-							+"primary key (date_as_id),"
-							+"foreign key (symbol_id) references Symbols(symbol_id))", symbol);
-			statement.executeUpdate(sql);
-			
-			//return symbol_id from Symbols table
-			return getSymbolId(statement,symbol);
-		
-		}catch(SQLException ex){
-			logger.error(ex.getMessage());
-		}catch(Exception ex){
-			logger.error(ex.getMessage());
-		}
-		return NOT_FOUND;
-	}
-	
+	//return symbol_id of the symbol in SYMBOLS table
 	private static int getSymbolId(Statement statement, String symbol) {
 		try{
 			String sql = String.format( "SELECT symbol_id FROM Symbols WHERE symbol='%s'",symbol);
