@@ -65,6 +65,16 @@ public class StockDao {
 					insertData(statement, symbol, startDate, newEndDate);
 				}
 			}
+			
+			sql = String.format("CALL DATE_AFTER_LAST_DATE('%s', '%s')", symbol, endDate);
+			rs = statement.executeQuery(sql);
+			if(rs.next()){
+				String newStartDate = rs.getString("@afterLastDate");
+				if(newStartDate != null){
+					insertData(statement, symbol, newStartDate, endDate);
+				}
+			}
+			rs.close();
 		}catch(Exception ex){
 			logger.error(ex.getMessage());
 		}
