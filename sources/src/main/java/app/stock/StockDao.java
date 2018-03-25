@@ -40,14 +40,11 @@ public class StockDao {
 				mayUpdateTable(queryHandler, symbol, startDate, endDate);
 			}
 			
-			String sql =String.format("SELECT t.date_as_id, s.symbol, t.price, t.split_ratio "
-							+	"FROM %s AS t "
-							+	"INNER JOIN Symbols AS s "
-							+	"WHERE t.symbol_id = s.symbol_id "
-							+ 	"AND t.date_as_id BETWEEN ? AND ?",symbol);
+			String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 			PreparedStatement pstmt = queryHandler.prepareStatement(sql);
-			pstmt.setString(1, startDate);
-			pstmt.setString(2,endDate);
+			pstmt.setString(1, symbol);
+			pstmt.setString(2, startDate);
+			pstmt.setString(3,endDate);
 			ResultSet rs = pstmt.executeQuery();
 			return rs;
 		}catch(Exception ex){

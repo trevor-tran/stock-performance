@@ -26,6 +26,26 @@ create table Symbols( symbol_id int auto_increment not null,
 
 
 
+
+
+
+-- ############### procedure to select data ################
+delimiter $$
+drop procedure if exists QUERY_DATA $$
+create procedure QUERY_DATA( tableName varchar(10), startDate date, endDate date)
+begin
+	set @query = concat('SELECT t.date_as_id, s.symbol, t.price, t.split_ratio FROM ',tableName,' AS t 
+						INNER JOIN Symbols AS s 
+						WHERE t.symbol_id = s.symbol_id AND t.date_as_id BETWEEN ''',startDate, ''' AND ''', endDate,'''');
+    prepare stmt from @query;
+    execute stmt;
+    deallocate prepare stmt;
+    -- select @query;
+end; $$
+delimiter ;
+
+
+
 -- ################ THIS PROCEDURE IS TO ADD NEW SYMBOL TO SYMBOLS TABLE ############
 -- ################ AND CREATE NEW TABLE NAMED AFTER THE SYMBOL ###############
 delimiter $$
@@ -88,12 +108,11 @@ delimiter $$
 drop procedure if exists DATE_BEFORE_FIRST_DATE $$
 create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(10), dateInput date)
 begin
-	set @ticker = ticker;
-	call DIFF_TO_FIRST_DATE(@ticker,dateInput,@diff);
+	call DIFF_TO_FIRST_DATE(ticker,dateInput,@diff);
     
     if @diff<0 then
 		begin
-			call FIRST_DATE_IN_TABLE(@ticker,@firstDate);
+			call FIRST_DATE_IN_TABLE(ticker,@firstDate);
 			set @beforeFirstDate = subdate(@firstDate,1);
 		end;
     else 
