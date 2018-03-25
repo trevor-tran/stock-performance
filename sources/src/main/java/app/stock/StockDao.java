@@ -38,7 +38,7 @@ public class StockDao {
 			if(getSymbolId(statement, symbol) == NOT_FOUND){
 				insertData(statement, symbol, startDate, endDate);
 			}else{
-				updateTable(statement, symbol, startDate, endDate);
+				mayUpdateTable(statement, symbol, startDate, endDate);
 			}
 			String sql = String.format( 
 								"SELECT t.date_as_id, s.symbol, t.price, t.split_ratio "
@@ -55,16 +55,14 @@ public class StockDao {
 		return null;
 	}
 	
-	private static void updateTable(Statement statement, String symbol, String startDate,String endDate) {
+	private static void mayUpdateTable (Statement statement, String symbol, String startDate,String endDate) {
 		try{
-			String sql = String.format("CALL END_DATE_OF_QUANDL_REQUEST('%s', '%s')", symbol, startDate);
+			String sql = String.format("CALL DATE_BEFORE_FIRST_DATE('%s', '%s')", symbol, startDate);
 			ResultSet rs = statement.executeQuery(sql);
 			if(rs.next()){
 				String newEndDate = rs.getString("@beforeFirstDate");
 				if(newEndDate != null){
 					insertData(statement, symbol, startDate, newEndDate);
-				}else{
-					insertData(statement, symbol, startDate, endDate);
 				}
 			}
 		}catch(Exception ex){
