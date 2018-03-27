@@ -10,24 +10,24 @@ import org.slf4j.LoggerFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 
 public class UserController {
-	
+
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	
+
 	public static boolean usernameExists( String username){
-		try{
-			return UserDao.getUserId(username) != INVALID_USER_ID;
+		try( UserDao userDao = new UserDao()) {
+			return userDao.getUserId(username) != INVALID_USER_ID;
 		}catch(Exception ex){
-			logger.error("UserController: usernameExists()." + ex.getStackTrace());
+			logger.error("UserController: usernameExists()." + ex.getMessage());
 			return false;
 		}
 	}
 
 	public static String getFirstName(int userId){
-		try{
+		try( UserDao userDao = new UserDao()) {
 			//TODO: possible to have invalid userId,maybe need "if"
-			return UserDao.getUserFirstName(userId);
+			return userDao.getUserFirstName(userId);
 		}catch(Exception ex){
-			logger.error("UserControlle: getFirstName()." + ex.getStackTrace());
+			logger.error("UserControlle: getFirstName()." + ex.getMessage());
 			return "";
 		}
 	}
@@ -39,46 +39,45 @@ public class UserController {
 	 * @throws Exception
 	 */
 	public static int authenticate(String username, String password){
-		try{
+		try( UserDao userDao = new UserDao()) {
 			if( username.isEmpty() || password.isEmpty() ){
 				return INVALID_USER_ID;
 			}
-			int userId = UserDao.getUserId(username);
+			int userId = userDao.getUserId(username);
 			if(userId == INVALID_USER_ID){
 				return INVALID_USER_ID;
 			}
 			else{
-				Password signingInUser = UserDao.getSigninCredentials(userId);
+				Password signingInUser = userDao.getSigninCredentials(userId);
 				return signingInUser.matches(password) ? userId : INVALID_USER_ID;
 			}
 		}catch(Exception ex){
-			logger.error("UserController:authenticate()." + ex.getStackTrace());
+			logger.error("UserController:authenticate()." + ex.getMessage());
 			return INVALID_USER_ID;
 		}
 	}
-	
+
 	/**
 	 * look up google account in database, add to database if not already added
 	 * @param payload
 	 * @return userID in database table
 	 */
 	public static int addGoogleAndGetId(Payload payload) {
-		try{
+		try( UserDao userDao = new UserDao()) { 
 			//e.g gUserIdentifier == "212312312312321"
 			String gUserIdentifier = payload.getSubject();
 			// username is gUserIdentifier
-			int userId = UserDao.getUserId(gUserIdentifier); 
-			if( userId != INVALID_USER_ID){
-				return userId;
-			}else{
+			int userId = userDao.getUserId(gUserIdentifier); 
+			if( userId == INVALID_USER_ID){
 				String email = payload.getEmail();
 				String firstName = (String)payload.get("given_name");
 				String lastName = (String)payload.get("family_name");
-				UserDao.addGoogleUser(gUserIdentifier, firstName, lastName, email);
-				return UserDao.getUserId(gUserIdentifier);
+				userDao.addGoogleUser(gUserIdentifier, firstName, lastName, email);
+				userId = userDao.getUserId(gUserIdentifier);
 			}
+			return userId;
 		}catch(Exception ex){
-			logger.error("UserController: addUser()." + ex.getStackTrace());
+			logger.error("UserController: addUser()." + ex.getMessage());
 			return INVALID_USER_ID;
 		}
 	}
@@ -93,11 +92,11 @@ public class UserController {
 	 * @throws Exception
 	 */
 	public static void addUser(String firstName,String lastName,String email, String username,String password){
-		try{
+		try( UserDao userDao = new UserDao()) {
 			Password newPassword = new Password(password);
-			UserDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
+			userDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
 		}catch(Exception ex){
-			logger.error("UserController: addUser()." + ex.getStackTrace());
+			logger.error("UserController: addUser()." + ex.getMessage());
 		}
 	}	
 }

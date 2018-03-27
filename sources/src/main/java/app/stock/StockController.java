@@ -8,8 +8,6 @@ import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import app.util.QueryExecutionHandler;
 /**
  * Responsible for request stock data from quandl.com
  * @author PhuongTran
@@ -24,8 +22,8 @@ public class StockController {
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
-		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()) {
-			ResultSet rs = StockDao.queryStockData(queryHandler,symbol, startDate, endDate);
+		try(StockDao stockDao = new StockDao()) {
+			ResultSet rs = stockDao.queryStockData(symbol, startDate, endDate);
 			if(rs != null){
 				summary = new HashMap<String,String>();
 				//MUST use TreeMap here to sort dates
