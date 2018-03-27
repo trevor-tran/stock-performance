@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,25 +24,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import app.util.QueryExecutionHandler;
+import app.util.ConnectionManager;
+import app.util.StatementAndResultSet;
 
-public class StockDao {
+public class StockDao extends StatementAndResultSet implements AutoCloseable{
 
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
 	public static final int NOT_FOUND = -1;
+	private Connection conn = null;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-	public static ResultSet queryStockData(QueryExecutionHandler queryHandler, String symbol, String startDate, String endDate){
+	
+	public StockDao() {
+		conn = ConnectionManager.getInstance().getConnection();
+	}
+	
+	public ResultSet queryStockData(String symbol, String startDate, String endDate){
 		try{
-			if(getSymbolId(queryHandler, symbol) == NOT_FOUND){
-				insertData(queryHandler, symbol, startDate, endDate);
+			if(getSymbolId(symbol) == NOT_FOUND){
+				insertData(symbol, startDate, endDate);
 			}else{
-				mayUpdateTable(queryHandler, symbol, startDate, endDate);
+				mayUpdateTable(symbol, startDate, endDate);
 			}
-			
 			String sql = "{CALL QUERY_DATA(?, ?, ?)}";
-			PreparedStatement pstmt = queryHandler.prepareStatement(sql);
+			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, symbol);
 			pstmt.setString(2, startDate);
 			pstmt.setString(3,endDate);
@@ -53,58 +59,64 @@ public class StockDao {
 		return null;
 	}
 	
-	private static void mayUpdateTable (QueryExecutionHandler queryHandler, String tableName, String startDate,String endDate) {
+	private void mayUpdateTable (String tableName, String startDate,String endDate) {
 		try{
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-8-1" to "2017-10-1"
 			//only request Quandl data from "2017-5-1" to "2017-7-31"
 			//String sql = String.format("{ CALL DATE_BEFORE_FIRST_DATE('%s', '%s') }",tableName,startDate);
 			String sql = "{CALL DATE_BEFORE_FIRST_DATE(?,?)}";
-			CallableStatement cstmt = queryHandler.prepareCall(sql);
+			CallableStatement cstmt = conn.prepareCall(sql);
+			
 			cstmt.setString(1, tableName);
 			cstmt.setString(2, startDate);
 			ResultSet rs = cstmt.executeQuery();
+			
 			if(rs.next()){
 				String newEndDate = rs.getString("@beforeFirstDate");
 				if(newEndDate != null){
-					insertData(queryHandler, tableName, startDate, newEndDate);
+					insertData( tableName, startDate, newEndDate);
 				}
 			}
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-5-1" to "2017-8-1"
 			//only request Quandl data from "2017-8-2" to "2017-10-1"
 			sql = "{ CALL DATE_AFTER_LAST_DATE(?, ?) }";
-			cstmt = queryHandler.prepareCall(sql);
+			cstmt = conn.prepareCall(sql);
+			
 			cstmt.setString(1, tableName);
 			cstmt.setString(2, endDate);
 			rs = cstmt.executeQuery();
+			
 			if(rs.next()){
 				String newStartDate = rs.getString("@afterLastDate");
 				if(newStartDate != null){
-					insertData(queryHandler, tableName, newStartDate, endDate);
+					insertData( tableName, newStartDate, endDate);
 				}
 			}
-			rs.close();
+			release(cstmt, rs);
 		}catch(Exception ex){
 			logger.error("mayUpdateTable() failed."+ex.getMessage());
 		}
 	}
 	
-	private static void insertData(QueryExecutionHandler queryHandler, String symbol, String startDate, String endDate){
+	private void insertData(String symbol, String startDate, String endDate){
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
-				CallableStatement cstmt;
-				int symbolId = getSymbolId(queryHandler, symbol);
+				CallableStatement cstmt = null;
+				int symbolId = getSymbolId(symbol);
+				
 				if(symbolId == NOT_FOUND){
 					//add new symbol to SYMBOLS table and create new table after the symbol
 					//e.g. "MSFT" added to SYMBOLS and the table named "MSFT" created
 					String sql = "{ CALL ADD_TO_SYMBOLS_AND_CREATE_TABLE(?) }";
-					cstmt = queryHandler.prepareCall(sql);
+					cstmt = conn.prepareCall(sql);
 					cstmt.setString(1, symbol);
 					cstmt.execute();
-					symbolId = getSymbolId(queryHandler,symbol);
+					symbolId = getSymbolId(symbol);
 				}
+				
 				for (JsonElement element : quandlData) {
 					//each element is [date, ticker, price, split]
 					// e.g. ["2016-12-28", "MSFT", 62.99, 2.0]
@@ -114,13 +126,16 @@ public class StockDao {
 					double split = e.get(3).getAsDouble();
 					//get ready to insert into table
 					String sql = String.format("INSERT INTO %s VALUES(?, ?, ?, ?)",symbol);
-					cstmt = queryHandler.prepareCall(sql);
+					cstmt = conn.prepareCall(sql);
+					
 					cstmt.setString(1, date);
 					cstmt.setDouble(2, price);
 					cstmt.setDouble(3, split);
 					cstmt.setInt(4, symbolId);
+					
 					cstmt.executeUpdate();
 				}
+				release(cstmt);
 			}
 		}catch(Exception ex){
 			logger.error("insertData() failed." + ex.getMessage());
@@ -128,17 +143,18 @@ public class StockDao {
 	}	
 	
 	//return symbol_id of the symbol in SYMBOLS table
-	private static int getSymbolId(QueryExecutionHandler queryHandler , String symbol) {
+	private  int getSymbolId(String symbol) {
 		try{
 			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
-			PreparedStatement pstmt = queryHandler.prepareStatement(sql);
+			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, symbol);
 			ResultSet rs = pstmt.executeQuery();
 			if(rs.next()){
 				int symbolId = rs.getInt("symbol_id");
-				rs.close();
+				release(pstmt,rs);
 				return symbolId;
 			}
+			release(pstmt,rs);
 		}catch(SQLException ex){
 			logger.error(ex.getMessage());
 		}catch(Exception ex){
@@ -195,5 +211,11 @@ public class StockDao {
 				.setParameter("api_key", apiKey)
 				.build();
 		return uri;
+	}
+
+	@Override
+	public void close() throws Exception {
+		ConnectionManager.getInstance().releaseConnection(conn);
+		
 	}
 }
