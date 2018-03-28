@@ -20,19 +20,17 @@ create table UserInvestment( investment_id int auto_increment,
                     primary key(investment_id),
                     foreign key(user_id) references UserInfo(user_id));                        
 create table Symbols( symbol_id int auto_increment not null,
-						symbol varchar(10) not null,
+						symbol varchar(5) not null,
+                        ipo_date date,
+                        delisting_date date,
                         primary key (symbol_id));
 
 
 
-
-
-
-
--- ############### procedure to select data ################
+-- ############### PROCEDURE TO EXECUTE "SELECT" QUERY ################
 delimiter $$
 drop procedure if exists QUERY_DATA $$
-create procedure QUERY_DATA( tableName varchar(10), startDate date, endDate date)
+create procedure QUERY_DATA( tableName varchar(5), startDate date, endDate date)
 begin
 	set @query = concat('SELECT t.date_as_id, s.symbol, t.price, t.split_ratio FROM ',tableName,' AS t 
 						INNER JOIN Symbols AS s 
@@ -50,7 +48,7 @@ delimiter ;
 -- ################ AND CREATE NEW TABLE NAMED AFTER THE SYMBOL ###############
 delimiter $$
 drop procedure if exists ADD_TO_SYMBOLS_AND_CREATE_TABLE $$
-create procedure ADD_TO_SYMBOLS_AND_CREATE_TABLE( ticker varchar(10))
+create procedure ADD_TO_SYMBOLS_AND_CREATE_TABLE( ticker varchar(5))
 begin
 	-- add symbol to Symbols table
 	set @addToSymbols = concat('INSERT INTO Symbols(symbol) VALUES(''', ticker, ''')');
@@ -79,7 +77,7 @@ delimiter ;
 -- get date_as_id field from the first row in table, "ticker" is the name of table
 delimiter $$
 drop procedure if exists FIRST_DATE_IN_TABLE $$
-create procedure FIRST_DATE_IN_TABLE(ticker varchar(10),inout firstDate date)
+create procedure FIRST_DATE_IN_TABLE(ticker varchar(5),inout firstDate date)
 begin
 	-- get first date in the table
 	set @query = concat('select date_as_id into @firstDate from ', ticker, ' limit 1');
@@ -94,7 +92,7 @@ delimiter ;
 -- e.g. dateInput:2000-1-1, firstDate:2000-1-10 => diff is -9
 delimiter $$
 drop procedure if exists DIFF_TO_FIRST_DATE $$
-create procedure DIFF_TO_FIRST_DATE(ticker varchar(10), dateInput date, inout diff int)
+create procedure DIFF_TO_FIRST_DATE(ticker varchar(5), dateInput date, inout diff int)
 begin
 	-- get first date in the table
 	call FIRST_DATE_IN_TABLE(ticker,@firstDate);
@@ -106,7 +104,7 @@ delimiter ;
 -- if not get null  
 delimiter $$
 drop procedure if exists DATE_BEFORE_FIRST_DATE $$
-create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(10), dateInput date)
+create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(5), dateInput date)
 begin
 	call DIFF_TO_FIRST_DATE(ticker,dateInput,@diff);
     
@@ -130,7 +128,7 @@ delimiter ;
 -- get date_as_id field from the last row in table, "ticker" is the name of table
 delimiter $$
 drop procedure if exists LAST_DATE_IN_TABLE $$
-create procedure LAST_DATE_IN_TABLE(ticker varchar(10),inout lastDate date)
+create procedure LAST_DATE_IN_TABLE(ticker varchar(5),inout lastDate date)
 begin
 	-- get first date in the table
     set @query = concat('select date_as_id into @lastDate from ',ticker,' where date_as_id = (select max(date_as_id) from ',ticker,')');
@@ -145,7 +143,7 @@ delimiter ;
 -- e.g. dateInput:2000-1-1, lastDate:2000-1-10 => diff is -9
 delimiter $$
 drop procedure if exists DIFF_TO_LAST_DATE $$
-create procedure DIFF_TO_LAST_DATE(ticker varchar(10), dateInput date, inout diff int)
+create procedure DIFF_TO_LAST_DATE(ticker varchar(5), dateInput date, inout diff int)
 begin
 	-- get last date in the table
 	call LAST_DATE_IN_TABLE(ticker,@lastDate);
@@ -157,7 +155,7 @@ delimiter ;
 -- if not get null  
 delimiter $$
 drop procedure if exists DATE_AFTER_LAST_DATE $$
-create procedure DATE_AFTER_LAST_DATE(ticker varchar(10), dateInput date)
+create procedure DATE_AFTER_LAST_DATE(ticker varchar(5), dateInput date)
 begin
 	call DIFF_TO_LAST_DATE(ticker,dateInput,@diff);
     
@@ -175,7 +173,18 @@ end;$$
 delimiter ;
 
 
-
+-- ############ PROCEDURE TO UPDATE IPO AND DELISTING DATES################################
+delimiter $$
+drop procedure if exists UPDATE_IPO_DELISTING_DATE $$
+create procedure UPDATE_IPO_DELISTING_DATE(ticker varchar(5))
+begin
+	CALL FIRST_DATE_IN_TABLE(ticker,@ipo);
+    CALL LAST_DATE_IN_TABLE(ticker,@delisting);
+    
+    UPDATE symbols SET ipo_date=@ipo, delisting_date=@delisting WHERE symbol=ticker;
+    
+end;$$
+delimiter ;
 
 
 

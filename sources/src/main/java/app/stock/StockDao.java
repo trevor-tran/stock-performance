@@ -136,11 +136,24 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 					cstmt.executeUpdate();
 				}
 				release(cstmt);
+				updateIpoDelistingDate(symbol);
 			}
 		}catch(Exception ex){
 			logger.error("insertData() failed." + ex.getMessage());
 		}
 	}	
+	
+	private void updateIpoDelistingDate(String symbol) {
+		try {
+			String sql = "{ CALL UPDATE_IPO_DELISTING_DATE(?) }";
+			CallableStatement cstmt = conn.prepareCall(sql);
+			cstmt.setString(1, symbol);
+			cstmt.execute();
+			release(cstmt);
+		}catch(Exception ex){
+			logger.error(ex.getMessage());
+		}
+	}
 	
 	//return symbol_id of the symbol in SYMBOLS table
 	private  int getSymbolId(String symbol) {
