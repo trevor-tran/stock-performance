@@ -131,7 +131,7 @@ drop procedure if exists LAST_DATE_IN_TABLE $$
 create procedure LAST_DATE_IN_TABLE(ticker varchar(5),inout lastDate date)
 begin
 	-- get first date in the table
-    set @query = concat('select date_as_id into @lastDate from ',ticker,' where date_as_id = (select max(date_as_id) from ',ticker,')');
+    set @query = concat('select max(date_as_id) from ',ticker);
     prepare stmt from @query;
 	execute stmt;
 	deallocate prepare stmt;
@@ -186,6 +186,26 @@ begin
 end;$$
 delimiter ;
 
+
+delimiter $$
+drop procedure if exists GET_MUTUAL_IPO_DELISTING_DATE $$
+create procedure GET_MUTUAL_IPO_DELISTING_DATE(symbolList varchar(64))
+begin
+	set @ipo = concat("select max(ipo_date) into @mutualIpo from symbols where symbol in (",symbolList,")");
+    prepare stmt1 from @ipo;
+    execute stmt1;
+    deallocate prepare stmt1;
+    
+	set @delisting = concat("select max(delisting_date) into @mutualDelisting from symbols where symbol in (",symbolList,")");
+    prepare stmt2 from @delisting;
+    execute stmt2;
+    deallocate prepare stmt2;
+    
+	select @mutualIpo, @mutualDelisting;
+end;$$
+delimiter ;
+
+call GET_MUTUAL_IPO_DELISTING_DATE("'msft','aapl'");
 
 
 
