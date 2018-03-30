@@ -20,6 +20,7 @@ public class StockController {
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
+		//recent added symbol received first
 		symbolsSet.add(symbol);
 		try(StockDao stockDao = new StockDao()) {
 
