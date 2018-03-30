@@ -53,7 +53,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			}else{
 				mayUpdateTable(symbol, startDate, endDate);
 			}
-			
+			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getIpoDelisting();
 			if(ipoDelisting != null){
 				if(!Objects.equals(mutualIpo, ipoDelisting.get(0) )){
@@ -86,28 +86,29 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	}
 
 	private List<String> getIpoDelisting(){
-		List<String> lst = new ArrayList<String>();
 		try{
-			String symbolsStr = "";
+			String symbolsStr = "'";
 			for( String s : symbolsSet){
 				symbolsStr += s;
-				symbolsStr += ",";
+				symbolsStr += "','";
 			}
-			symbolsStr = symbolsStr.substring(0, symbolsStr.length()-1);
-
-			String sql = "{CALL GET_MUTUAL_IPO_DELISTING_DATE(?)}";
+			//cut off trailing ( ,' )
+			symbolsStr = symbolsStr.substring(0, symbolsStr.length()-2);
+			
+			//must be this way to have the symbolsStr in double quotes. e.g "'MSFT','GOOGL'"
+			String sql = String.format(" CALL GET_MUTUAL_IPO_DELISTING_DATE(\"%s\")",symbolsStr);
 			CallableStatement cstmt = conn.prepareCall(sql);
-			cstmt.setString(1, symbolsStr);
-
 			ResultSet rs = cstmt.executeQuery();
 			if(rs.next()){
+				List<String> lst = new ArrayList<String>();
 				lst.add(rs.getString("@mutualIpo"));
 				lst.add(rs.getString("@mutualDelisting"));
+				return lst;
 			}
 		}catch(SQLException ex){
 			logger.error("SQL exception:" + ex.getMessage());
 		}
-		return lst;
+		return null;
 	}
 
 	private void mayUpdateTable (String tableName, String startDate,String endDate) {
@@ -133,18 +134,18 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			//available data in mysql from "2017-5-1" to "2017-8-1"
 			//only request Quandl data from "2017-8-2" to "2017-10-1"
 			sql = "{ CALL NEXT_TO_LAST_DATE(?, ?) }";
-			CallableStatement cstmt2 = conn.prepareCall(sql);
-			cstmt2.setString(1, tableName);
-			cstmt2.setString(2, endDate);
-			ResultSet rs2 = cstmt2.executeQuery();
+			cstmt = conn.prepareCall(sql);
+			cstmt.setString(1, tableName);
+			cstmt.setString(2, endDate);
+			rs = cstmt.executeQuery();
 
-			if(rs2.next()){
-				String newStartDate = rs2.getString("@nextDate");
+			if(rs.next()){
+				String newStartDate = rs.getString("@nextDate");
 				if(newStartDate != null){
 					insertData( tableName, newStartDate, endDate);
 				}
 			}
-			release(cstmt2, rs2);
+			release(cstmt, rs);
 		}catch(SQLException ex){
 			logger.error("mayUpdateTable() failed."+ex.getMessage());
 		}
