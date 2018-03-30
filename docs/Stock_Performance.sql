@@ -191,13 +191,12 @@ delimiter $$
 drop procedure if exists GET_MUTUAL_IPO_DELISTING_DATE $$
 create procedure GET_MUTUAL_IPO_DELISTING_DATE(symbolList varchar(64))
 begin
-	-- set symbolList = concat('"',symbolList,'"');
-	set @ipo = concat("select max(ipo_date) into @mutualIpo from symbols where symbol in ('",symbolList,"')");
+	set @ipo = concat("select max(ipo_date) into @mutualIpo from symbols where symbol in (",symbolList,")");
     prepare stmt1 from @ipo;
     execute stmt1;
     deallocate prepare stmt1;
     
-	set @delisting = concat("select max(delisting_date) into @mutualDelisting from symbols where symbol in ('",symbolList,"')");
+	set @delisting = concat("select max(delisting_date) into @mutualDelisting from symbols where symbol in (",symbolList,")");
     prepare stmt2 from @delisting;
     execute stmt2;
     deallocate prepare stmt2;
@@ -205,9 +204,6 @@ begin
 	 select @mutualIpo, @mutualDelisting;
 end;$$
 delimiter ;
-
-call GET_MUTUAL_IPO_DELISTING_DATE('msft');
-
 
 
 
