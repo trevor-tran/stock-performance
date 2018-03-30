@@ -1,28 +1,28 @@
 package app.stock;
-
 import java.lang.invoke.MethodHandles;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-/**
- * Responsible for request stock data from quandl.com
- * @author PhuongTran
- *
- */
+
 public class StockController {
 
 	private static Map<String,String> summary;
+	protected static Set<String> symbolsSet = new HashSet<String>();
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
+		symbolsSet.add(symbol);
 		try(StockDao stockDao = new StockDao()) {
+
 			ResultSet rs = stockDao.queryStockData(symbol, startDate, endDate);
 			if(rs != null){
 				summary = new HashMap<String,String>();
@@ -70,7 +70,7 @@ public class StockController {
 				return balanceMap;	
 			}
 		}catch(Exception ex){
-			logger.error("getData() failed." + ex.getMessage());	
+			logger.error("getData() failed." + ex.getStackTrace());	
 		}
 		return null; //TODO: need a proper return
 
