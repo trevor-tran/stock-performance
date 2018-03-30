@@ -103,21 +103,21 @@ delimiter ;
 -- if dateInput prior to first date in table, get the date before first date.
 -- if not get null  
 delimiter $$
-drop procedure if exists DATE_BEFORE_FIRST_DATE $$
-create procedure DATE_BEFORE_FIRST_DATE(ticker varchar(5), dateInput date)
+drop procedure if exists PREVIOUS_TO_FIRST_DATE $$
+create procedure PREVIOUS_TO_FIRST_DATE(ticker varchar(5), dateInput date)
 begin
 	call DIFF_TO_FIRST_DATE(ticker,dateInput,@diff);
     
     if @diff<0 then
 		begin
 			call FIRST_DATE_IN_TABLE(ticker,@firstDate);
-			set @beforeFirstDate = subdate(@firstDate,1);
+			set @previousDate = subdate(@firstDate,1);
 		end;
     else 
-		set @beforeFirstDate = null;
+		set @previousDate = null;
     end if;
 
-    select @beforeFirstDate;
+    select @previousDate;
 end;$$
 delimiter ;
 
@@ -131,7 +131,7 @@ drop procedure if exists LAST_DATE_IN_TABLE $$
 create procedure LAST_DATE_IN_TABLE(ticker varchar(5),inout lastDate date)
 begin
 	-- get first date in the table
-    set @query = concat('select max(date_as_id) from ',ticker);
+    set @query = concat('select max(date_as_id) into  @lastDate from ',ticker);
     prepare stmt from @query;
 	execute stmt;
 	deallocate prepare stmt;
@@ -139,7 +139,7 @@ begin
 end;$$
 delimiter ;
 
--- the number of days from dateInput to the date of last row in the table("ticker" is the name of table)
+-- the number of days from dateInput to the date of the last row in the table("ticker" is the name of table)
 -- e.g. dateInput:2000-1-1, lastDate:2000-1-10 => diff is -9
 delimiter $$
 drop procedure if exists DIFF_TO_LAST_DATE $$
@@ -151,27 +151,27 @@ begin
 end;$$
 delimiter ;
 
--- if dateInput prior to first date in table, get the date before first date.
+-- if dateInput after the last date in table, get the date beyond the last date.
 -- if not get null  
 delimiter $$
-drop procedure if exists DATE_AFTER_LAST_DATE $$
-create procedure DATE_AFTER_LAST_DATE(ticker varchar(5), dateInput date)
+drop procedure if exists NEXT_TO_LAST_DATE $$
+create procedure NEXT_TO_LAST_DATE(ticker varchar(5), dateInput date)
 begin
 	call DIFF_TO_LAST_DATE(ticker,dateInput,@diff);
     
     if @diff>0 then
 		begin
 			call LAST_DATE_IN_TABLE(ticker,@lastDate);
-			set @afterLastDate = adddate(@lastDate,1);
+			set @nextDate = adddate(@lastDate,1);
 		end;
     else 
-		set @afterLastDate = null;
+		set @nextDate = null;
     end if;
 
-    select @afterLastDate;
+    select @nextDate;
 end;$$
 delimiter ;
-
+call NEXT_TO_LAST_DATE('msft','2018-3-28');
 
 -- ############ PROCEDURE TO UPDATE IPO AND DELISTING DATES################################
 delimiter $$
@@ -191,21 +191,22 @@ delimiter $$
 drop procedure if exists GET_MUTUAL_IPO_DELISTING_DATE $$
 create procedure GET_MUTUAL_IPO_DELISTING_DATE(symbolList varchar(64))
 begin
-	set @ipo = concat("select max(ipo_date) into @mutualIpo from symbols where symbol in (",symbolList,")");
+	-- set symbolList = concat('"',symbolList,'"');
+	set @ipo = concat("select max(ipo_date) into @mutualIpo from symbols where symbol in ('",symbolList,"')");
     prepare stmt1 from @ipo;
     execute stmt1;
     deallocate prepare stmt1;
     
-	set @delisting = concat("select max(delisting_date) into @mutualDelisting from symbols where symbol in (",symbolList,")");
+	set @delisting = concat("select max(delisting_date) into @mutualDelisting from symbols where symbol in ('",symbolList,"')");
     prepare stmt2 from @delisting;
     execute stmt2;
     deallocate prepare stmt2;
     
-	select @mutualIpo, @mutualDelisting;
+	 select @mutualIpo, @mutualDelisting;
 end;$$
 delimiter ;
 
-call GET_MUTUAL_IPO_DELISTING_DATE("'msft','aapl'");
+call GET_MUTUAL_IPO_DELISTING_DATE('msft');
 
 
 
