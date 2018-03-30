@@ -1,5 +1,7 @@
 package app.stock;
 
+import static app.stock.StockController.symbolsSet;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,7 +10,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.http.HttpException;
 import org.apache.http.client.ClientProtocolException;
@@ -26,19 +32,20 @@ import com.google.gson.JsonObject;
 
 import app.util.ConnectionManager;
 import app.util.StatementAndResultSet;
-
 public class StockDao extends StatementAndResultSet implements AutoCloseable{
 
 	//quandl api key
 	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
-	public static final int NOT_FOUND = -1;
 	private Connection conn = null;
+	private static String mutualIpo = "";
+	private String mutualDelisting = "";
+	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	
+
 	public StockDao() {
 		conn = ConnectionManager.getInstance().getConnection();
 	}
-	
+
 	public ResultSet queryStockData(String symbol, String startDate, String endDate){
 		try{
 			if(getSymbolId(symbol) == NOT_FOUND){
@@ -46,6 +53,25 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			}else{
 				mayUpdateTable(symbol, startDate, endDate);
 			}
+			
+			List<String> ipoDelisting = getIpoDelisting();
+			if(ipoDelisting != null){
+				if(!Objects.equals(mutualIpo, ipoDelisting.get(0) )){
+					mutualIpo = ipoDelisting.get(0);
+				}
+				if(!Objects.equals(mutualDelisting, ipoDelisting.get(1) )){
+					mutualDelisting = ipoDelisting.get(1);
+				}
+			}
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+			if(sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
+				startDate = mutualIpo;
+			}
+			if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
+				endDate = mutualDelisting;
+			}
+			
 			String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, symbol);
@@ -58,55 +84,79 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 		}
 		return null;
 	}
-	
+
+	private List<String> getIpoDelisting(){
+		List<String> lst = new ArrayList<String>();
+		try{
+			String symbolsStr = "";
+			for( String s : symbolsSet){
+				symbolsStr += s;
+				symbolsStr += ",";
+			}
+			symbolsStr = symbolsStr.substring(0, symbolsStr.length()-1);
+
+			String sql = "{CALL GET_MUTUAL_IPO_DELISTING_DATE(?)}";
+			CallableStatement cstmt = conn.prepareCall(sql);
+			cstmt.setString(1, symbolsStr);
+
+			ResultSet rs = cstmt.executeQuery();
+			if(rs.next()){
+				lst.add(rs.getString("@mutualIpo"));
+				lst.add(rs.getString("@mutualDelisting"));
+			}
+		}catch(SQLException ex){
+			logger.error("SQL exception:" + ex.getMessage());
+		}
+		return lst;
+	}
+
 	private void mayUpdateTable (String tableName, String startDate,String endDate) {
 		try{
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-8-1" to "2017-10-1"
 			//only request Quandl data from "2017-5-1" to "2017-7-31"
-			//String sql = String.format("{ CALL DATE_BEFORE_FIRST_DATE('%s', '%s') }",tableName,startDate);
-			String sql = "{CALL DATE_BEFORE_FIRST_DATE(?,?)}";
+			String sql = "{CALL PREVIOUS_TO_FIRST_DATE(?,?)}";
 			CallableStatement cstmt = conn.prepareCall(sql);
-			
+
 			cstmt.setString(1, tableName);
 			cstmt.setString(2, startDate);
 			ResultSet rs = cstmt.executeQuery();
-			
+
 			if(rs.next()){
-				String newEndDate = rs.getString("@beforeFirstDate");
+				String newEndDate = rs.getString("@previousDate");
 				if(newEndDate != null){
 					insertData( tableName, startDate, newEndDate);
 				}
 			}
+			release(cstmt, rs);
 			//e.g. front-end request from "2017-5-1" to "2017-10-1"
 			//available data in mysql from "2017-5-1" to "2017-8-1"
 			//only request Quandl data from "2017-8-2" to "2017-10-1"
-			sql = "{ CALL DATE_AFTER_LAST_DATE(?, ?) }";
-			cstmt = conn.prepareCall(sql);
-			
-			cstmt.setString(1, tableName);
-			cstmt.setString(2, endDate);
-			rs = cstmt.executeQuery();
-			
-			if(rs.next()){
-				String newStartDate = rs.getString("@afterLastDate");
+			sql = "{ CALL NEXT_TO_LAST_DATE(?, ?) }";
+			CallableStatement cstmt2 = conn.prepareCall(sql);
+			cstmt2.setString(1, tableName);
+			cstmt2.setString(2, endDate);
+			ResultSet rs2 = cstmt2.executeQuery();
+
+			if(rs2.next()){
+				String newStartDate = rs2.getString("@nextDate");
 				if(newStartDate != null){
 					insertData( tableName, newStartDate, endDate);
 				}
 			}
-			release(cstmt, rs);
-		}catch(Exception ex){
+			release(cstmt2, rs2);
+		}catch(SQLException ex){
 			logger.error("mayUpdateTable() failed."+ex.getMessage());
 		}
 	}
-	
+
 	private void insertData(String symbol, String startDate, String endDate){
 		try{
 			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
 			if(quandlData != null){
 				CallableStatement cstmt = null;
 				int symbolId = getSymbolId(symbol);
-				
+
 				if(symbolId == NOT_FOUND){
 					//add new symbol to SYMBOLS table and create new table after the symbol
 					//e.g. "MSFT" added to SYMBOLS and the table named "MSFT" created
@@ -116,7 +166,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 					cstmt.execute();
 					symbolId = getSymbolId(symbol);
 				}
-				
+
 				for (JsonElement element : quandlData) {
 					//each element is [date, ticker, price, split]
 					// e.g. ["2016-12-28", "MSFT", 62.99, 2.0]
@@ -127,22 +177,22 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 					//get ready to insert into table
 					String sql = String.format("INSERT INTO %s VALUES(?, ?, ?, ?)",symbol);
 					cstmt = conn.prepareCall(sql);
-					
+
 					cstmt.setString(1, date);
 					cstmt.setDouble(2, price);
 					cstmt.setDouble(3, split);
 					cstmt.setInt(4, symbolId);
-					
+
 					cstmt.executeUpdate();
 				}
 				release(cstmt);
 				updateIpoDelistingDate(symbol);
 			}
-		}catch(Exception ex){
+		}catch(SQLException ex){
 			logger.error("insertData() failed." + ex.getMessage());
 		}
 	}	
-	
+
 	private void updateIpoDelistingDate(String symbol) {
 		try {
 			String sql = "{ CALL UPDATE_IPO_DELISTING_DATE(?) }";
@@ -154,7 +204,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			logger.error(ex.getMessage());
 		}
 	}
-	
+
 	//return symbol_id of the symbol in SYMBOLS table
 	private  int getSymbolId(String symbol) {
 		try{
@@ -201,9 +251,9 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 				return dataArr;
 			} 
 		}catch (HttpException ex){
-			logger.error(ex.getMessage());
+			logger.error("HttpException:"+ex.getMessage());
 		}catch(ClientProtocolException ex){
-			logger.error(ex.getMessage());
+			logger.error("ClientProtocolException:" + ex.getMessage());
 		}catch(Exception ex){
 			logger.error(ex.getMessage());	
 		}
@@ -229,6 +279,6 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	@Override
 	public void close() throws Exception {
 		ConnectionManager.getInstance().releaseConnection(conn);
-		
+
 	}
 }
