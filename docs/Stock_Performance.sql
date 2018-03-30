@@ -32,7 +32,7 @@ delimiter $$
 drop procedure if exists QUERY_DATA $$
 create procedure QUERY_DATA( tableName varchar(5), startDate date, endDate date)
 begin
-	set @query = concat('SELECT t.date_as_id, s.symbol, t.price, t.split_ratio FROM ',tableName,' AS t 
+	set @query = concat('SELECT t.date_as_id, t.price, t.split_ratio FROM ',tableName,' AS t 
 						INNER JOIN Symbols AS s 
 						WHERE t.symbol_id = s.symbol_id AND t.date_as_id BETWEEN ''',startDate, ''' AND ''', endDate,'''');
     prepare stmt from @query;
@@ -204,6 +204,8 @@ begin
 	 select @mutualIpo, @mutualDelisting;
 end;$$
 delimiter ;
+
+call GET_MUTUAL_IPO_DELISTING_DATE("'msft','googl'");
 
 
 
