@@ -96,10 +96,12 @@ function fetchAllStock(nextInput){
 		var fetchTasks= [];
 		var data; 
 		symbols.forEach(function(symbol){
-			fetchTasks.push( function(callback) {
+			//a recent symbol added at the end of "symbols" list
+			// must fetch the recent added symbol first to update mutual IPO and Delisting date at server side
+			fetchTasks.unshift( function(callback) {
 				fetchData( nextInput.investment, nextInput.start, nextInput.end, symbol)
 				.then(function(newData){
-					callback(null,newData);//callback(error,result)
+					callback(null,newData);
 				});
 			});
 		})
