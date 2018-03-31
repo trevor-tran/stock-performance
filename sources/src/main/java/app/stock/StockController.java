@@ -1,8 +1,11 @@
 package app.stock;
 import java.lang.invoke.MethodHandles;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -22,10 +25,26 @@ public class StockController {
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
 		//recent added symbol received first
 		symbolsSet.add(symbol);
+		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
 		try(StockDao stockDao = new StockDao()) {
+			Map<String,List<Stock>> data = stockDao.getData(symbol, startDate, endDate);
+			//https://www.geeksforgeeks.org/iterate-map-java/
+			Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
 
-			ResultSet rs = stockDao.queryStockData(symbol, startDate, endDate);
-			if(rs != null){
+			//compute quantity of each stock based on the first entry
+			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
+			Map<String,Double> quantityOfStocks = computeQuantity(investment, iterator.next().getValue());
+
+			while(iterator.hasNext()){
+				Map.Entry<String,List<Stock>> entry = iterator.next();
+				
+				// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
+				Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+				
+				balances.put(entry.getKey(), singleDayBalances);
+			}
+			return balances;
+			/*if(rs != null){
 				summary = new HashMap<String,String>();
 				//MUST use TreeMap here to sort dates
 				Map<String,Map<String,Double>> balanceMap = new TreeMap<String,Map<String,Double>>();
@@ -68,8 +87,8 @@ public class StockController {
 					}
 				}
 				rs.close();
-				return balanceMap;	
-			}
+				return balanceMap;		
+				}*/
 		}catch(Exception ex){
 			logger.error("getData() failed." + ex.getStackTrace());	
 		}
@@ -77,6 +96,30 @@ public class StockController {
 
 	}
 	
+	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
+		Map<String,Double> singleDayBalances = new HashMap<String,Double>();
+		for (Stock stock : stockList){
+			if(stock.getSplit() != 1d){
+				double numberOfShares = quantities.get(stock.getTicker());
+				numberOfShares = numberOfShares * stock.getSplit();
+				//update the quantity corresponding to each stock in quantityOfStocks Map
+				quantities.put(stock.getTicker(), numberOfShares);
+			}
+			double balance = round(quantities.get(stock.getTicker()) * stock.getPrice(), 2);
+			singleDayBalances.put(stock.getTicker(), balance);
+		}
+		return singleDayBalances;
+	}
+
+	private static Map<String,Double> computeQuantity (long investment, List<Stock> firstEntry) {
+		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
+		for(Stock stock : firstEntry) {
+			double quantity = investment / stock.getPrice(); 
+			quantityOfStocks.put(stock.getTicker(), quantity);
+		}
+		return quantityOfStocks;
+	}
+
 	public static Map<String,String> getSummary(){
 		return summary;
 	}

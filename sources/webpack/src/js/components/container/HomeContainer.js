@@ -71,11 +71,11 @@ class HomeContainer extends Component {
 				<tr>
 					<td colSpan="2"><h2>Summary Table</h2></td>
 				</tr>
-				<tr>
+				{/*<tr>
 					<td colSpan="2">
 						<SummaryContainer setClassName="summarycontainer" />
 					</td>
-				</tr>
+				</tr> */}
 				<tr>
 					<td><Spinner setClassName="spinner" /></td>
 				</tr>

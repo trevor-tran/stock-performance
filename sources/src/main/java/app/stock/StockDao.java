@@ -12,9 +12,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.http.HttpException;
 import org.apache.http.client.ClientProtocolException;
@@ -46,7 +50,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 		conn = ConnectionManager.getInstance().getConnection();
 	}
 
-	public ResultSet queryStockData(String symbol, String startDate, String endDate){
+	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
 		try{
 			if(getSymbolId(symbol) == NOT_FOUND){
 				insertData(symbol, startDate, endDate);
@@ -63,7 +67,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 					mutualDelisting = ipoDelisting.get(1);
 				}
 			}
-			
+
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				startDate = mutualIpo;
@@ -71,16 +75,44 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				endDate = mutualDelisting;
 			}
-			
+			return querySingleStockData(symbol, startDate, endDate);
+		}catch(Exception ex){
+			logger.error("queryStockData() failed." + ex.getMessage());
+		}
+		return null;
+	}
+
+	//structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
+	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
+	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
+	private Map<String,List<Stock>> querySingleStockData(String symbol, String startDate, String endDate) {
+		try{
+			Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 			String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, symbol);
 			pstmt.setString(2, startDate);
 			pstmt.setString(3,endDate);
 			ResultSet rs = pstmt.executeQuery();
-			return rs;
-		}catch(Exception ex){
-			logger.error("queryStockData() failed." + ex.getMessage());
+
+			while (rs.next()) {
+				String date = rs.getString("date_as_id"); 
+				double price = rs.getDouble("price");
+				double split = rs.getDouble("split_ratio");
+				Stock stock = new Stock(symbol, price, split);
+				if (data.containsKey(date)){
+					List<Stock> stockList = data.get(date);
+					stockList.add(stock);
+				}else {
+					List<Stock> stockList = new ArrayList<Stock>();
+					stockList.add(stock);
+					data.put(date, stockList);
+				}
+			}
+			release(pstmt,rs);
+			return data;
+		}catch(SQLException ex){
+			logger.error("SQL Exception:" + ex.getMessage());
 		}
 		return null;
 	}
@@ -94,7 +126,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			}
 			//cut off trailing ( ,' )
 			symbolsStr = symbolsStr.substring(0, symbolsStr.length()-2);
-			
+
 			//must be this way to have the symbolsStr in double quotes. e.g "'MSFT','GOOGL'"
 			String sql = String.format(" CALL GET_MUTUAL_IPO_DELISTING_DATE(\"%s\")",symbolsStr);
 			CallableStatement cstmt = conn.prepareCall(sql);
