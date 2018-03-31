@@ -30,17 +30,27 @@ function buildUrl (invest, start, end, symbol) {
 
 //merge current and new data. Return merged data
 function mergeData( currentData, newData){
-	var data = [];
-	if(currentData.length > newData.length){
-		[currentData, newData] = [newData,currentData];
-	}
-	currentData.forEach( function(currentObj){
-		var found = newData.find( newObj => newObj.date === currentObj.date);
-		if(found){
-			data.push( update(currentObj, {$merge:found}) );
+	//if newData contains multiple symbols data, return newData, no merging
+	if(Object.keys(newData[0]).length > 2 ){//1st key must be "date", 2nd key is a symbol, so greater than 2 means more than one symbol
+		return newData;
+	}else{
+		//why am I doing this? stock(s) data from Quandl missing point(s)
+		//e.g AAPL,COST data from Quandl misses one data point on 2017-08-07
+		var data = [];
+		var shorterLengthData = currentData;
+		var greaterLengthData = newData;
+		if(currentData.length > newData.length){
+			shorterLengthData = newData;
+			greaterLenghData = currentData;
 		}
-	});
-	return data;
+		shorterLengthData.forEach( function(sObj){
+			var found = greaterLengthData.find( gObj => gObj.date === sObj.date);
+			if(found){
+				data.push( update(sObj, {$merge:found}) );
+			}
+		});
+		return data;
+	}
 }
 
 //manipulate data into right format
@@ -67,9 +77,10 @@ function manipulateData(json) {
 function fetchData(invest, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
 		const url = buildUrl(invest, startDate, endDate, ticker);
+		console.log(url);
 		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
 		fetch(url,{
-			credentials: 'include',//crucial to have this to send sessions, cookies,.... 
+			credentials: 'include',//crucial to have this to send session attributes, cookies,.... 
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'  } 
 		})
 		.then(function(response) {
