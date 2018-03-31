@@ -57,7 +57,6 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			}else{
 				mayUpdateTable(symbol, startDate, endDate);
 			}
-
 			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getMutualIpoDelisting();
 			//update mututalIpo and mutualDelisting
@@ -69,18 +68,21 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 					mutualDelisting = ipoDelisting.get(1);
 				}
 			}
-
-			//startDate and enDate must be in the range from mutualIpo to mutualDelisting
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+			
+			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				return queryStockData(symbols, mutualIpo, mutualDelisting);
+			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
+			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}
-			
+
+			//return single stock data
 			return queryStockData(new HashSet<>(Arrays.asList(symbol)), startDate, endDate);
 		}catch(Exception ex){
 			logger.error("queryStockData() failed." + ex.getMessage());
@@ -88,7 +90,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 		return null;
 	}
 
-	//structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
+	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
 	private Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
