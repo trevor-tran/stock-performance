@@ -1,7 +1,5 @@
 package app.stock;
 import java.lang.invoke.MethodHandles;
-import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,34 +14,34 @@ import org.slf4j.LoggerFactory;
 public class StockController {
 
 	private static Map<String,String> summary;
-	protected static Set<String> symbolsSet = new HashSet<String>();
+	protected static Set<String> symbols = new HashSet<String>();
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
-	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
-	//https://github.com/google/gson/blob/master/UserGuide.md
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
 		//recent added symbol received first
-		symbolsSet.add(symbol);
+		symbols.add(symbol);
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
 		try(StockDao stockDao = new StockDao()) {
 			Map<String,List<Stock>> data = stockDao.getData(symbol, startDate, endDate);
-			//https://www.geeksforgeeks.org/iterate-map-java/
-			Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
-
-			//compute quantity of each stock based on the first entry
-			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
-			Map<String,Double> quantityOfStocks = computeQuantity(investment, iterator.next().getValue());
-
-			while(iterator.hasNext()){
-				Map.Entry<String,List<Stock>> entry = iterator.next();
+			if(data != null){
+				//https://www.geeksforgeeks.org/iterate-map-java/
+				Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
 				
+				//get first entry
+				Map.Entry<String,List<Stock>> entry = iterator.next();
+				//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
+				Map<String,Double> quantityOfStocks = computeQuantity(investment, entry.getValue());
 				// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 				Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
-				
 				balances.put(entry.getKey(), singleDayBalances);
+				
+				while(iterator.hasNext() ){
+					entry = iterator.next();
+					singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+					balances.put(entry.getKey(), singleDayBalances);
+				}
+				return balances;
 			}
-			return balances;
 			/*if(rs != null){
 				summary = new HashMap<String,String>();
 				//MUST use TreeMap here to sort dates
@@ -95,7 +93,7 @@ public class StockController {
 		return null; //TODO: need a proper return
 
 	}
-	
+
 	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
 		Map<String,Double> singleDayBalances = new HashMap<String,Double>();
 		for (Stock stock : stockList){
