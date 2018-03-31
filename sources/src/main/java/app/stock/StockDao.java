@@ -95,10 +95,14 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
 	private Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
 		try{
+			
 			Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 			PreparedStatement pstmt = null;
 			ResultSet rs = null;
 			for(String symbol : symbols) {
+				/*if(getSymbolId(symbol) == NOT_FOUND){
+					insertData(symbol, startDate, endDate);
+				}*/
 				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, symbol);
