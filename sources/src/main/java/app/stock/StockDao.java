@@ -1,6 +1,6 @@
 package app.stock;
 
-import static app.stock.StockController.symbolsSet;
+import static app.stock.StockController.symbols;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -12,8 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,25 +57,31 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 			}else{
 				mayUpdateTable(symbol, startDate, endDate);
 			}
+
 			// first element is mutualIPO date, second one is mutualDelisting date
-			List<String> ipoDelisting = getIpoDelisting();
+			List<String> ipoDelisting = getMutualIpoDelisting();
+			//update mututalIpo and mutualDelisting
 			if(ipoDelisting != null){
-				if(!Objects.equals(mutualIpo, ipoDelisting.get(0) )){
+				if(!Objects.equals(mutualIpo, ipoDelisting.get(0))){
 					mutualIpo = ipoDelisting.get(0);
 				}
-				if(!Objects.equals(mutualDelisting, ipoDelisting.get(1) )){
+				if(!Objects.equals(mutualDelisting, ipoDelisting.get(1))){
 					mutualDelisting = ipoDelisting.get(1);
 				}
 			}
 
+			//startDate and enDate must be in the range from mutualIpo to mutualDelisting
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
-			if(sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
-				startDate = mutualIpo;
+			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
+					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
+				return queryStockData(symbols, mutualIpo, mutualDelisting);
+			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
+				return queryStockData(symbols, mutualIpo, endDate);
+			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
+				return queryStockData(symbols, startDate, mutualDelisting);
 			}
-			if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
-				endDate = mutualDelisting;
-			}
-			return querySingleStockData(symbol, startDate, endDate);
+			
+			return queryStockData(new HashSet<>(Arrays.asList(symbol)), startDate, endDate);
 		}catch(Exception ex){
 			logger.error("queryStockData() failed." + ex.getMessage());
 		}
@@ -85,28 +91,32 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	//structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
-	private Map<String,List<Stock>> querySingleStockData(String symbol, String startDate, String endDate) {
+	private Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
 		try{
 			Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
-			String sql = "{CALL QUERY_DATA(?, ?, ?)}";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, symbol);
-			pstmt.setString(2, startDate);
-			pstmt.setString(3,endDate);
-			ResultSet rs = pstmt.executeQuery();
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			for(String symbol : symbols) {
+				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, symbol);
+				pstmt.setString(2, startDate);
+				pstmt.setString(3,endDate);
+				rs = pstmt.executeQuery();
 
-			while (rs.next()) {
-				String date = rs.getString("date_as_id"); 
-				double price = rs.getDouble("price");
-				double split = rs.getDouble("split_ratio");
-				Stock stock = new Stock(symbol, price, split);
-				if (data.containsKey(date)){
-					List<Stock> stockList = data.get(date);
-					stockList.add(stock);
-				}else {
-					List<Stock> stockList = new ArrayList<Stock>();
-					stockList.add(stock);
-					data.put(date, stockList);
+				while (rs.next()) {
+					String date = rs.getString("date_as_id"); 
+					double price = rs.getDouble("price");
+					double split = rs.getDouble("split_ratio");
+					Stock stock = new Stock(symbol, price, split);
+					if (data.containsKey(date)){
+						List<Stock> stockList = data.get(date);
+						stockList.add(stock);
+					}else {
+						List<Stock> stockList = new ArrayList<Stock>();
+						stockList.add(stock);
+						data.put(date, stockList);
+					}
 				}
 			}
 			release(pstmt,rs);
@@ -117,10 +127,10 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 		return null;
 	}
 
-	private List<String> getIpoDelisting(){
+	private List<String> getMutualIpoDelisting(){
 		try{
 			String symbolsStr = "'";
-			for( String s : symbolsSet){
+			for( String s : symbols){
 				symbolsStr += s;
 				symbolsStr += "','";
 			}
