@@ -47,7 +47,9 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public StockDao() {
-		conn = ConnectionManager.getInstance().getConnection();
+		if(conn == null){
+			conn = ConnectionManager.getInstance().getConnection();
+		}
 	}
 
 	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
@@ -69,15 +71,15 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 				}
 			}
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
-			
+
 			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				return queryStockData(symbols, mutualIpo, mutualDelisting);
-			//return data of all symbols from ipo date to end date if start date is before ipo date
+				//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
-			//return data of all symbols from ipo date to end date if start date is before ipo date
+				//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}
@@ -95,7 +97,7 @@ public class StockDao extends StatementAndResultSet implements AutoCloseable{
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
 	private Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
 		try{
-			
+
 			Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 			PreparedStatement pstmt = null;
 			ResultSet rs = null;
