@@ -101,28 +101,6 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 		}
 		return null;
 	}
-	/*public static UserInfo getUserInvestmentInfo( int userId){
-		try(QueryExecutionHandler queryHandler = new QueryExecutionHandler()){
-			String sql = String.format("SELECT user.first_name,user.investment,user.start_date,user.end_date,stocks.symbol,stock.number_of_shares"
-					+ " FROM UserInfo WHERE UserInfo.user_id=%d"
-					+ " AND UserInfo.user_id=stocks.user_id",userId);
-			ResultSet rs = queryHandler.executeQueryViaStatement(sql);
-			if(rs.next()){
-				BigDecimal investment = rs.getBigDecimal(1);
-				Date startDate = rs.getDate(2);
-				Date endDate = rs.getDate(3);
-				String stockSymbol = rs.getString(4);
-				double numberOfShares = rs.getInt(5);
-				return new UserInfo(investment, startDate, endDate, stockSymbol, numberOfShares);
-			}
-		} catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
-		} catch (Exception ex) {
-			logger.error("getUserInvestmentInfo() failed:" + ex);
-		}
-		return null;
-	}
-	 */
 	/**
 	 * execute INSERT query to add new user to users_table
 	 * @param firstName
