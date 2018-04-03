@@ -19,7 +19,7 @@ public class StockController {
 
 	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
 		//recent added symbol received first
-		symbols.add(symbol);
+		symbols.add(symbol);//TODO: will cause a bug if stock data is not already available
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
 		try(StockDao stockDao = new StockDao()) {
 			Map<String,List<Stock>> data = stockDao.getData(symbol, startDate, endDate);

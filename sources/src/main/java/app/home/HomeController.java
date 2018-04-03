@@ -14,14 +14,14 @@ import app.util.ViewUtil;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
+import static app.util.RequestUtil.getSessionUserId;
 public class HomeController {
 
 	public static Route fetchOneStock = (Request request, Response response) -> {
 		if(SigninController.isSignIn(request, response)){
+			String userId = getSessionUserId(request);
 			if (clientAcceptsHtml(request)) {
 				HashMap<String, Object> model = new HashMap<>();
-				//model.put("stocks", StockDao.getAllStocks());
 				return ViewUtil.render(request, model, Path.Templates.HOME);
 			}
 			else if (clientAcceptsJson(request)) {
