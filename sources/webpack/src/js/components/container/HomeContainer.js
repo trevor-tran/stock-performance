@@ -20,7 +20,7 @@ class HomeContainer extends Component {
 				investment:1000,
 				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
 				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
-				symbols: ["MSFT"],
+				symbols: ["AAPL"],
 				deletedSymbol:"undefined"
 		};
 		this.updateState = this.updateState.bind(this);
@@ -50,6 +50,23 @@ class HomeContainer extends Component {
 			});
 		}
 	}
+	
+	componentWillMount(){
+		var _self = this;
+		fetch("/signin/", {
+			method: 'GET',
+			credentials:'include',
+			headers: {'Accept': 'application/json'},
+		})
+		.then( function(response){
+			return response.json();
+		})
+		.then( function(json){
+			console.log("loaded from server:",json);
+			_self.updateState(json.investment, json.startDate, json.endDate, json.symbols);
+		});
+	}
+	
 	
 	render() {
 		return (
