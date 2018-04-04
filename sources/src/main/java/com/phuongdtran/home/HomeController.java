@@ -1,4 +1,9 @@
 package com.phuongdtran.home;
+import static com.phuongdtran.stock.StockController.getSummary;
+import static com.phuongdtran.util.JsonUtil.dataToJson;
+import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
+import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,17 +15,10 @@ import com.phuongdtran.util.ViewUtil;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import static com.phuongdtran.stock.StockController.getSummary;
-import static com.phuongdtran.util.JsonUtil.dataToJson;
-import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
-import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
-import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 public class HomeController {
 
 	public static Route fetchOneStock = (Request request, Response response) -> {
 		if(SigninController.isSignIn(request, response)){
-			String userId = getSessionUserId(request);
 			if (clientAcceptsHtml(request)) {
 				HashMap<String, Object> model = new HashMap<>();
 				return ViewUtil.render(request, model, Path.Templates.HOME);
