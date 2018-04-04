@@ -37,14 +37,14 @@ function mergeData( currentData, newData){
 		//why am I doing this? stock(s) data from Quandl missing point(s)
 		//e.g AAPL,COST data from Quandl misses one data point on 2017-08-07
 		var data = [];
-		var shorterLengthData = currentData;
-		var greaterLengthData = newData;
+		var shorterLength = currentData;
+		var greaterLength = newData;
 		if(currentData.length > newData.length){
-			shorterLengthData = newData;
-			greaterLenghData = currentData;
+			[shorterLength,greaterLength] = [newData,currentData];
 		}
-		shorterLengthData.forEach( function(sObj){
-			var found = greaterLengthData.find( gObj => gObj.date === sObj.date);
+		
+		shorterLength.forEach( function(sObj){
+			var found = greaterLength.find( gObj => gObj.date === sObj.date);
 			if(found){
 				data.push( update(sObj, {$merge:found}) );
 			}
@@ -183,7 +183,7 @@ class GraphContainer extends Component{
 		var _self = this;
 		var current = this.props.getState;
 		if(_self.state.data.length === 0){
-			fetchData(current.investment, current.start, current.end, getLastSymbol(current.symbols) )
+			fetchAllStock(this.props.getState)
 			.then( function(newData) {
 				setStateAndSave(_self, newData);
 			});
