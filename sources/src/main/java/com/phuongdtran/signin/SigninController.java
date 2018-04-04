@@ -19,14 +19,16 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.phuongdtran.investment.Investment;
+import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.user.UserController;
+import com.phuongdtran.util.JsonUtil;
 import com.phuongdtran.util.Path;
 import com.phuongdtran.util.ViewUtil;
 
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
 public class SigninController {
 
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
@@ -34,7 +36,6 @@ public class SigninController {
 	//the client ID you created for your app in the Google Developers Console
 	//https://developers.google.com/identity/sign-in/web/sign-in
 	private static final String APP_CLIENT_ID = "60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com";
-
 	public static Route handleSigninDisplay = (Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<String,Object>();
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
@@ -58,6 +59,12 @@ public class SigninController {
 		}
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
+	
+	public static Route fetchInvestment = (Request request, Response response) -> {
+		String userId = getSessionUserId(request);
+		Investment investment = InvestmentController.getInvestment( Integer.parseInt(userId));	
+		return JsonUtil.dataToJson(investment);
+	};
 
 	//https://developers.google.com/identity/sign-in/web/backend-auth
 	public static Route handleGoogleSignin = (Request request, Response response) -> {
@@ -67,9 +74,9 @@ public class SigninController {
 			GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(HTTP_TRANSPORT, JSON_FACTORY)
 					.setAudience(Collections.singletonList(APP_CLIENT_ID))
 					.build();
-			
+
 			GoogleIdToken gToken = verifier.verify(idToken);
-			
+
 			if( gToken != null){
 				Payload payload = gToken.getPayload();
 				//similar to native users, sign in by Google account saved in database with unique id
@@ -100,7 +107,6 @@ public class SigninController {
 			response.redirect(Path.Web.SIGNIN);
 			return false;
 		}
-		
 		return true;
 	};
 }
