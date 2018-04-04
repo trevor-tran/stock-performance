@@ -1,4 +1,4 @@
-package app.stock;
+package com.phuongdtran.stock;
 import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
 import java.util.HashMap;

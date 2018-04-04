@@ -1,4 +1,4 @@
-package app.investment;
+package com.phuongdtran.investment;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;

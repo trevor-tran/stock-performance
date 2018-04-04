@@ -1,20 +1,21 @@
-package app.home;
-import static app.stock.StockController.getSummary;
-import static app.util.JsonUtil.dataToJson;
-import static app.util.RequestUtil.clientAcceptsHtml;
-import static app.util.RequestUtil.clientAcceptsJson;
-
+package com.phuongdtran.home;
 import java.util.HashMap;
 import java.util.Map;
 
-import app.signin.SigninController;
-import app.stock.StockController;
-import app.util.Path;
-import app.util.ViewUtil;
+import com.phuongdtran.signin.SigninController;
+import com.phuongdtran.stock.StockController;
+import com.phuongdtran.util.Path;
+import com.phuongdtran.util.ViewUtil;
+
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import static app.util.RequestUtil.getSessionUserId;
+
+import static com.phuongdtran.stock.StockController.getSummary;
+import static com.phuongdtran.util.JsonUtil.dataToJson;
+import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
+import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
+import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 public class HomeController {
 
 	public static Route fetchOneStock = (Request request, Response response) -> {

@@ -1,7 +1,7 @@
-package app.util;
+package com.phuongdtran.util;
 
-import static app.util.RequestUtil.getSessionUserId;
-import static app.util.RequestUtil.getQueryFirstName;
+import static com.phuongdtran.util.RequestUtil.getQueryFirstName;
+import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 
 import java.util.HashMap;
 import java.util.Map;

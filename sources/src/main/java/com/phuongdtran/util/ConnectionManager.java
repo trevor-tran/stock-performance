@@ -1,4 +1,4 @@
-package app.util;
+package com.phuongdtran.util;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;

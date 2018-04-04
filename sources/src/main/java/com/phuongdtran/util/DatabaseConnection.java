@@ -1,4 +1,4 @@
-package app.util;
+package com.phuongdtran.util;
 
 import java.io.IOException;
 import java.io.InputStream;

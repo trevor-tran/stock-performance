@@ -1,6 +1,6 @@
-package app.user;
+package com.phuongdtran.user;
 
-import static app.user.UserDao.INVALID_USER_ID;
+import static com.phuongdtran.user.UserDao.INVALID_USER_ID;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;

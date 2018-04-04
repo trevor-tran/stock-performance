@@ -1,4 +1,4 @@
-package app.user;
+package com.phuongdtran.user;
 import org.mindrot.jbcrypt.BCrypt;
 
 import lombok.Value;

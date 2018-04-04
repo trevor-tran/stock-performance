@@ -1,4 +1,4 @@
-package app.investment;
+package com.phuongdtran.investment;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
@@ -11,8 +11,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import app.util.ConnectionManager;
-import app.util.StatementAndResultSet;
+import com.phuongdtran.util.ConnectionManager;
+import com.phuongdtran.util.StatementAndResultSet;
 
 public class InvestmentDao extends StatementAndResultSet {
 

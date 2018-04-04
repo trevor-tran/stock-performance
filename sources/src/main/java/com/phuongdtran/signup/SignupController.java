@@ -1,8 +1,8 @@
-package app.signup;
+package com.phuongdtran.signup;
 
-import static app.user.UserController.addUser;
-import static app.user.UserController.usernameExists;
-import static app.util.RequestUtil.getSessionUserId;
+import static com.phuongdtran.user.UserController.addUser;
+import static com.phuongdtran.user.UserController.usernameExists;
+import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +10,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import app.util.Path;
-import app.util.ViewUtil;
+import com.phuongdtran.util.Path;
+import com.phuongdtran.util.ViewUtil;
+
 import spark.Request;
 import spark.Response;
 import spark.Route;

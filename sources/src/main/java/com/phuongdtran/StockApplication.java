@@ -1,4 +1,4 @@
-package app;
+package com.phuongdtran;
 import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.port;
@@ -6,13 +6,13 @@ import static spark.Spark.post;
 import static spark.Spark.staticFiles;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
-import app.home.HomeController;
-import app.signin.SigninController;
-import app.signup.SignupController;
-import app.util.DatabaseConnection;
-import app.util.Filters;
-import app.util.Path;
-import app.util.ViewUtil;
+import com.phuongdtran.home.HomeController;
+import com.phuongdtran.signin.SigninController;
+import com.phuongdtran.signup.SignupController;
+import com.phuongdtran.util.DatabaseConnection;
+import com.phuongdtran.util.Filters;
+import com.phuongdtran.util.Path;
+import com.phuongdtran.util.ViewUtil;
 public class StockApplication {
 
 	public static void main(String[] args) {

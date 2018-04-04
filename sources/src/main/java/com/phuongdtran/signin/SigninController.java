@@ -1,10 +1,10 @@
-package app.signin;
+package com.phuongdtran.signin;
 
-import static app.user.UserDao.INVALID_USER_ID;
-import static app.util.RequestUtil.getQueryGoogleToken;
-import static app.util.RequestUtil.getQueryPassword;
-import static app.util.RequestUtil.getQueryUsername;
-import static app.util.RequestUtil.getSessionUserId;
+import static com.phuongdtran.user.UserDao.INVALID_USER_ID;
+import static com.phuongdtran.util.RequestUtil.getQueryGoogleToken;
+import static com.phuongdtran.util.RequestUtil.getQueryPassword;
+import static com.phuongdtran.util.RequestUtil.getQueryUsername;
+import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,10 +19,10 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.phuongdtran.user.UserController;
+import com.phuongdtran.util.Path;
+import com.phuongdtran.util.ViewUtil;
 
-import app.user.UserController;
-import app.util.Path;
-import app.util.ViewUtil;
 import spark.Request;
 import spark.Response;
 import spark.Route;

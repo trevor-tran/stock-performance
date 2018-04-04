@@ -1,4 +1,4 @@
-package app.stock;
+package com.phuongdtran.stock;
 
 public class StockSummary implements Runnable{
 

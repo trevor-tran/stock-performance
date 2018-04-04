@@ -1,6 +1,6 @@
-package app.stock;
+package com.phuongdtran.stock;
 
-import static app.stock.StockController.symbols;
+import static com.phuongdtran.stock.StockController.symbols;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -35,9 +35,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import app.util.ConnectionManager;
-import app.util.StatementAndResultSet;
+import com.phuongdtran.util.ConnectionManager;
+import com.phuongdtran.util.StatementAndResultSet;
 public class StockDao extends StatementAndResultSet {
 
 	//quandl api key

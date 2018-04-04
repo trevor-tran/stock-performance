@@ -1,4 +1,4 @@
-package app.user;
+package com.phuongdtran.user;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
@@ -9,8 +9,8 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import app.util.ConnectionManager;
-import app.util.StatementAndResultSet;;
+import com.phuongdtran.util.ConnectionManager;
+import com.phuongdtran.util.StatementAndResultSet;;
 /**
  * Manage all communications with database
  * @author PhuongTran

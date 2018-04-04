@@ -1,4 +1,4 @@
-package app.investment;
+package com.phuongdtran.investment;
 import java.util.Set;
 
 import lombok.Getter;
