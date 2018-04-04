@@ -34,8 +34,8 @@ function isDateValid(start, end, limits){
 	return true;
 }
 
-//get last symbol of array of symbols
-function isSymbolExist(symbols, newSymbol){
+//check if symbol already in symbols
+function symbolExists(symbols, newSymbol){
 	return symbols.includes(newSymbol);// case sensitive
 }
 
@@ -57,14 +57,14 @@ class InputContainer extends Component{
 		var limits = this.limits;
 		var symbols = this.props.getState.symbols; 
 		if(isInvestmentValid(investment,limits) && isDateValid(start,end,limits)){
-			if ( isSymbolExist(symbols, enteredSymbol) ) {
+			if ( symbolExists(symbols, enteredSymbol) ) {
 				alert(enteredSymbol + " is already added.");
-				//when a new symbol added
+			//when a new symbol added
 			}else if (enteredSymbol != "" && enteredSymbol != null ) {
 				var updatedSymbols = update(symbols, {$push:[enteredSymbol] });
 				//setState in HomeContainer
 				this.props.onUpdate(investment, start, end, updatedSymbols);
-				//when dates changed
+			//when dates changed
 			}else {
 				//setState in HomeContainer
 				this.props.onUpdate(investment, start, end);
