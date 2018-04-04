@@ -13,6 +13,10 @@ public abstract class StatementAndResultSet {
 	
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
+	/**
+	 * release Statement or any sub-interface such as PreparedStatment, Callable Statement
+	 * @param stmt
+	 */
 	public void release(Statement stmt) {
 		try{
 			if( stmt != null){ 
@@ -20,29 +24,28 @@ public abstract class StatementAndResultSet {
 			}
 		}catch(SQLException ex){
 			logger.error("Database exception:", ex);
-		}catch(Exception ex){
-			logger.error(ex.getMessage());
 		}finally{	
 			DbUtils.closeQuietly(stmt);
 		}
 	}
 
+	/**
+	 * release Statement or any sub-interface such as PreparedStatment, Callable Statement.
+	 * also release ResultSet
+	 * @param stmt
+	 * @param rs
+	 */
 	public void release(Statement stmt, ResultSet rs){
 		try{
-			if( stmt != null){ 
-				stmt.close();
-			}
+			release(stmt);
 			if (rs != null){
 				rs.close();
 			}
 		}catch(SQLException ex){
 			logger.error("Database exception:", ex);
-		}catch(Exception ex){
-			logger.error(ex.getMessage());
 		}finally{	
 			DbUtils.closeQuietly(stmt);
 			DbUtils.closeQuietly(rs);
 		}
 	}
-
 }

@@ -27,12 +27,16 @@ public class DatabaseConnection {
 	private static String password;
 	private static Connection connection = null;
 
-	public static Connection getConnection() throws Exception
+	/**
+	 * make a connection to database
+	 * @return <b>Connection</b> interface. <b>null</b> if gets SQLException 
+	 */
+	public static Connection getConnection()
 	{
 		if (connection != null) 
 			return connection;
 
-		return getConnection(dbname,username,password);  // TODO: password
+		return getConnection(dbname,username,password);
 	}
 
 	public static void initialize() {
@@ -42,7 +46,7 @@ public class DatabaseConnection {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			getDbSettings();
 		} catch (Exception ex) {
-			logger.error("cannot initialize database connection:"+ ex.getStackTrace());
+			logger.error("cannot initialize database connection:"+ ex.getMessage());
 		}
 	}
 
@@ -55,8 +59,6 @@ public class DatabaseConnection {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());
 			logger.error("VendorError: " + ex.getErrorCode());
-		} catch (Exception e) {
-			logger.error("getConnection() failed"+ e.getStackTrace());
 		}
 		return null;
 	}
@@ -76,7 +78,7 @@ public class DatabaseConnection {
 	             input.close();
 	         }
 		}catch(IOException ex){
-			logger.error("loading config settings failed. " + ex.getStackTrace());
+			logger.error("loading config settings failed. " + ex.getMessage());
 		}
 	}
 }

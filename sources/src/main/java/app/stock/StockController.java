@@ -1,5 +1,6 @@
 package app.stock;
 import java.lang.invoke.MethodHandles;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,7 +22,9 @@ public class StockController {
 		//recent added symbol received first
 		symbols.add(symbol);//TODO: will cause a bug if stock data is not already available
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
-		try(StockDao stockDao = new StockDao()) {
+		StockDao stockDao = null; 
+		try{	
+			stockDao = new StockDao(); 
 			Map<String,List<Stock>> data = stockDao.getData(symbol, startDate, endDate);
 			if(data != null){
 				//https://www.geeksforgeeks.org/iterate-map-java/
@@ -42,8 +45,10 @@ public class StockController {
 				}
 				return balances;
 			}
-		}catch(Exception ex){
-			logger.error("getData() failed." + ex.getStackTrace());	
+		}catch(SQLException ex){
+			logger.error("SQLException:" + ex.getMessage());	
+		}finally{
+			stockDao.close();
 		}
 		return null; //TODO: need a proper return
 

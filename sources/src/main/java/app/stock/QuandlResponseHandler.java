@@ -40,6 +40,7 @@ public class QuandlResponseHandler implements ResponseHandler<Map<String,JsonObj
 				throw new HttpResponseException(statusLine.getStatusCode(),statusLine.getReasonPhrase());
 			}
 		}
+		//TODO: according to the docs ( link above). should catch this "if". So, why "dead code"
 		if (entity == null) {
 			throw new ClientProtocolException("Response contains no content");
 		}

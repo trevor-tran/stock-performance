@@ -15,33 +15,39 @@ import app.util.StatementAndResultSet;;
  * Manage all communications with database
  * @author PhuongTran
  */
-public class UserDao extends StatementAndResultSet implements AutoCloseable {
+public class UserDao extends StatementAndResultSet{
 
 	private Connection conn = null;
 	public static final int INVALID_USER_ID = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public UserDao() {
-		conn = ConnectionManager.getInstance().getConnection();
+	public UserDao() throws SQLException {
+		if(conn == null){
+			conn = ConnectionManager.getInstance().getConnection();
+			if (conn == null){
+				throw new SQLException("Could not make a connection to database");
+			}
+		}
 	}
 
 	public String getUserFirstName(int userId) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try{
 			String sql = "SELECT first_name FROM UserInfo WHERE user_id=?";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			if(!rs.next()){
 				return "";
 			}
 			String firstName = rs.getString("first_name");
-			release(pstmt,rs);
 			return firstName;
-		} catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
+		}catch (SQLException ex) {
+			logger.error("getUserFirstName() failed. " + ex.getMessage());
 			refreshConnection();
-		} catch (Exception ex) {
-			logger.error("getUserFirstName() failed:" + ex);
+		}finally{
+			release(pstmt,rs);
 		}
 		return "";
 	}
@@ -53,23 +59,23 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 	 * @throws Exception
 	 */
 	public int getUserId(String username) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try{
 			String sql = "SELECT user_id FROM UserInfo WHERE username=?";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, username);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			if(rs.next()){
 				int userId = rs.getInt(1);
-				release(pstmt,rs);
 				return userId;
 			}
-			release(pstmt,rs);
 			return INVALID_USER_ID;
 		} catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
+			logger.error("getUserId() failed." + ex.getMessage());
 			refreshConnection();
-		} catch (Exception e) {
-			logger.error("getUserId() failed" + e);
+		}finally{
+			release(pstmt, rs);
 		}
 		return INVALID_USER_ID;
 	}
@@ -81,23 +87,23 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 	 * @throws Exception
 	 */
 	public Password getSigninCredentials(int userId) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try{
 			String sql = "SELECT salt,hashed_password FROM UserInfo WHERE user_id=?";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
-			ResultSet rs = pstmt.executeQuery();
+			rs = pstmt.executeQuery();
 			if(rs.next()){
 				String salt = rs.getString("salt");
 				String hashedPassword = rs.getString("hashed_password");
-				release(pstmt, rs);
 				return new Password(salt, hashedPassword);
 			}
-			release(pstmt, rs);
 		}catch (SQLException ex) {
-			logger.error("Database exception: " + ex);
+			logger.error("getSigninCredentials() failed: " + ex.getMessage());
 			refreshConnection();
-		}catch (Exception ex) {
-			logger.error("getSigninCredentials() failed:" + ex);
+		}finally{
+			release(pstmt, rs);
 		}
 		return null;
 	}
@@ -112,11 +118,12 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 	 * @throws Exception
 	 */
 	public void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
+		PreparedStatement pstmt = null;
 		try{
 			String sql = "INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES(?, ?, ?, ?, ?, ?, ?)";
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			
+			pstmt = conn.prepareStatement(sql);
+
 			pstmt.setString(1, firstName);
 			pstmt.setString(2, lastName);
 			pstmt.setString(3,email);
@@ -124,11 +131,12 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 			pstmt.setString(5, salt);
 			pstmt.setString(6, hashedPassword);
 			pstmt.setInt(7, 0);
-			pstmt.executeUpdate();
 			
+			pstmt.executeUpdate();
+		}catch (SQLException ex) {
+			logger.error("addUser() failed:" + ex.getMessage());
+		}finally{
 			release(pstmt);
-		}catch (Exception ex) {
-			logger.error("addUser() failed:" + ex);
 		}
 	}
 
@@ -139,32 +147,33 @@ public class UserDao extends StatementAndResultSet implements AutoCloseable {
 	 * @param email
 	 */
 	public void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
+		PreparedStatement pstmt = null;
 		try{
 			String sql = "INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
 					+ "VALUES(?, ?, ?, ?, ?)";	
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			
+			pstmt = conn.prepareStatement(sql);
+
 			pstmt.setString(1, gUserIdentifier);
 			pstmt.setString(2, firstName);
 			pstmt.setString(3, lastName);
 			pstmt.setString(4,email);
 			pstmt.setInt(5, 1);
-			pstmt.executeUpdate();
 			
+			pstmt.executeUpdate();
+		}catch (SQLException ex) {
+			logger.error("addGoogleUser() failed:" + ex.getMessage());
+		}finally{
 			release(pstmt);
-		}catch (Exception ex) {
-			logger.error("addGoogleUser() failed:" + ex);
 		}
 	}
 
-	
+
 	private void refreshConnection(){
 		ConnectionManager.getInstance().releaseConnection(conn);
 		conn = ConnectionManager.getInstance().getConnection();
 	}
 
-	@Override
-	public void close() throws Exception {
+	public void close(){
 		ConnectionManager.getInstance().releaseConnection(conn);
 	}
 }

@@ -26,15 +26,14 @@ public class ConnectionManager {
 		return instance;
 	}
 
+	/**
+	 * make a connection to database.<br>
+	 * If there already has a connection, return that connection.<br>
+	 * If not, make a new connection.
+	 * @return <b>Connection</b> interface. <b>null</b> if failed. 
+	 */
 	public Connection getConnection(){
-		try{
 			return  DatabaseConnection.getConnection();
-		}catch(SQLException ex){
-			logger.error(ex.getMessage());
-		}catch(Exception ex){
-			logger.error(ex.getMessage());
-		}
-		return null;
 	}
 
 	public void releaseConnection(Connection conn){

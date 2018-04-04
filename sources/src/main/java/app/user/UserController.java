@@ -3,6 +3,7 @@ package app.user;
 import static app.user.UserDao.INVALID_USER_ID;
 
 import java.lang.invoke.MethodHandles;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,21 +15,29 @@ public class UserController {
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static boolean usernameExists( String username){
-		try( UserDao userDao = new UserDao()) {
+		UserDao userDao = null;
+		try{
+			userDao = new UserDao();
 			return userDao.getUserId(username) != INVALID_USER_ID;
-		}catch(Exception ex){
-			logger.error("UserController: usernameExists()." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("usernameExists() failed." + ex.getMessage());
 			return false;
+		}finally{
+			userDao.close();
 		}
 	}
 
 	public static String getFirstName(int userId){
-		try( UserDao userDao = new UserDao()) {
+		UserDao userDao = null;
+		try{
+			userDao = new UserDao();
 			//TODO: possible to have invalid userId,maybe need "if"
 			return userDao.getUserFirstName(userId);
-		}catch(Exception ex){
-			logger.error("UserControlle: getFirstName()." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("getFirstName() failed." + ex.getMessage());
 			return "";
+		}finally{
+			userDao.close();
 		}
 	}
 
@@ -39,7 +48,9 @@ public class UserController {
 	 * @throws Exception
 	 */
 	public static int authenticate(String username, String password){
-		try( UserDao userDao = new UserDao()) {
+		UserDao userDao = null;
+		try{
+			userDao = new UserDao();
 			if( username.isEmpty() || password.isEmpty() ){
 				return INVALID_USER_ID;
 			}
@@ -51,9 +62,11 @@ public class UserController {
 				Password signingInUser = userDao.getSigninCredentials(userId);
 				return signingInUser.matches(password) ? userId : INVALID_USER_ID;
 			}
-		}catch(Exception ex){
-			logger.error("UserController:authenticate()." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("authenticate() failed." + ex.getMessage());
 			return INVALID_USER_ID;
+		}finally{
+			userDao.close();
 		}
 	}
 
@@ -63,7 +76,9 @@ public class UserController {
 	 * @return userID in database table
 	 */
 	public static int addGoogleAndGetId(Payload payload) {
-		try( UserDao userDao = new UserDao()) { 
+		UserDao userDao = null;
+		try{
+			userDao = new UserDao(); 
 			//e.g gUserIdentifier == "212312312312321"
 			String gUserIdentifier = payload.getSubject();
 			// username is gUserIdentifier
@@ -76,9 +91,11 @@ public class UserController {
 				userId = userDao.getUserId(gUserIdentifier);
 			}
 			return userId;
-		}catch(Exception ex){
-			logger.error("UserController: addUser()." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("addUser() failed." + ex.getMessage());
 			return INVALID_USER_ID;
+		}finally{
+			userDao.close();
 		}
 	}
 
@@ -92,11 +109,15 @@ public class UserController {
 	 * @throws Exception
 	 */
 	public static void addUser(String firstName,String lastName,String email, String username,String password){
-		try( UserDao userDao = new UserDao()) {
+		UserDao userDao = null;
+		try{
+			userDao = new UserDao();
 			Password newPassword = new Password(password);
 			userDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
-		}catch(Exception ex){
-			logger.error("UserController: addUser()." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("addUser() failed." + ex.getMessage());
+		}finally{
+			userDao.close();
 		}
 	}	
 }
