@@ -7,6 +7,8 @@ import static spark.Spark.staticFiles;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
 import com.phuongdtran.home.HomeController;
+import com.phuongdtran.investment.Investment;
+import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.signup.SignupController;
 import com.phuongdtran.util.DatabaseConnection;
@@ -28,21 +30,17 @@ public class StockApplication {
 		before("*", Filters.addTrailingSlashes);
 
 		// Set up routes
-		get(Path.Web.HOME,       HomeController.fetchOneStock);
-		get(Path.Web.HOME, "application/json", HomeController.fetchOneStock);
-		
-		get(Path.Web.SUMMARY, "application/json", HomeController.fetchSummary);
-		
-		post(Path.Web.GOOGLESIGNIN,	SigninController.handleGoogleSignin);
-		
-		get(Path.Web.SIGNIN,"application/json",	SigninController.fetchInvestment);
-		get(Path.Web.SIGNIN, 		SigninController.handleSigninDisplay);
-		post(Path.Web.SIGNIN, 		SigninController.handleSigninPost);
-		
-		post(Path.Web.SIGNOUT, 		SigninController.handleSignoutPost);
-		
-		get(Path.Web.SIGNUP, 		SignupController.handleSignupDisplay);
-		post(Path.Web.SIGNUP, 		SignupController.handleSignupPost);
+		get(Path.Web.HOME,  	     					HomeController.fetchOneStock);
+		get(Path.Web.HOME,			"application/json", HomeController.fetchOneStock);
+		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
+		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
+		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
+		get(Path.Web.SIGNIN, 							SigninController.handleSigninDisplay);
+		post(Path.Web.SIGNIN, 							SigninController.handleSigninPost);
+		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
+		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
+		post(Path.Web.SIGNUP, 							SignupController.handleSignupPost);
+		post(Path.Web.UPDATE,							InvestmentController.updateInvestment);
 		
 		get("*", 					ViewUtil.notFound);
 		
