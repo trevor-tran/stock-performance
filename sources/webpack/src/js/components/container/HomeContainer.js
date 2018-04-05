@@ -17,7 +17,7 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				investment: undefined,
+				budget: undefined,
 				start: undefined,
 				end: undefined,
 				symbols: undefined,
@@ -41,10 +41,10 @@ class HomeContainer extends Component {
 	
 	//set new state when new values received
 	//enteredSymbol can be either a symbol or a array of symbols
-	updateState(investment,start,end,enteredSymbol){
+	updateState(budget,start,end,enteredSymbol){
 		if(typeof enteredSymbol == "undefined"){
 			this.setState(()=>{
-				return{investment,start,end};
+				return{budget,start,end};
 			});
 		}else{
 			var symbols = enteredSymbol;
@@ -58,14 +58,14 @@ class HomeContainer extends Component {
 				}
 			}
 			this.setState(()=>{
-				return{investment,start,end, symbols};
+				return{budget,start,end, symbols};
 			});
 		}
 		
 	}
 	
-	updateOnBackend(investment,start,end,symbol) {
-		var params = 'investment=' + investment + "&startdate=" + start + "&enddate=" + end;
+	updateOnBackend(budget,start,end,symbol) {
+		var params = 'budget=' + budget + "&startdate=" + start + "&enddate=" + end;
 		if(typeof enteredSymbol != "undefined"){
 			param += "?symbol=" + symbol;
 		}
@@ -96,7 +96,7 @@ class HomeContainer extends Component {
 			console.log("loaded from server:",json);
 			//NOTE: json.symbols is either empty or non-empty array
 			//it means after calling updatState, this.state.symbols is not "undefined" anymore.
-			_self.updateState(json.investment, json.startDate, json.endDate, json.symbols);
+			_self.updateState(json.budget, json.startDate, json.endDate, json.symbols);
 		});
 	}
 	

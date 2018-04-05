@@ -29,7 +29,7 @@ public class InvestmentController {
 	}
 	
 	public static Route updateInvestment = (Request request, Response response) ->{
-		String investment = getQueryInvestment(request);
+		String budget = getQueryBudget(request);
 		String startDate = getQueryStartDate(request);
 		String endDate = getQueryEndDate(request);
 		String symbol = getQuerySymbol(request);

@@ -19,9 +19,9 @@ function getLastSymbol(symbols){
 	return symbols[symbols.length-1];
 }
 
-//return e.g.  http://localhost:4567/home/?investment=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
-function buildUrl (invest, start, end, symbol) {
-	var param="?investment=" + invest + "&start=" + start + "&end=" + end;
+//return e.g.  http://localhost:4567/home/?budget=1&start=1993-1-1&end=1994-1-2&symbol=AAPL
+function buildUrl (budget, start, end, symbol) {
+	var param="?budget=" + budget + "&start=" + start + "&end=" + end;
 	if (symbol != "" && symbol!= null){
 		param += '&symbol='+ symbol;
 	}
@@ -74,9 +74,9 @@ function manipulateData(json) {
 }
 
 //get data from server and return formated data
-function fetchData(invest, startDate, endDate, ticker) {
+function fetchData(budget, startDate, endDate, ticker) {
 	return new Promise(function(resolve, reject) {
-		const url = buildUrl(invest, startDate, endDate, ticker);
+		const url = buildUrl(budget, startDate, endDate, ticker);
 		console.log(url);
 		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
 		fetch(url,{
@@ -110,7 +110,7 @@ function fetchAllStocks(nextInput){
 			//a recent symbol added at the end of "symbols" list
 			// must fetch the recent added symbol first to update mutual IPO and Delisting date at server side
 			fetchTasks.unshift( function(callback) {
-				fetchData( nextInput.investment, nextInput.start, nextInput.end, symbol)
+				fetchData( nextInput.budget, nextInput.start, nextInput.end, symbol)
 				.then(function(newData){
 					callback(null,newData);
 				});
@@ -144,14 +144,14 @@ class GraphContainer extends Component{
 		var _self = this;
 		var current = this.props.getState;
 		var next = nextProps.getState;
-		if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
+		if((current.start!== next.start) || (current.end !== next.end) || (current.budget != next.budget)) {
 			fetchAllStocks(next).then( function(newData){
 				setStateAndSave(_self,newData);
 				$(".spinner").hide();
 			});
 		//must compare length to avoid running into this "if" when a symbol removed
 		}else if((current.symbols.length < next.symbols.length)) {
-			fetchData(current.investment, current.start, current.end, getLastSymbol(next.symbols) )
+			fetchData(current.budget, current.start, current.end, getLastSymbol(next.symbols) )
 			.then( function(newData) {
 				var mergedData = mergeData(_self.state.data , newData);
 				setStateAndSave(_self,mergedData);

@@ -1,4 +1,5 @@
 create database stock_performance;
+
 use stock_performance;
 
 -- ################ TABLES CREATED ##################
@@ -14,11 +15,11 @@ create table UserInfo( user_id int auto_increment,
                     end_date date,
 					google_user tinyint(1) not null,
                     primary key(user_id));
-create table UserInvestment( investment_id int auto_increment,
+create table UserSymbol( us_id int auto_increment,
                     user_id int not null,
                     symbol varchar(10),
                     number_of_shares double,
-                    primary key(investment_id),
+                    primary key(us_id),
                     foreign key(user_id) references UserInfo(user_id));                        
 create table Symbols( symbol_id int auto_increment not null,
 						symbol varchar(5) not null,
@@ -172,7 +173,7 @@ begin
     select @nextDate;
 end;$$
 delimiter ;
-call NEXT_TO_LAST_DATE('msft','2018-3-28');
+
 
 -- ############ PROCEDURE TO UPDATE IPO AND DELISTING DATES################################
 delimiter $$
@@ -205,10 +206,6 @@ begin
 	 select @mutualIpo, @mutualDelisting;
 end;$$
 delimiter ;
-
-call GET_MUTUAL_IPO_DELISTING_DATE("'msft','googl'");
-
-
 
 
 insert into UserInfo(first_name,last_name,username,salt,hashed_password,google_user) values ('phuong','tran','phuong', '$2a$10$YawZPDb7OLQ66FQuMCyW0e','$2a$10$YawZPDb7OLQ66FQuMCyW0e0d2r2Qd1kFLgHLhJqJwaypsQdnYX7fi',0);

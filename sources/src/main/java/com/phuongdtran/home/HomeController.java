@@ -24,11 +24,11 @@ public class HomeController {
 				return ViewUtil.render(request, model, Path.Templates.HOME);
 			}
 			else if (clientAcceptsJson(request)) {
-				long investment = Long.parseLong(request.queryParams("investment"));
+				long budget = Long.parseLong(request.queryParams("budget"));
 				String start = request.queryParams("start");
 				String end = request.queryParams("end");
 				String symbol = request.queryParams("symbol");
-				Map<String,Map<String,Double>> data = StockController.getData(investment, symbol, start, end);
+				Map<String,Map<String,Double>> data = StockController.getData(budget, symbol, start, end);
 				//TODO: handle null data
 				response.header("Content-Type", "application/json");
 				return dataToJson(data);

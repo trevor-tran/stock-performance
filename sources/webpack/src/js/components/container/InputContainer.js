@@ -5,10 +5,10 @@ import update from 'react-addons-update';
 import Input from "../presentational/Input";
 
 //need two properties of limits obj: minInvest, maxInvest
-function isInvestmentValid(investment,limits){
-	var min = limits["minInvestment"]
-	var max = limits["maxInvestment"];
-	if(investment>=min && investment<=max){
+function isBudgetValid(budget,limits){
+	var min = limits["minBudget"]
+	var max = limits["maxBudget"];
+	if(budget>=min && budget<=max){
 		return true;
 	}else{
 		alert("Investment must be at least $"+min+" and no more than $"+max);
@@ -46,27 +46,27 @@ class InputContainer extends Component{
 			maxDate: moment().subtract(1,"days").format('YYYY-MM-DD'),
 			minDate: moment("1817-3-8","YYYY-MM-DD"),
 			dayInterval:30,
-			minInvestment:1,
-			maxInvestment:1000000
+			minBudget:1,
+			maxBudget:1000000
 		};
 		this.updateButtonHandler = this.updateButtonHandler.bind(this);
 	}
 
 	//handle the button named "update" 
-	updateButtonHandler(investment,start,end,enteredSymbol) {
+	updateButtonHandler(budget,start,end,enteredSymbol) {
 		var limits = this.limits;
 		var symbols = this.props.getState.symbols; 
-		if(isInvestmentValid(investment,limits) && isDateValid(start,end,limits)){
+		if(isBudgetValid(budget,limits) && isDateValid(start,end,limits)){
 			if ( symbolExists(symbols, enteredSymbol) ) {
 				alert(enteredSymbol + " is already added.");
 			//when a new symbol added
 			}else if (enteredSymbol != "" && enteredSymbol != null ) {
 				//call setState() of HomeContainer
-				this.props.onUpdate(investment, start, end, enteredSymbol);
+				this.props.onUpdate(budget, start, end, enteredSymbol);
 			//when dates changed
 			}else {
 				//call setState() of HomeContainer
-				this.props.onUpdate(investment, start, end);
+				this.props.onUpdate(budget, start, end);
 			}
 		}
 	}

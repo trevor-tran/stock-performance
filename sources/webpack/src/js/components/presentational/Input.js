@@ -11,11 +11,11 @@ class Input extends Component {
 		e.preventDefault();
 		e.stopPropagation();
 		e.nativeEvent.stopImmediatePropagation();
-		var invest = document.getElementById("investment").value;
+		var budget = document.getElementById("budget").value;
 		var start = document.getElementById("startDate").value;
 		var end = document.getElementById("endDate").value;
 		var symbol = document.getElementById("symbolInput").value.toUpperCase().replace(/\s+/g, '');
-		this.props.onClickHandler(invest,start,end,symbol);//prop event
+		this.props.onClickHandler(budget,start,end,symbol);//prop event
 		document.getElementById("symbolInput").value ="";
 	}
 	
@@ -31,13 +31,13 @@ class Input extends Component {
 		const limits = this.props.getLimits;
 		return (
 			<div className={name} >
-				<label>Investment($):</label>
+				<label>Budget($):</label>
 				<input 
-					id="investment" 
+					id="budget" 
 					type="number" 
-					defaultValue={inputContainerState.investment} 
-					min={limits.minInvestment} 
-					max={limits.maxInvestment} 
+					defaultValue={inputContainerState.budget} 
+					min={limits.minBudget} 
+					max={limits.maxBudget} 
 					onKeyUp={this.keyUpHandler}/>
 				<label>From:</label>
 				<input 

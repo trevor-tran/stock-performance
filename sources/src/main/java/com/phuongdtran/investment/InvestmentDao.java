@@ -33,7 +33,7 @@ public class InvestmentDao extends StatementAndResultSet {
 		ResultSet rs = null;
 		try{
 			String sql = "SELECT usr.budget, usr.start_date, usr.end_date, inv.symbol FROM UserInfo AS usr "
-					+ "INNER JOIN UserInvestment AS inv "
+					+ "INNER JOIN UserSymbol AS inv "
 					+ "WHERE usr.user_id = inv.user_id AND usr.user_id = ?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
@@ -78,7 +78,7 @@ public class InvestmentDao extends StatementAndResultSet {
 	
 	public void addSymbol( int userId, String symbol){
 		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO UserInvestment(user_id,symbol) VALUES(?,?)";
+		String sql = "INSERT INTO UserSymbol(user_id,symbol) VALUES(?,?)";
 		try{
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);

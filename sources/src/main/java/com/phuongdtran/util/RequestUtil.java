@@ -34,8 +34,8 @@ public class RequestUtil {
     	return request.queryParams("idtoken");
     }
     
-    public static String getQueryInvestment(Request request){
-    	return request.queryParams("investment");
+    public static String getQueryBudget(Request request){
+    	return request.queryParams("budget");
     }
     
     public static String getQueryStartDate(Request request){
