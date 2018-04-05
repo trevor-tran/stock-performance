@@ -17,11 +17,11 @@ class HomeContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				investment:1000,
-				start: moment().subtract(366,"days").format('YYYY-MM-DD'),
-				end: moment().subtract(1,"days").format('YYYY-MM-DD'),
-				symbols: ["AAPL"],
-				deletedSymbol:"undefined"
+				investment: undefined,
+				start: undefined,
+				end: undefined,
+				symbols: undefined,
+				deletedSymbol: undefined
 		};
 		this.updateState = this.updateState.bind(this);
 		this.removeSymbol = this.removeSymbol.bind(this);
@@ -63,42 +63,48 @@ class HomeContainer extends Component {
 		})
 		.then( function(json){
 			console.log("loaded from server:",json);
+			//NOTE: json.symbols is either empty or non-empty array
+			//it means after calling updatState, this.state.symbols is not "undefined" anymore.
 			_self.updateState(json.investment, json.startDate, json.endDate, json.symbols);
 		});
 	}
 	
 	
 	render() {
-		return (
-			<table className="homecontainer">
-			<tbody>
-				<tr>
-					<td colSpan="2">
-						<InputContainer setClassName="inputcontainer" getState={this.state}	onUpdate={this.updateState} />
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<GraphContainer	setClassName="graphcontainer" getState={this.state} deleteSymbol={this.removeSymbol} />
-					</td>
-					<td style={{verticalAlign:"top"}}>
-						<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} deleteSymbol={this.removeSymbol} />
-					</td>
-				</tr>
-				<tr>
-					<td colSpan="2"><h2>Summary Table</h2></td>
-				</tr>
-				{/*<tr>
-					<td colSpan="2">
-						<SummaryContainer setClassName="summarycontainer" />
-					</td>
-				</tr> */}
-				<tr>
-					<td><Spinner setClassName="spinner" /></td>
-				</tr>
-			</tbody>
-			</table>
-		);
+		if (!this.state.symbols){			
+			return false;
+		}else{
+			return (
+				<table className="homecontainer">
+				<tbody>
+					<tr>
+						<td colSpan="2">
+							<InputContainer setClassName="inputcontainer" getState={this.state}	onUpdate={this.updateState} />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<GraphContainer	setClassName="graphcontainer" getState={this.state} deleteSymbol={this.removeSymbol} />
+						</td>
+						<td style={{verticalAlign:"top"}}>
+							<ListContainer setClassName="listcontainer"	getSymbols={this.state.symbols} deleteSymbol={this.removeSymbol} />
+						</td>
+					</tr>
+					<tr>
+						<td colSpan="2"><h2>Summary Table</h2></td>
+					</tr>
+					{/*<tr>
+						<td colSpan="2">
+							<SummaryContainer setClassName="summarycontainer" />
+						</td>
+					</tr> */}
+					<tr>
+						<td><Spinner setClassName="spinner" /></td>
+					</tr>
+				</tbody>
+				</table>
+			);
+		}
 	}
 }
 

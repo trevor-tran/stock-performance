@@ -101,7 +101,7 @@ function fetchData(invest, startDate, endDate, ticker) {
 
 //request and return new data from server for every stock in the stock symbols list
 //nextInput is equivalent to nextProps.getState 
-function fetchAllStock(nextInput){
+function fetchAllStocks(nextInput){
 	return new Promise(function(resolve, reject){
 		var symbols = nextInput.symbols; 
 		var fetchTasks= [];
@@ -145,7 +145,7 @@ class GraphContainer extends Component{
 		var current = this.props.getState;
 		var next = nextProps.getState;
 		if((current.start!== next.start) || (current.end !== next.end) || (current.investment != next.investment)) {
-			fetchAllStock(next).then( function(newData){
+			fetchAllStocks(next).then( function(newData){
 				setStateAndSave(_self,newData);
 				$(".spinner").hide();
 			});
@@ -181,9 +181,8 @@ class GraphContainer extends Component{
 
 	componentWillMount() {
 		var _self = this;
-		var current = this.props.getState;
-		if(_self.state.data.length === 0){
-			fetchAllStock(this.props.getState)
+		if(this.props.getState.symbols.length != 0 && this.state.data.length == 0){
+			fetchAllStocks(this.props.getState)
 			.then( function(newData) {
 				setStateAndSave(_self, newData);
 			});
