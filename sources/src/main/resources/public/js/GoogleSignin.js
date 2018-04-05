@@ -6,7 +6,7 @@ function onSignIn() {
 		// The ID token passed to your back-end:
 		var idToken = googleUser.getAuthResponse().id_token;
 		//https://developers.google.com/web/ilt/pwa/working-with-the-fetch-api#example_post_requests
-		fetch("http://" + window.location.host + '/googlesignin/', {
+		fetch(window.location.origin + '/googlesignin/', {
 			method: 'POST',
 			credentials:'include',
 			headers: {'Content-Type': 'application/x-www-form-urlencoded'},
