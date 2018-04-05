@@ -1,3 +1,4 @@
+create database stock_performance;
 use stock_performance;
 
 -- ################ TABLES CREATED ##################
