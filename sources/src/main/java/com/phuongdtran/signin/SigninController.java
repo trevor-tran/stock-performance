@@ -64,6 +64,7 @@ public class SigninController {
 	public static Route fetchInvestment = (Request request, Response response) -> {
 		String userId = getSessionUserId(request);
 		Investment investment = InvestmentController.getInvestment( Integer.parseInt(userId));	
+		request.session().attribute("investment",investment);
 		return JsonUtil.dataToJson(investment);
 	};
 

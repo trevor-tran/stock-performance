@@ -25,6 +25,7 @@ class HomeContainer extends Component {
 		};
 		this.updateState = this.updateState.bind(this);
 		this.removeSymbol = this.removeSymbol.bind(this);
+		this.updateOnBackend = this.updateOnBackend.bind(this);
 	}
 	
 	//remove the symbol from this.state.symbol
@@ -61,6 +62,24 @@ class HomeContainer extends Component {
 			});
 		}
 		
+	}
+	
+	updateOnBackend(investment,start,end,symbol) {
+		var params = 'investment=' + investment + "&startdate=" + start + "&enddate=" + end;
+		if(typeof enteredSymbol != "undefined"){
+			param += "?symbol=" + symbol;
+		}
+		fetch(window.location.origin + '/update/', {
+			method: 'POST',
+			credentials:'include',
+			headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+			body: params
+		}).then( function(response){
+			//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#response_types
+			if (response.status > 300){
+				alert("error");
+			}
+		});
 	}
 	
 	componentWillMount(){

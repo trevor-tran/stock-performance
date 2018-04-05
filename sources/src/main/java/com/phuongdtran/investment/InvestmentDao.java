@@ -57,6 +57,39 @@ public class InvestmentDao extends StatementAndResultSet {
 		}	
 		return null;
 	}
+	
+	public void update( int userId, long budget, String startDate, String endDate){
+		PreparedStatement pstmt = null;
+		String sql = "UPDATE UserInfo SET budget=?, startDate=?,endDate=? WHERE user_id=?";
+		try{
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setLong(1, budget);
+			pstmt.setString(2, startDate);
+			pstmt.setString(3, endDate);
+			pstmt.setInt(4, userId);
+			
+			pstmt.executeUpdate();
+		}catch(SQLException ex) {
+			logger.error("update() failed" + ex.getMessage());
+		}finally{
+			release(pstmt);
+		}
+	}
+	
+	public void addSymbol( int userId, String symbol){
+		PreparedStatement pstmt = null;
+		String sql = "INSERT INTO UserInvestment(user_id,symbol) VALUES(?,?)";
+		try{
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, userId);
+			pstmt.setString(2, symbol);
+			pstmt.executeUpdate();
+		}catch(SQLException ex){
+			logger.error("addSymbol() failed." + ex.getMessage());
+		}finally{
+			release(pstmt);
+		}
+	}
 
 	public void close(){
 		ConnectionManager.getInstance().releaseConnection(conn);		

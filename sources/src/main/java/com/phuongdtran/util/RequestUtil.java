@@ -1,5 +1,7 @@
 package com.phuongdtran.util;
 
+import com.phuongdtran.investment.Investment;
+
 import spark.*;
 
 public class RequestUtil {
@@ -24,8 +26,28 @@ public class RequestUtil {
         return null;
     }
     
+    public static Investment getSessionInvestment(Request request) {
+    	return request.session().attribute("investment");
+    }
+    
     public static String getQueryGoogleToken(Request request){
     	return request.queryParams("idtoken");
+    }
+    
+    public static String getQueryInvestment(Request request){
+    	return request.queryParams("investment");
+    }
+    
+    public static String getQueryStartDate(Request request){
+    	return request.queryParams("startdate");
+    }
+    
+    public static String getQueryEndDate(Request request){
+    	return request.queryParams("enddate");
+    }
+    
+    public static String getQuerySymbol(Request request){
+    	return request.queryParams("symbol");
     }
 
     public static boolean clientAcceptsHtml(Request request) {
