@@ -4,6 +4,14 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * four fields: <b>investment,startDate,endDate,symbols</b> <br>
+ * <b>investment</b> is the amount of money invested or going to invest
+ * from <b>startDate</b> to <b>endDate</b> <br>
+ * <b>symbols</b> is a <i>Set</i> type
+ * @author PhuongTran
+ *
+ */
 public class Investment {
 	@Getter @Setter private long investment;
 	@Getter @Setter private String startDate;
