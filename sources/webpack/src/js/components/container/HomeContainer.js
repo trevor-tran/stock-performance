@@ -39,16 +39,28 @@ class HomeContainer extends Component {
 	}
 	
 	//set new state when new values received
-	updateState(investment,start,end,symbols){
-		if(typeof symbols == "undefined"){
+	//enteredSymbol can be either a symbol or a array of symbols
+	updateState(investment,start,end,enteredSymbol){
+		if(typeof enteredSymbol == "undefined"){
 			this.setState(()=>{
 				return{investment,start,end};
 			});
 		}else{
+			var symbols = enteredSymbol;
+			//enteredSymbol is not Array type
+			if(!Array.isArray(enteredSymbol)){	
+				//this.state.symbols is undefined
+				if(!this.state.symbols){
+					symbols = [enteredSymbol];
+				}else{
+					symbols = update(this.state.symbols, {$push:[enteredSymbol] });
+				}
+			}
 			this.setState(()=>{
-				return{investment,start,end,symbols};
+				return{investment,start,end, symbols};
 			});
 		}
+		
 	}
 	
 	componentWillMount(){
