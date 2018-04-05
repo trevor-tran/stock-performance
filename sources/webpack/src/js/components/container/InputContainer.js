@@ -62,11 +62,11 @@ class InputContainer extends Component{
 			//when a new symbol added
 			}else if (enteredSymbol != "" && enteredSymbol != null ) {
 				var updatedSymbols = update(symbols, {$push:[enteredSymbol] });
-				//setState in HomeContainer
+				//call setState() of HomeContainer
 				this.props.onUpdate(investment, start, end, updatedSymbols);
 			//when dates changed
 			}else {
-				//setState in HomeContainer
+				//call setState() of HomeContainer
 				this.props.onUpdate(investment, start, end);
 			}
 		}

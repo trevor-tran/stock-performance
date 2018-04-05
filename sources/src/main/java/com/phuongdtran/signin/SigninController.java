@@ -36,6 +36,7 @@ public class SigninController {
 	//the client ID you created for your app in the Google Developers Console
 	//https://developers.google.com/identity/sign-in/web/sign-in
 	private static final String APP_CLIENT_ID = "60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com";
+	
 	public static Route handleSigninDisplay = (Request request, Response response) -> {
 		Map<String,Object> model = new HashMap<String,Object>();
 		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
