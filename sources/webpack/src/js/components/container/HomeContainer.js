@@ -42,14 +42,16 @@ class HomeContainer extends Component {
 	//set new state when new values received
 	//enteredSymbol can be either a symbol or a array of symbols
 	updateState(budget,start,end,enteredSymbol){
-		if(typeof enteredSymbol == "undefined"){
+		if(typeof enteredSymbol === "undefined"){
+			this.updateOnBackend(budget,start,end);
 			this.setState(()=>{
 				return{budget,start,end};
 			});
 		}else{
 			var symbols = enteredSymbol;
 			//enteredSymbol is not Array type
-			if(!Array.isArray(enteredSymbol)){	
+			if(!Array.isArray(enteredSymbol)){
+				this.updateOnBackend(budget,start,end,enteredSymbol);
 				//this.state.symbols is undefined
 				if(!this.state.symbols){
 					symbols = [enteredSymbol];
@@ -60,24 +62,26 @@ class HomeContainer extends Component {
 			this.setState(()=>{
 				return{budget,start,end, symbols};
 			});
+			
 		}
 		
 	}
 	
 	updateOnBackend(budget,start,end,symbol) {
-		var params = 'budget=' + budget + "&startdate=" + start + "&enddate=" + end;
-		if(typeof enteredSymbol != "undefined"){
-			param += "?symbol=" + symbol;
+		var bodyParams = 'budget=' + budget + "&startdate=" + start + "&enddate=" + end;
+		if(typeof symbol !== "undefined"){
+			bodyParams += "&symbol=" + symbol;
 		}
+		console.log(bodyParams);
 		fetch(window.location.origin + '/update/', {
 			method: 'POST',
 			credentials:'include',
 			headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-			body: params
+			body: bodyParams
 		}).then( function(response){
 			//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#response_types
 			if (response.status > 300){
-				alert("error");
+				alert("There is an error. Please sign out, close browser, and try again.");
 			}
 		});
 	}

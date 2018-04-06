@@ -3,6 +3,7 @@ package com.phuongdtran.investment;
 import java.lang.invoke.MethodHandles;
 import static com.phuongdtran.util.RequestUtil.*;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,23 +17,48 @@ public class InvestmentController {
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Investment getInvestment(int userId){
-		InvestmentDao investment = null;
+		InvestmentDao investmentDao = null;
 		try{
-			investment = new InvestmentDao();
-			return investment.getInvestment(userId); 
+			investmentDao = new InvestmentDao();
+			return investmentDao.getInvestment(userId); 
 		}catch(SQLException ex){
-			logger.error("getInvestment() failed." + ex.getStackTrace());
+			logger.error("getInvestment() failed." + ex.getMessage());
 		}finally{
-			investment.close();
+			investmentDao.close();
 		}
 		return null;
 	}
-	
+
 	public static Route updateInvestment = (Request request, Response response) ->{
-		String budget = getQueryBudget(request);
+		Investment inv = getSessionInvestment(request);
+		int userId = Integer.parseInt( getSessionUserId(request));
+		
+		long budget = Long.parseLong(getQueryBudget(request));
 		String startDate = getQueryStartDate(request);
 		String endDate = getQueryEndDate(request);
 		String symbol = getQuerySymbol(request);
-		return null;
+
+		InvestmentDao investmentDao = null;
+		try{
+			investmentDao = new InvestmentDao();
+			if(!Objects.equals(inv.getStartDate(), startDate) || !Objects.equals(inv.getEndDate(), endDate) || inv.getBudget()!= budget) {
+				inv.setBudget(budget);
+				inv.setStartDate(startDate);
+				inv.setEndDate(endDate);
+				investmentDao.update(userId, budget, startDate, endDate);
+			}
+			if( symbol!=null && !inv.getSymbols().contains(symbol)){
+				inv.setSymbols(symbol);
+				investmentDao.addSymbol(userId, symbol);
+			}
+			request.session().attribute("investment", inv);
+			response.status(200);
+		}catch(SQLException ex){
+			logger.error("updateInvestment() failed." + ex.getMessage());
+			response.status(301);
+		}finally{
+			investmentDao.close();
+		}
+		return response.status();
 	};
 }

@@ -60,7 +60,7 @@ public class InvestmentDao extends StatementAndResultSet {
 	
 	public void update( int userId, long budget, String startDate, String endDate){
 		PreparedStatement pstmt = null;
-		String sql = "UPDATE UserInfo SET budget=?, startDate=?,endDate=? WHERE user_id=?";
+		String sql = "UPDATE UserInfo SET budget=?, start_date=?,end_date=? WHERE user_id=?";
 		try{
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, budget);
