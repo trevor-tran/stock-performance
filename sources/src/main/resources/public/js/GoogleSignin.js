@@ -15,6 +15,8 @@ function onSignIn() {
 			//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#response_types
 			if (response.status >= 200 && response.status < 300){
 				window.location.replace( window.location.origin + "/home/");
+			}else{
+				alert("There is an error. Please close browser and try again.");
 			}
 		});
 	}
