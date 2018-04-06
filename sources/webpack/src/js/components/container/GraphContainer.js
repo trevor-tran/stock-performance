@@ -145,10 +145,16 @@ class GraphContainer extends Component{
 		var current = this.props.getState;
 		var next = nextProps.getState;
 		if((current.start!== next.start) || (current.end !== next.end) || (current.budget != next.budget)) {
-			fetchAllStocks(next).then( function(newData){
-				setStateAndSave(_self,newData);
+			//at least one symbol in the list to fetch
+			if(next.symbols.length){
+				fetchAllStocks(next).then( function(newData){
+					setStateAndSave(_self,newData);
+					$(".spinner").hide();
+				});
+			}else{
 				$(".spinner").hide();
-			});
+				alert("Should have at least one symbol to display.")
+			}
 		//must compare length to avoid running into this "if" when a symbol removed
 		}else if((current.symbols.length < next.symbols.length)) {
 			fetchData(current.budget, current.start, current.end, getLastSymbol(next.symbols) )
@@ -165,7 +171,7 @@ class GraphContainer extends Component{
 				}
 				console.log(err);
 			});
-			//when a symbol removed
+		//when a symbol removed
 		}else if (current.symbols.length > next.symbols.length){
 			var deletedSymbol= next.deletedSymbol;
 			//send notification data removed
