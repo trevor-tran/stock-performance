@@ -90,6 +90,21 @@ public class InvestmentDao extends StatementAndResultSet {
 			release(pstmt);
 		}
 	}
+	
+	public void removeSymbol(int userId, String symbol){
+		PreparedStatement pstmt = null;
+		String sql = "DELETE FROM usersymbol WHERE user_id=? AND symbol=?";
+		try{
+			pstmt = conn.prepareCall(sql);
+			pstmt.setInt(1, userId);
+			pstmt.setString(2, symbol);
+			pstmt.executeUpdate();
+		}catch(SQLException ex){
+			logger.error("deleteSymbol() failed." + ex.getMessage());
+		}finally{
+			release(pstmt);
+		}
+	}
 
 	public void close(){
 		ConnectionManager.getInstance().releaseConnection(conn);		

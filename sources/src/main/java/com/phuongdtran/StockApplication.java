@@ -7,7 +7,6 @@ import static spark.Spark.staticFiles;
 import static spark.debug.DebugScreen.enableDebugScreen;
 
 import com.phuongdtran.home.HomeController;
-import com.phuongdtran.investment.Investment;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.signup.SignupController;
@@ -41,7 +40,7 @@ public class StockApplication {
 		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
 		post(Path.Web.SIGNUP, 							SignupController.handleSignupPost);
 		post(Path.Web.UPDATE,							InvestmentController.updateInvestment);
-		
+		post(Path.Web.REMOVESYMBOL,						InvestmentController.removeSymbol);
 		get("*", 					ViewUtil.notFound);
 		
 		//after(Path.Web.HOME,       Filters.addGzipHeader);

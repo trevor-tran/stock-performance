@@ -30,7 +30,17 @@ public class Investment {
 	 * add symbol to existing "symbols" Set
 	 * @param symbol
 	 */
-	public void setSymbols(String symbol){
+	public void addSymbol(String symbol){
 		this.symbols.add(symbol);
+	}
+	
+	/**
+	 * remove symbol from existing "symbols" Set
+	 * @param symbol
+	 */
+	public void removeSymbol(String symbol){
+		if (this.symbols.contains(symbol)){
+			this.symbols.remove(symbol);
+		}
 	}
 }
