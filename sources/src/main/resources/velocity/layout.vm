@@ -26,7 +26,7 @@
 	<nav>
 		<ul id="menu">
 			#if($firstName)
-				<li><a>Hi, $firstName</a></li>
+				<li id="firstname">Hi, $firstName</li>
 			#end
 			#if($currentUserId)
 				<li>
@@ -46,7 +46,7 @@
         $bodyContent
     </div>
 </main>
-<script type="text/javascript" src="/js/main.js?ver=build_188"></script>
+<script type="text/javascript" src="/js/main.js?ver=build_478"></script>
 <footer>
 		Source code at <a href="https://github.com/PhuongDTran/stock-performance" target="_blank">Github</li>		
 	</nav>
