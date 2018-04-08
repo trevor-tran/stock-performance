@@ -87,10 +87,10 @@ public class StockDao extends StatementAndResultSet {
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				return queryStockData(symbols, mutualIpo, mutualDelisting);
-				//return data of all symbols from ipo date to end date if start date is before ipo date
+			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
-				//return data of all symbols from ipo date to end date if start date is before ipo date
+			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}

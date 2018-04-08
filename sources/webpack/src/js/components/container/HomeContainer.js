@@ -13,7 +13,6 @@ import GraphContainer from "../container/GraphContainer";
 import ListContainer from "../container/ListContainer";
 import SummaryContainer from "../container/SummaryContainer";
 
-
 function updateAtBackend(budget,start,end,symbol) {
 	var bodyParams = 'budget=' + budget + "&startdate=" + start + "&enddate=" + end;
 	if(typeof symbol !== "undefined"){
@@ -47,10 +46,6 @@ function removeSymbolAtBackend(symbol){
 	});
 
 }
-
-
-
-
 
 class HomeContainer extends Component {
 	constructor(props) {
