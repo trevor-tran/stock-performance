@@ -65,11 +65,16 @@ public class StockDao extends StatementAndResultSet {
 	 */
 	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
 		try{
-			if(getSymbolId(symbol) == NOT_FOUND){
-				insertData(symbol, startDate, endDate);
-			}else{
-				mayUpdateTable(symbol, startDate, endDate);
+			for( String ticker : symbols ){
+				if(getSymbolId(ticker) == NOT_FOUND){
+					//only add ticker to SYMBOLS table and create a new table for that ticker
+					//if got data return from Quandl 
+					insertData(ticker, startDate, endDate);
+				}else if(getSymbolId(ticker) != NOT_FOUND){
+					mayUpdateTable(ticker, startDate, endDate);
+				}
 			}
+			
 			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getMutualIpoDelisting();
 			//update mututalIpo and mutualDelisting
@@ -87,16 +92,20 @@ public class StockDao extends StatementAndResultSet {
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				return queryStockData(symbols, mutualIpo, mutualDelisting);
+			
 			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
+			
 			//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}
 
 			//return data of one symbol
-			return queryStockData(new HashSet<>(Arrays.asList(symbol)), startDate, endDate);
+			if(getSymbolId(symbol) != NOT_FOUND){
+				return queryStockData(new HashSet<>(Arrays.asList(symbol)), startDate, endDate);
+			}
 		}catch(ParseException ex){
 			logger.error("queryStockData() failed: error on using SimpleDateFormat." + ex.getMessage());
 		}
@@ -180,7 +189,7 @@ public class StockDao extends StatementAndResultSet {
 		//available data in mysql from "2017-8-1" to "2017-10-1"
 		//only request Quandl data from "2017-5-1" to "2017-7-31"
 		updateAtTheEnd(tableName, endDate);
-		
+
 		//e.g. front-end request from "2017-5-1" to "2017-10-1"
 		//available data in mysql from "2017-5-1" to "2017-8-1"
 		//only request Quandl data from "2017-8-2" to "2017-10-1"
