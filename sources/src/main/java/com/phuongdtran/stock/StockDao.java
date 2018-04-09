@@ -65,15 +65,7 @@ public class StockDao extends StatementAndResultSet {
 	 */
 	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
 		try{
-			for( String ticker : symbols ){
-				if(getSymbolId(ticker) == NOT_FOUND){
-					//only add ticker to SYMBOLS table and create a new table for that ticker
-					//if got data return from Quandl 
-					insertData(ticker, startDate, endDate);
-				}else if(getSymbolId(ticker) != NOT_FOUND){
-					mayUpdateTable(ticker, startDate, endDate);
-				}
-			}
+			updateStockCache(startDate, endDate);
 			
 			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getMutualIpoDelisting();
@@ -110,6 +102,21 @@ public class StockDao extends StatementAndResultSet {
 			logger.error("queryStockData() failed: error on using SimpleDateFormat." + ex.getMessage());
 		}
 		return null;
+	}
+	/**
+	 * @param startDate
+	 * @param endDate
+	 */
+	private void updateStockCache(String startDate, String endDate) {
+		for( String ticker : symbols ){
+			if(getSymbolId(ticker) == NOT_FOUND){
+				//only add ticker to SYMBOLS table and create a new table for that ticker
+				//if got data return from Quandl 
+				insertData(ticker, startDate, endDate);
+			}else if(getSymbolId(ticker) != NOT_FOUND){
+				mayUpdateTable(ticker, startDate, endDate);
+			}
+		}
 	}
 
 	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
