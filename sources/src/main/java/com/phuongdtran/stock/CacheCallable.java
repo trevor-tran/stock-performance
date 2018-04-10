@@ -50,6 +50,7 @@ public class CacheCallable extends StatementAndResultSet implements Callable<Voi
 		this.conn = conn;
 	}
 
+	//TODO: Exception is not catched in StockDao class, should catch here?
 	@Override
 	public Void call() throws Exception {
 		if(getSymbolId(symbol) == NOT_FOUND){
@@ -196,7 +197,7 @@ public class CacheCallable extends StatementAndResultSet implements Callable<Voi
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
-	private static JsonArray getQuandlData(String symbol, String startDate, String endDate) {
+	private JsonArray getQuandlData(String symbol, String startDate, String endDate) {
 		try{
 			URI uri = getRequestUri(symbol, startDate, endDate);
 			CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -231,7 +232,7 @@ public class CacheCallable extends StatementAndResultSet implements Callable<Voi
 	}
 
 	//build URL to request data from Quandl
-	private static URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
+	private URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
 		//https://docs.quandl.com/docs/parameters-1
 		URI uri = new URIBuilder()
 				.setScheme("https")
