@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpException;
 import org.apache.http.client.ClientProtocolException;
@@ -37,10 +38,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.phuongdtran.util.ConnectionManager;
 import com.phuongdtran.util.StatementAndResultSet;
+import com.phuongdtran.util.ThreadPool;
 public class StockDao extends StatementAndResultSet {
 
-	//quandl api key
-	private static final String apiKey = "LSHfJJyvzYHUyU9jHpn6";
+	//quandl api keys
+	private static final String[] apiKeys = { "LSHfJJyvzYHUyU9jHpn6", "gCex5psCGUqRBsjyXAxs"};
+	private static int index = 0;
 	private Connection conn = null;
 	private static String mutualIpo = "";
 	private String mutualDelisting = "";
@@ -55,6 +58,7 @@ public class StockDao extends StatementAndResultSet {
 			}
 		}
 	}
+
 	/**
 	 * It will do queries getting data from datatabase.<br>
 	 * If requested data is unavailable, it will get unavailable data from Quandl.<br> 
@@ -66,7 +70,7 @@ public class StockDao extends StatementAndResultSet {
 	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
 		try{
 			updateStockCache(startDate, endDate);
-			
+
 			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getMutualIpoDelisting();
 			//update mututalIpo and mutualDelisting
@@ -84,12 +88,12 @@ public class StockDao extends StatementAndResultSet {
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
 				return queryStockData(symbols, mutualIpo, mutualDelisting);
-			
-			//return data of all symbols from ipo date to end date if start date is before ipo date
+
+				//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
-			
-			//return data of all symbols from ipo date to end date if start date is before ipo date
+
+				//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}
@@ -108,14 +112,22 @@ public class StockDao extends StatementAndResultSet {
 	 * @param endDate
 	 */
 	private void updateStockCache(String startDate, String endDate) {
-		for( String ticker : symbols ){
-			if(getSymbolId(ticker) == NOT_FOUND){
-				//only add ticker to SYMBOLS table and create a new table for that ticker
-				//if got data return from Quandl 
-				insertData(ticker, startDate, endDate);
-			}else if(getSymbolId(ticker) != NOT_FOUND){
-				mayUpdateTable(ticker, startDate, endDate);
+		try{
+			for( String ticker : symbols ){
+				ThreadPool.getInstance().submit(() -> {
+					if(getSymbolId(ticker) == NOT_FOUND){
+						//only add ticker to SYMBOLS table and create a new table for that ticker
+						//if got data return from Quandl 
+						insertData(ticker, startDate, endDate);
+					}else if(getSymbolId(ticker) != NOT_FOUND){
+						mayUpdateTable(ticker, startDate, endDate);
+					}
+				});
+				ThreadPool.getInstance().shutdown();
+				ThreadPool.getInstance().awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 			}
+		}catch( InterruptedException ex) {
+
 		}
 	}
 
@@ -260,7 +272,7 @@ public class StockDao extends StatementAndResultSet {
 					String sql = "{ CALL ADD_TO_SYMBOLS_AND_CREATE_TABLE(?) }";
 					cstmt = conn.prepareCall(sql);
 					cstmt.setString(1, symbol);
-					cstmt.execute();
+					cstmt.executeUpdate();
 					symbolId = getSymbolId(symbol);
 				}
 				for (JsonElement element : quandlData) {
@@ -370,7 +382,7 @@ public class StockDao extends StatementAndResultSet {
 				.setParameter("date.gte", startDate)
 				.setParameter("date.lte", endDate)
 				.setParameter("ticker", symbol)
-				.setParameter("api_key", apiKey)
+				.setParameter("api_key", apiKeys[index++ % 2])
 				.build();
 		return uri;
 	}
