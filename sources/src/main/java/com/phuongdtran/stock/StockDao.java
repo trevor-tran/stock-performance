@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,22 +94,38 @@ public class StockDao extends StatementAndResultSet {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * @param startDate
 	 * @param endDate
+	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
 	private void updateStockCache(String startDate, String endDate) {
+		ThreadPoolExecutor executor = ThreadPool.getInstance();
+		List<CacheCallable> callables = new ArrayList<CacheCallable>();
 		try{
-			List<CacheCallable> callables = new ArrayList<CacheCallable>();
 			for(String s : symbols){
 				callables.add(new CacheCallable(s, startDate, endDate, conn));
 			}
-			ThreadPool.getInstance().invokeAll(callables);
+			executor.invokeAll(callables);
 		}catch( InterruptedException ex) {
 			logger.error("updateStockCache() failed." + ex.getMessage());
 		}catch( NullPointerException ex){
 			logger.error("updateStockCache() failed." + ex.getMessage());
+		}
+		awaitTerminationAfterShutdown(executor);
+	}
+
+	//http://www.baeldung.com/java-executor-wait-for-threads
+	private void awaitTerminationAfterShutdown(ExecutorService threadPool) {
+		threadPool.shutdown();
+		try {
+			if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+				threadPool.shutdownNow();
+			}
+		} catch (InterruptedException ex) {
+			threadPool.shutdownNow();
+			Thread.currentThread().interrupt();
 		}
 	}
 
@@ -119,9 +138,6 @@ public class StockDao extends StatementAndResultSet {
 		ResultSet rs = null;
 		try{
 			for(String symbol : symbols) {
-				/*if(getSymbolId(symbol) == NOT_FOUND){
-					insertData(symbol, startDate, endDate);
-				}*/
 				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, symbol);
@@ -202,7 +218,6 @@ public class StockDao extends StatementAndResultSet {
 		}
 		return NOT_FOUND;
 	}
-
 
 	public void close(){
 		ConnectionManager.getInstance().releaseConnection(conn);
