@@ -1,6 +1,7 @@
 package com.phuongdtran.stock;
 
 import static com.phuongdtran.stock.StockController.symbols;
+import static com.phuongdtran.util.Release.release;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.CallableStatement;
@@ -26,9 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.phuongdtran.util.ConnectionManager;
-import com.phuongdtran.util.StatementAndResultSet;
 import com.phuongdtran.util.ThreadPool;
-public class StockDao extends StatementAndResultSet {
+public class StockDao {
 
 
 	private Connection conn = null;
@@ -47,7 +47,7 @@ public class StockDao extends StatementAndResultSet {
 	}
 
 	/**
-	 * It will do queries getting data from datatabase.<br>
+	 * It will do queries getting data from database.<br>
 	 * If requested data is unavailable, it will get unavailable data from Quandl.<br> 
 	 * @param symbol
 	 * @param startDate

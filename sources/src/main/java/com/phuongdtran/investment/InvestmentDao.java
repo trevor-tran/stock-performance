@@ -1,4 +1,5 @@
 package com.phuongdtran.investment;
+import static com.phuongdtran.util.Release.release;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
@@ -12,9 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.phuongdtran.util.ConnectionManager;
-import com.phuongdtran.util.StatementAndResultSet;
 
-public class InvestmentDao extends StatementAndResultSet {
+public class InvestmentDao {
 
 	private Connection conn = null;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

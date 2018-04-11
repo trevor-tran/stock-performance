@@ -1,6 +1,6 @@
 package com.phuongdtran.stock;
-
 import static com.phuongdtran.stock.StockDao.NOT_FOUND;
+import static com.phuongdtran.util.Release.release;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -27,9 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.phuongdtran.util.StatementAndResultSet;
 
-public class CacheCallable extends StatementAndResultSet implements Callable<Void> {
+public class CacheCallable implements Callable<Void> {
 
 	//quandl api keys
 	private static final String[] apiKeys = { "LSHfJJyvzYHUyU9jHpn6", "gCex5psCGUqRBsjyXAxs"};

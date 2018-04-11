@@ -9,7 +9,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class StatementAndResultSet {
+public class Release {
 	
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
@@ -17,7 +17,7 @@ public abstract class StatementAndResultSet {
 	 * release Statement or any sub-interface such as PreparedStatment, Callable Statement
 	 * @param stmt
 	 */
-	public void release(Statement stmt) {
+	public static void release(Statement stmt) {
 		try{
 			if( stmt != null){ 
 				stmt.close();
@@ -35,7 +35,7 @@ public abstract class StatementAndResultSet {
 	 * @param stmt
 	 * @param rs
 	 */
-	public void release(Statement stmt, ResultSet rs){
+	public static void release(Statement stmt, ResultSet rs){
 		try{
 			release(stmt);
 			if (rs != null){

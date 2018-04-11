@@ -1,5 +1,7 @@
 package com.phuongdtran.user;
 
+import static com.phuongdtran.util.Release.release;
+
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,13 +11,12 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.phuongdtran.util.ConnectionManager;
-import com.phuongdtran.util.StatementAndResultSet;;
+import com.phuongdtran.util.ConnectionManager;;
 /**
  * Manage all communications with database
  * @author PhuongTran
  */
-public class UserDao extends StatementAndResultSet{
+public class UserDao{
 
 	private Connection conn = null;
 	public static final int INVALID_USER_ID = -1;
