@@ -39,7 +39,6 @@ public class StockApplication {
 		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
 		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
 		post(Path.Web.SIGNUP, 							SignupController.handleSignupPost);
-		post(Path.Web.UPDATE,							InvestmentController.updateInvestment);
 		post(Path.Web.REMOVESYMBOL,						InvestmentController.removeSymbol);
 		get("*", 					ViewUtil.notFound);
 		
