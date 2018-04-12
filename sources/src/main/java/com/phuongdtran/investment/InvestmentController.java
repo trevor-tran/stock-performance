@@ -29,38 +29,26 @@ public class InvestmentController {
 		return null;
 	}
 
-	public static Route updateInvestment = (Request request, Response response) ->{
-		Investment inv = getSessionInvestment(request);
-		int userId = Integer.parseInt( getSessionUserId(request));
-
-		long budget = Long.parseLong(getQueryBudget(request));
-		String startDate = getQueryStartDate(request);
-		String endDate = getQueryEndDate(request);
-		String symbol = getQuerySymbol(request);
-
+	public static void updateInvestment (int userId, Investment prev, String startDate, String endDate, String symbol, long budget) {
 		InvestmentDao investmentDao = null;
 		try{
 			investmentDao = new InvestmentDao();
-			if(!Objects.equals(inv.getStartDate(), startDate) || !Objects.equals(inv.getEndDate(), endDate) || inv.getBudget()!= budget) {
-				inv.setBudget(budget);
-				inv.setStartDate(startDate);
-				inv.setEndDate(endDate);
+			if(!Objects.equals(prev.getStartDate(), startDate) || !Objects.equals(prev.getEndDate(), endDate) || prev.getBudget()!= budget) {
+				prev.setBudget(budget);
+				prev.setStartDate(startDate);
+				prev.setEndDate(endDate);
 				investmentDao.update(userId, budget, startDate, endDate);
 			}
-			if( symbol!=null && !inv.getSymbols().contains(symbol)){
-				inv.addSymbol(symbol);
+			if( symbol!=null && !prev.getSymbols().contains(symbol)){
+				prev.addSymbol(symbol);
 				investmentDao.addSymbol(userId, symbol);
 			}
-			request.session().attribute("investment", inv);
-			response.status(200);
 		}catch(SQLException ex){
 			logger.error("updateInvestment() failed." + ex.getMessage());
-			response.status(301);
 		}finally{
 			investmentDao.close();
 		}
-		return response.status();
-	};
+	}
 
 	public static Route removeSymbol = (Request request, Response response) -> {
 		int userId = Integer.parseInt(getSessionUserId(request));
