@@ -13,25 +13,6 @@ import GraphContainer from "../container/GraphContainer";
 import ListContainer from "../container/ListContainer";
 import SummaryContainer from "../container/SummaryContainer";
 
-function updateAtBackend(budget,start,end,symbol) {
-	var bodyParams = 'budget=' + budget + "&startdate=" + start + "&enddate=" + end;
-	if(typeof symbol !== "undefined"){
-		bodyParams += "&symbol=" + symbol;
-	}
-	console.log(bodyParams);
-	fetch(window.location.origin + '/update/', {
-		method: 'POST',
-		credentials:'include',
-		headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-		body: bodyParams
-	}).then( function(response){
-		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#response_types
-		if (response.status > 300){
-			alert("There is an error. Please sign out, close browser, and try again.");
-		}
-	});
-}
-
 function removeSymbolAtBackend(symbol){
 	fetch(window.location.origin + '/removesymbol/', {
 		method: 'POST',
@@ -78,7 +59,6 @@ class HomeContainer extends Component {
 	//enteredSymbol can be either a symbol or a array of symbols
 	updateState(budget,start,end,enteredSymbol){
 		if(typeof enteredSymbol === "undefined"){
-			updateAtBackend(budget,start,end);
 			this.setState(()=>{
 				return{budget,start,end};
 			});
@@ -86,8 +66,7 @@ class HomeContainer extends Component {
 			var symbols = enteredSymbol;
 			//enteredSymbol is not Array type
 			if(!Array.isArray(enteredSymbol)){
-				updateAtBackend(budget,start,end,enteredSymbol);
-				//this.state.symbols is undefined
+				//this.state.symbols is not undefined
 				if(!this.state.symbols){
 					symbols = [enteredSymbol];
 				}else{
