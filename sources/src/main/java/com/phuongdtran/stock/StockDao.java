@@ -80,7 +80,7 @@ public class StockDao {
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
 				return queryStockData(symbols, mutualIpo, endDate);
 
-				//return data of all symbols from ipo date to end date if start date is before ipo date
+				//return data of all symbols from ipo date to end date if end date is after delisting date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
 				return queryStockData(symbols, startDate, mutualDelisting);
 			}
