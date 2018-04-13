@@ -29,7 +29,15 @@ public class InvestmentController {
 		return null;
 	}
 
-	public static void updateInvestment (int userId, Investment prev, String startDate, String endDate, String symbol, long budget) {
+	public static void updateInvestment (Request request) {
+		//getting params
+		long budget = Long.parseLong(request.queryParams("budget"));
+		String startDate = request.queryParams("start");
+		String endDate = request.queryParams("end");
+		String symbol = request.queryParams("symbol");
+		Investment prev = getSessionInvestment(request);
+		int userId = Integer.parseInt(getSessionUserId(request));
+		
 		InvestmentDao investmentDao = null;
 		try{
 			investmentDao = new InvestmentDao();
