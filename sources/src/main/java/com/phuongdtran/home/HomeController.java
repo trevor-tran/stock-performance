@@ -28,16 +28,9 @@ public class HomeController {
 				return ViewUtil.render(request, model, Path.Templates.HOME);
 			}
 			else if (clientAcceptsJson(request)) {
-				
-				long budget = Long.parseLong(request.queryParams("budget"));
-				String startDate = request.queryParams("start");
-				String endDate = request.queryParams("end");
-				String symbol = request.queryParams("symbol");
+				InvestmentController.updateInvestment(request);
 				Investment inv = getSessionInvestment(request);
-				int userId = Integer.parseInt(getSessionUserId(request));
-				
-				InvestmentController.updateInvestment(userId, inv, startDate, endDate, symbol, budget);
-				Map<String,Map<String,Double>> data = StockController.getData(budget, symbol, startDate, endDate);
+				Map<String,Map<String,Double>> data = StockController.getData(inv);
 				//TODO: handle null data
 				response.header("Content-Type", "application/json");
 				return dataToJson(data);
