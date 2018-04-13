@@ -2,6 +2,7 @@ package com.phuongdtran.stock;
 
 import static com.phuongdtran.stock.StockController.symbols;
 import static com.phuongdtran.util.Release.release;
+import static com.phuongdtran.util.ThreadPool.awaitTerminationAfterShutdown;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.CallableStatement;
@@ -19,9 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,18 +115,7 @@ public class StockDao {
 		awaitTerminationAfterShutdown(executor);
 	}
 
-	//http://www.baeldung.com/java-executor-wait-for-threads
-	private void awaitTerminationAfterShutdown(ExecutorService threadPool) {
-		threadPool.shutdown();
-		try {
-			if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
-				threadPool.shutdownNow();
-			}
-		} catch (InterruptedException ex) {
-			threadPool.shutdownNow();
-			Thread.currentThread().interrupt();
-		}
-	}
+	
 
 	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
