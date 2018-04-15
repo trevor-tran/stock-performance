@@ -101,8 +101,8 @@ function fetchData(budget, startDate, endDate, ticker) {
 
 //request and return new data from server for every stock in the stock symbols list
 //nextInput is equivalent to nextProps.getState 
-function fetchAllStocks(nextInput){
-	return new Promise(function(resolve, reject){
+function fetchAllStocks(currentState){
+	/*return new Promise(function(resolve, reject){
 		var symbols = nextInput.symbols; 
 		var fetchTasks= [];
 		var data; 
@@ -128,6 +128,35 @@ function fetchAllStocks(nextInput){
 		});
 	}, function(err){
 		console.log(err);
+	});*/
+	
+	return new Promise(function(resolve, reject) {
+		const url = buildUrl(budget, startDate, endDate, ticker);
+		console.log(url);
+		var budget = currentState.budget;
+		var startDate = currentState.start;
+		var endDate = currentState.end;
+		var symbols = currentState.symbols;
+		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
+		fetch(url,{
+			method: 'POST'
+			credentials: 'include',//crucial to have this to send session attributes, cookies,.... 
+			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'  },
+			body: JSON.stringify({"budget": budget, "startdate": startDate, "enddate": endDate, "symbols": symbols})
+		})
+		.then(function(response) {
+			// convert to JSON
+			return response.json();
+		})
+		.then(function(json) {
+			if(!json){
+				reject(new Error("not_found"));
+			}else{
+				//send notification data updated
+				PubSub.publish("data_updated");
+				resolve( manipulateData(json));
+			}
+		});
 	});
 }
 
