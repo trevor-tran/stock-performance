@@ -31,18 +31,24 @@ public class StockDao {
 
 
 	private Connection conn = null;
-	private static String mutualIpo = "";
+	private String mutualIpo = "";
 	private String mutualDelisting = "";
+	private Set<String> symbols;
+	private String endDate;
+	private String startDate;
 	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public StockDao() throws SQLException{
+	public StockDao(Set<String> symbols, String startDate, String endDate) throws SQLException{
 		if(conn == null){
 			conn = ConnectionManager.getInstance().getConnection();
 			if (conn == null){
 				throw new SQLException("Could not make a connection to database");
 			}
 		}
+		this.symbols = symbols;
+		this.startDate = startDate;
+		this.endDate = endDate;
 	}
 
 	/**
@@ -53,9 +59,9 @@ public class StockDao {
 	 * @param endDate
 	 * @return
 	 */
-	public Map<String,List<Stock>> getData(String symbol, String startDate, String endDate){
+	public Map<String,List<Stock>> getData(){
 		try{
-			updateStockCache(startDate, endDate);
+			updateStockCache();
 
 			// first element is mutualIPO date, second one is mutualDelisting date
 			List<String> ipoDelisting = getMutualIpoDelisting();
@@ -73,21 +79,21 @@ public class StockDao {
 			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
 			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
 					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
-				return queryStockData(symbols, mutualIpo, mutualDelisting);
+				return queryStockData(mutualIpo, mutualDelisting);
 
 				//return data of all symbols from ipo date to end date if start date is before ipo date
 			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
-				return queryStockData(symbols, mutualIpo, endDate);
+				return queryStockData(mutualIpo, endDate);
 
 				//return data of all symbols from ipo date to end date if end date is after delisting date
 			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
-				return queryStockData(symbols, startDate, mutualDelisting);
+				return queryStockData(startDate, mutualDelisting);
 			}
 
 			//return data of one symbol
-			if(getSymbolId(symbol) != NOT_FOUND){
-				return queryStockData(new HashSet<>(Arrays.asList(symbol)), startDate, endDate);
-			}
+			//if(getSymbolId(symbol) != NOT_FOUND){
+				return queryStockData(startDate, endDate);
+			//}
 		}catch(ParseException ex){
 			logger.error("queryStockData() failed: error on using SimpleDateFormat." + ex.getMessage());
 		}
@@ -99,7 +105,7 @@ public class StockDao {
 	 * @param endDate
 	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
-	private void updateStockCache(String startDate, String endDate) {
+	private void updateStockCache() {
 		ThreadPoolExecutor executor = ThreadPool.getInstance();
 		List<CacheCallable> callables = new ArrayList<CacheCallable>();
 		try{
@@ -120,7 +126,7 @@ public class StockDao {
 	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
-	private Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
+	private Map<String,List<Stock>> queryStockData(String startDate, String endDate) {
 		Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;

@@ -12,20 +12,21 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.phuongdtran.investment.Investment;
+
 public class StockController {
 
 	private static Map<String,Map<String,String>> summary;
-	protected static Set<String> symbols = new HashSet<String>();
+	protected static Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static Map<String,Map<String,Double>> getData(long investment, String symbol, String startDate, String endDate) {
-		//recent added symbol received first
-		symbols.add(symbol);//TODO: will cause a bug if stock data is not already available
+	public static Map<String,Map<String,Double>> getData(Investment inv) {
+		//recent added symbol received first		
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
 		StockDao stockDao = null; 
 		try{	
-			stockDao = new StockDao(); 
-			Map<String,List<Stock>> data = stockDao.getData(symbol, startDate, endDate);
+			stockDao = new StockDao(inv.getSymbols(), inv.getStartDate(), inv.getEndDate()); 
+			Map<String,List<Stock>> data = stockDao.getData();
 			if(data != null){
 				//https://www.geeksforgeeks.org/iterate-map-java/
 				Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
@@ -33,7 +34,7 @@ public class StockController {
 				//get first entry
 				Map.Entry<String,List<Stock>> entry = iterator.next();
 				//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
-				Map<String,Double> quantityOfStocks = computeQuantity(investment, entry.getValue());
+				Map<String,Double> quantityOfStocks = computeQuantity(inv.getBudget(), entry.getValue());
 				// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 				Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 				balances.put(entry.getKey(), singleDayBalances);
