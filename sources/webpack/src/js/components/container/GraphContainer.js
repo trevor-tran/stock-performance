@@ -131,15 +131,15 @@ function fetchAllStocks(currentState){
 	});*/
 	
 	return new Promise(function(resolve, reject) {
-		const url = buildUrl(budget, startDate, endDate, ticker);
-		console.log(url);
+		//const url = buildUrl(budget, startDate, endDate, ticker);
+		//console.log(url);
 		var budget = currentState.budget;
 		var startDate = currentState.start;
 		var endDate = currentState.end;
 		var symbols = currentState.symbols;
 		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
-		fetch(url,{
-			method: 'POST'
+		fetch("/home/",{
+			method: 'POST',
 			credentials: 'include',//crucial to have this to send session attributes, cookies,.... 
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'  },
 			body: JSON.stringify({"budget": budget, "startdate": startDate, "enddate": endDate, "symbols": symbols})

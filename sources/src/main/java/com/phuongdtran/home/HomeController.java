@@ -9,6 +9,9 @@ import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.phuongdtran.investment.Investment;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
@@ -28,6 +31,8 @@ public class HomeController {
 				return ViewUtil.render(request, model, Path.Templates.HOME);
 			}
 			else if (clientAcceptsJson(request)) {
+				Gson gson = new GsonBuilder().create();
+				JsonObject json = gson.fromJson(request.body(), JsonObject.class);
 				InvestmentController.updateInvestment(request);
 				Investment inv = getSessionInvestment(request);
 				Map<String,Map<String,Double>> data = StockController.getData(inv);
