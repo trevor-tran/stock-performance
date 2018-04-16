@@ -3,10 +3,17 @@ package com.phuongdtran.investment;
 import java.lang.invoke.MethodHandles;
 import static com.phuongdtran.util.RequestUtil.*;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import spark.Request;
 import spark.Response;
@@ -30,13 +37,15 @@ public class InvestmentController {
 	}
 
 	public static void updateInvestment (Request request) {
-		//getting params
-		long budget = Long.parseLong(request.queryParams("budget"));
-		String startDate = request.queryParams("start");
-		String endDate = request.queryParams("end");
-		String symbol = request.queryParams("symbol");
-		Investment prev = getSessionInvestment(request);
+		Gson gson = new GsonBuilder().create();
+		JsonObject json = gson.fromJson(request.body(), JsonObject.class);
+		long budget = json.get("budget").getAsLong();
+		String startDate = json.get("startdate").getAsString();
+		String endDate = json.get("enddate").getAsString();
+		Set<String> symbols = jsonArrayToSet( json.get("symbols").getAsJsonArray());
+		
 		int userId = Integer.parseInt(getSessionUserId(request));
+		Investment prev = getSessionInvestment(request);
 		
 		InvestmentDao investmentDao = null;
 		try{
@@ -47,9 +56,9 @@ public class InvestmentController {
 				prev.setEndDate(endDate);
 				investmentDao.update(userId, budget, startDate, endDate);
 			}
-			if( symbol!=null && !prev.getSymbols().contains(symbol)){
-				prev.addSymbol(symbol);
-				investmentDao.addSymbol(userId, symbol);
+			if( symbols!=null ){
+				prev.setSymbols(symbols);
+				//investmentDao.addSymbol(userId, symbol);
 			}
 		}catch(SQLException ex){
 			logger.error("updateInvestment() failed." + ex.getMessage());
@@ -77,4 +86,12 @@ public class InvestmentController {
 		}
 		return response.status();
 	};
+	
+	private static Set<String> jsonArrayToSet(JsonArray jsonArray){
+		Set<String> symbols = new HashSet<String>();
+		for(int i=0; i<jsonArray.size(); i++){
+			symbols.add(jsonArray.get(i).getAsString());
+		}
+		return symbols;
+	}
 }

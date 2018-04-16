@@ -37,12 +37,6 @@ public class HomeController {
 
 	public static Route fetchData = (Request request, Response response) -> {
 		if (SigninController.isSignIn(request, response) && clientAcceptsJson(request)) {
-			Gson gson = new GsonBuilder().create();
-			JsonObject json = gson.fromJson(request.body(), JsonObject.class);
-			String budget = json.get("budget").getAsString();
-			String startDate = json.get("startdate").getAsString();
-			String endDate = json.get("enddate").getAsString();
-			Set<String> symbols = jsonArrayToSet( json.get("symbols").getAsJsonArray());
 			InvestmentController.updateInvestment(request);
 			Investment inv = getSessionInvestment(request);
 			Map<String,Map<String,Double>> data = StockController.getData(inv);
@@ -61,12 +55,4 @@ public class HomeController {
 		}
 		return ViewUtil.notAcceptable.handle(request, response);
 	};
-
-	private static Set<String> jsonArrayToSet(JsonArray jsonArray){
-		Set<String> symbols = new HashSet<String>();
-		for(int i=0; i<jsonArray.size(); i++){
-			symbols.add(jsonArray.get(i).getAsString());
-		}
-		return symbols;
-	}
 }

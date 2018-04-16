@@ -16,7 +16,7 @@ public class Investment {
 	@Getter @Setter private long budget;
 	@Getter @Setter private String startDate;
 	@Getter @Setter private String endDate;
-	@Getter private Set<String> symbols;
+	@Getter @Setter private Set<String> symbols;
 	//@Getter @Setter double numberOfShares;
 	
 	public Investment(long budget, String startDate, String endDate, Set<String> symbols) {
