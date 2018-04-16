@@ -138,7 +138,7 @@ function fetchAllStocks(currentState){
 		var endDate = currentState.end;
 		var symbols = currentState.symbols;
 		//https://developers.google.com/web/updates/2015/03/introduction-to-fetch#sending_credentials_with_a_fetch_request
-		fetch("/home/",{
+		fetch("/stockdata/",{
 			method: 'POST',
 			credentials: 'include',//crucial to have this to send session attributes, cookies,.... 
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'  },

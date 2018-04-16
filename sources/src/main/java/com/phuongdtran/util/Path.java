@@ -13,6 +13,7 @@ public class Path {
 		@Getter public static final String GOOGLESIGNIN = "/googlesignin/";
 		@Getter public static final String UPDATE = "/update/";
 		@Getter public static final String REMOVESYMBOL = "/removesymbol/";
+		@Getter public static final String STOCKDATA = "/stockdata/";
 	}
 	
 	public static class Templates {
