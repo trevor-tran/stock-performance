@@ -1,6 +1,5 @@
 package com.phuongdtran.stock;
 
-import static com.phuongdtran.stock.StockController.symbols;
 import static com.phuongdtran.util.Release.release;
 import static com.phuongdtran.util.ThreadPool.awaitTerminationAfterShutdown;
 
@@ -13,8 +12,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,36 +27,35 @@ import com.phuongdtran.util.ThreadPool;
 public class StockDao {
 
 
-	private Connection conn = null;
-	private String mutualIpo = "";
-	private String mutualDelisting = "";
-	private Set<String> symbols;
-	private String endDate;
-	private String startDate;
+	private static Connection conn = null;
+	private static String mutualIpo = "";
+	private static String mutualDelisting = "";
+	private static Set<String> prevSymbols;
+	private static String prevEndDate;
+	private static String prevStartDate;
 	public static final int NOT_FOUND = -1;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public StockDao(Set<String> symbols, String startDate, String endDate) throws SQLException{
+	/**
+	 * It will do queries getting data from database.<br>
+	 * If requested data is unavailable, it will get that unavailable data from Quandl<br>
+	 * and insert into database before selecting.
+	 * @param symbol
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) throws SQLException {
 		if(conn == null){
 			conn = ConnectionManager.getInstance().getConnection();
 			if (conn == null){
 				throw new SQLException("Could not make a connection to database");
 			}
 		}
-		this.symbols = symbols;
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
-
-	/**
-	 * It will do queries getting data from database.<br>
-	 * If requested data is unavailable, it will get unavailable data from Quandl.<br> 
-	 * @param symbol
-	 * @param startDate
-	 * @param endDate
-	 * @return
-	 */
-	public Map<String,List<Stock>> getData(){
+		prevSymbols = symbols;
+		prevStartDate = startDate;
+		prevEndDate = endDate;
+		
 		try{
 			updateStockCache();
 
@@ -105,12 +101,12 @@ public class StockDao {
 	 * @param endDate
 	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
-	private void updateStockCache() {
+	private static void updateStockCache() {
 		ThreadPoolExecutor executor = ThreadPool.getInstance();
 		List<CacheCallable> callables = new ArrayList<CacheCallable>();
 		try{
-			for(String s : symbols){
-				callables.add(new CacheCallable(s, startDate, endDate, conn));
+			for(String s : prevSymbols){
+				callables.add(new CacheCallable(s, prevStartDate, prevEndDate, conn));
 			}
 			executor.invokeAll(callables);
 		}catch( InterruptedException ex) {
@@ -126,12 +122,12 @@ public class StockDao {
 	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
-	private Map<String,List<Stock>> queryStockData(String startDate, String endDate) {
+	private static Map<String,List<Stock>> queryStockData(String startDate, String endDate) {
 		Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			for(String symbol : symbols) {
+			for(String symbol : prevSymbols) {
 				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, symbol);
@@ -163,9 +159,9 @@ public class StockDao {
 		return null;
 	}
 
-	private List<String> getMutualIpoDelisting(){
+	private static List<String> getMutualIpoDelisting(){
 		String symbolsStr = "'";
-		for( String s : symbols){
+		for( String s : prevSymbols){
 			symbolsStr += s;
 			symbolsStr += "','";
 		}
@@ -193,7 +189,7 @@ public class StockDao {
 	}
 
 	//return symbol_id of the symbol in SYMBOLS table
-	private  int getSymbolId(String symbol) {
+	private static int getSymbolId(String symbol) {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
@@ -213,7 +209,7 @@ public class StockDao {
 		return NOT_FOUND;
 	}
 
-	public void close(){
+	public static void close(){
 		ConnectionManager.getInstance().releaseConnection(conn);
 	}
 }
