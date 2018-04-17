@@ -50,7 +50,7 @@ public class InvestmentController {
 		InvestmentDao investmentDao = null;
 		try{
 			investmentDao = new InvestmentDao();
-			if(!Objects.equals(prev.getStartDate(), startDate) || !Objects.equals(prev.getEndDate(), endDate) || prev.getBudget()!= budget) {
+			if(isDiffFromPrev(request)) {
 				prev.setBudget(budget);
 				prev.setStartDate(startDate);
 				prev.setEndDate(endDate);
@@ -65,6 +65,27 @@ public class InvestmentController {
 		}finally{
 			investmentDao.close();
 		}
+	}
+	
+	/**
+	 * compare some of fields between request body and Investment store as a session attribute
+	 * @param request
+	 * @return <i>true</i> if either budget,start date, end date differs<br>
+	 * <i>false</i> if the same.
+	 */
+	public static boolean isDiffFromPrev(Request request){
+		Investment prev = getSessionInvestment(request);
+		
+		Gson gson = new GsonBuilder().create();
+		JsonObject json = gson.fromJson(request.body(), JsonObject.class);
+		long budget = json.get("budget").getAsLong();
+		String startDate = json.get("startdate").getAsString();
+		String endDate = json.get("enddate").getAsString();
+		
+		if(!Objects.equals(prev.getStartDate(), startDate) || !Objects.equals(prev.getEndDate(), endDate) || prev.getBudget()!= budget) {
+			return true;
+		}
+		return false;
 	}
 
 	public static Route removeSymbol = (Request request, Response response) -> {
