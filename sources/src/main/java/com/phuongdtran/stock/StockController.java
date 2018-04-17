@@ -23,10 +23,8 @@ public class StockController {
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
 		//recent added symbol received first		
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
-		StockDao stockDao = null; 
-		try{	
-			stockDao = new StockDao(symbols, startDate, endDate); 
-			Map<String,List<Stock>> data = stockDao.getData();
+		try{	 
+			Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
 			if(data != null){
 				//https://www.geeksforgeeks.org/iterate-map-java/
 				Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
@@ -49,7 +47,7 @@ public class StockController {
 		}catch(SQLException ex){
 			logger.error("SQLException:" + ex.getMessage());	
 		}finally{
-			stockDao.close();
+			StockDao.close();
 		}
 		return null; //TODO: need a proper return
 
