@@ -20,12 +20,12 @@ public class StockController {
 	protected static Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static Map<String,Map<String,Double>> getData(Investment inv) {
+	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
 		//recent added symbol received first		
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
 		StockDao stockDao = null; 
 		try{	
-			stockDao = new StockDao(inv.getSymbols(), inv.getStartDate(), inv.getEndDate()); 
+			stockDao = new StockDao(symbols, startDate, endDate); 
 			Map<String,List<Stock>> data = stockDao.getData();
 			if(data != null){
 				//https://www.geeksforgeeks.org/iterate-map-java/
@@ -34,7 +34,7 @@ public class StockController {
 				//get first entry
 				Map.Entry<String,List<Stock>> entry = iterator.next();
 				//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
-				Map<String,Double> quantityOfStocks = computeQuantity(inv.getBudget(), entry.getValue());
+				Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
 				// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 				Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 				balances.put(entry.getKey(), singleDayBalances);
