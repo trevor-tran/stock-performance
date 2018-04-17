@@ -29,7 +29,7 @@ public class HomeController {
 
 	public static Route handleHomeDisplay = (Request request, Response response) -> {
 		if(SigninController.isSignIn(request, response) && clientAcceptsHtml(request)){
-			HashMap<String, Object> model = new HashMap<>();
+			HashMap<String, Object> model = new HashMap<String, Object>();
 			return ViewUtil.render(request, model, Path.Templates.HOME);
 		}
 		return ViewUtil.notAcceptable.handle(request, response);
@@ -37,10 +37,11 @@ public class HomeController {
 
 	public static Route fetchData = (Request request, Response response) -> {
 		if (SigninController.isSignIn(request, response) && clientAcceptsJson(request)) {
-			InvestmentController.updateInvestment(request);
 			Investment inv = getSessionInvestment(request);
-			Map<String,Map<String,Double>> data = StockController.getData(inv);
-			//TODO: handle null data
+			InvestmentController.updateInvestment(request);
+
+			Map<String,Map<String,Double>> data = StockController.getData(inv.getBudget(),inv.getStartDate(),inv.getEndDate(),inv.getSymbols());
+			
 			response.header("Content-Type", "application/json");
 			return dataToJson(data);
 		}
