@@ -17,7 +17,7 @@ import com.phuongdtran.investment.Investment;
 public class StockController {
 
 	private static Map<String,Map<String,String>> summary;
-	protected static Set<String> symbols;
+	protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
@@ -47,7 +47,7 @@ public class StockController {
 		}catch(SQLException ex){
 			logger.error("SQLException:" + ex.getMessage());	
 		}finally{
-			StockDao.close();
+			//StockDao.close();
 		}
 		return null; //TODO: need a proper return
 
