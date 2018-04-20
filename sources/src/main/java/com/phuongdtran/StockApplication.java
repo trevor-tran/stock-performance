@@ -30,7 +30,7 @@ public class StockApplication {
 
 		// Set up routes
 		get(Path.Web.HOME,  	     					HomeController.handleHomeDisplay);
-		post(Path.Web.STOCKDATA,			"application/json", HomeController.fetchData);
+		post(Path.Web.STOCKDATA,	"application/json", HomeController.fetchData);
 		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
 		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
 		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
