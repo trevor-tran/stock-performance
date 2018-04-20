@@ -69,7 +69,7 @@ function manipulateData(json) {
 function fetchData(budget, startDate, endDate, symbolList){
 	return new Promise(function(resolve, reject) {
 		if(!Array.isArray(symbolList)){
-			list = [];
+			var list = [];
 			list.push(symbolList);
 			symbolList = list;
 		}
@@ -111,7 +111,7 @@ class GraphContainer extends Component{
 		if((current.start!== next.start) || (current.end !== next.end) || (current.budget != next.budget)) {
 			//at least one symbol in the list to fetch
 			if(next.symbols.length){
-				fetchData(next.budget, next.startDate, next.endDate, next.symbols).then( function(newData){
+				fetchData(next.budget, next.start, next.end, next.symbols).then( function(newData){
 					setStateAndSave(_self,newData);
 				});
 			}else{
