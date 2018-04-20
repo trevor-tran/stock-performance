@@ -98,7 +98,7 @@ public class StockDao {
 
 	/**
 	 * @param startDate
-	 * @param endDate
+	 * @param endDate<br>
 	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
 	private static void updateStockCache() {
@@ -114,7 +114,7 @@ public class StockDao {
 		}catch( NullPointerException ex){
 			logger.error("updateStockCache() failed." + ex.getMessage());
 		}
-		awaitTerminationAfterShutdown(executor);
+		//awaitTerminationAfterShutdown(executor);
 	}
 
 	
@@ -186,27 +186,6 @@ public class StockDao {
 			release(cstmt,rs);
 		}
 		return null;
-	}
-
-	//return symbol_id of the symbol in SYMBOLS table
-	private static int getSymbolId(String symbol) {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try{
-			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, symbol);
-			rs = pstmt.executeQuery();
-			if(rs.next()){
-				int symbolId = rs.getInt("symbol_id");
-				return symbolId;
-			}
-		}catch(SQLException ex){
-			logger.error(ex.getMessage());
-		}finally{
-			release(pstmt,rs);
-		}
-		return NOT_FOUND;
 	}
 
 	public static void close(){
