@@ -15,11 +15,10 @@ create table UserInfo( user_id int auto_increment,
                     end_date date,
 					google_user tinyint(1) not null,
                     primary key(user_id));
-create table UserSymbol( us_id int auto_increment,
+create table UserSymbol(symbol varchar(5) not null,
                     user_id int not null,
-                    symbol varchar(10),
                     number_of_shares double,
-                    primary key(us_id),
+                    primary key(symbol),
                     foreign key(user_id) references UserInfo(user_id));                        
 create table Symbols( symbol_id int auto_increment not null,
 						symbol varchar(5) not null,
