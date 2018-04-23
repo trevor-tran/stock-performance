@@ -60,14 +60,14 @@ public class StockDao {
 			updateStockCache();
 
 			// first element is mutualIPO date, second one is mutualDelisting date
-			List<String> ipoDelisting = getMutualIpoDelisting();
+			String[] ipoDelisting = getMutualIpoDelisting();
 			//update mututalIpo and mutualDelisting
 			if(ipoDelisting != null){
-				if(!Objects.equals(mutualIpo, ipoDelisting.get(0))){
-					mutualIpo = ipoDelisting.get(0);
+				if(!Objects.equals(mutualIpo, ipoDelisting[0])){
+					mutualIpo = ipoDelisting[0];
 				}
-				if(!Objects.equals(mutualDelisting, ipoDelisting.get(1))){
-					mutualDelisting = ipoDelisting.get(1);
+				if(!Objects.equals(mutualDelisting, ipoDelisting[1])){
+					mutualDelisting = ipoDelisting[1];
 				}
 			}
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
@@ -159,7 +159,7 @@ public class StockDao {
 		return null;
 	}
 
-	private static List<String> getMutualIpoDelisting(){
+	private static String[] getMutualIpoDelisting(){
 		String symbolsStr = "'";
 		for( String s : prevSymbols){
 			symbolsStr += s;
@@ -175,9 +175,9 @@ public class StockDao {
 			cstmt = conn.prepareCall(sql);
 			rs = cstmt.executeQuery();
 			if(rs.next()){
-				List<String> lst = new ArrayList<String>();
-				lst.add(rs.getString("@mutualIpo"));
-				lst.add(rs.getString("@mutualDelisting"));
+				String[] lst = new String[2];
+				lst[0] = rs.getString("@mutualIpo");
+				lst[1] = rs.getString("@mutualDelisting");
 				return lst;
 			}
 		}catch(SQLException ex){
