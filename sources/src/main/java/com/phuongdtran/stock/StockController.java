@@ -22,34 +22,28 @@ public class StockController {
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
 		//recent added symbol received first		
-		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();
-		try{	 
-			Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
-			if(data != null){
-				//https://www.geeksforgeeks.org/iterate-map-java/
-				Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
+		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();	 
+		Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
+		if(data != null){
+			//https://www.geeksforgeeks.org/iterate-map-java/
+			Iterator< Map.Entry<String,List<Stock>>> iterator = data.entrySet().iterator();
 
-				//get first entry
-				Map.Entry<String,List<Stock>> entry = iterator.next();
-				//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
-				Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
-				// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
-				Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+			//get first entry
+			Map.Entry<String,List<Stock>> entry = iterator.next();
+			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
+			Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
+			// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
+			Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+			balances.put(entry.getKey(), singleDayBalances);
+
+			while(iterator.hasNext() ){
+				entry = iterator.next();
+				singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 				balances.put(entry.getKey(), singleDayBalances);
-
-				while(iterator.hasNext() ){
-					entry = iterator.next();
-					singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
-					balances.put(entry.getKey(), singleDayBalances);
-				}
-				return balances;
 			}
-		}catch(SQLException ex){
-			logger.error("SQLException:" + ex.getMessage());	
-		}finally{
-			StockDao.close();
 		}
-		return null; //TODO: need a proper return
+		StockDao.close();
+		return balances;
 	}
 
 	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
