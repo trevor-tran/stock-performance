@@ -47,10 +47,9 @@ public class StockController {
 		}catch(SQLException ex){
 			logger.error("SQLException:" + ex.getMessage());	
 		}finally{
-			//StockDao.close();
+			StockDao.close();
 		}
 		return null; //TODO: need a proper return
-
 	}
 
 	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {

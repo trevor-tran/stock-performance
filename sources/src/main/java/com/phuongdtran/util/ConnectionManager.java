@@ -33,7 +33,7 @@ public class ConnectionManager {
 	 * @return <b>Connection</b> interface. <b>null</b> if failed. 
 	 */
 	public Connection getConnection(){
-			return  DatabaseConnection.getConnection();
+		return  DatabaseConnection.getConnection();
 	}
 
 	public void releaseConnection(Connection conn){

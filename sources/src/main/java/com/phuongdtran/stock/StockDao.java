@@ -46,11 +46,11 @@ public class StockDao {
 	 * @return
 	 */
 	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) throws SQLException {
-		if(conn == null){
+		//if(conn == null){ //TODO: why get error "connection closed" with this "if"
 			conn = ConnectionManager.getInstance().getConnection();
 			if (conn == null){
 				throw new SQLException("Could not make a connection to database");
-			}
+			//}
 		}
 		prevSymbols = symbols;
 		prevStartDate = startDate;
