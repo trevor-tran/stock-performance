@@ -1,7 +1,6 @@
 package com.phuongdtran.stock;
 
 import static com.phuongdtran.util.Release.release;
-import static com.phuongdtran.util.ThreadPool.awaitTerminationAfterShutdown;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.CallableStatement;
@@ -45,55 +44,74 @@ public class StockDao {
 	 * @param endDate
 	 * @return
 	 */
-	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) throws SQLException {
-		//if(conn == null){ //TODO: why get error "connection closed" with this "if"
-			conn = ConnectionManager.getInstance().getConnection();
-			if (conn == null){
-				throw new SQLException("Could not make a connection to database");
-			//}
-		}
-		prevSymbols = symbols;
-		prevStartDate = startDate;
-		prevEndDate = endDate;
-		
+	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) {
 		try{
-			updateStockCache();
+			getConnection();
 
-			// first element is mutualIPO date, second one is mutualDelisting date
-			String[] ipoDelisting = getMutualIpoDelisting();
-			//update mututalIpo and mutualDelisting
-			if(ipoDelisting != null){
-				if(!Objects.equals(mutualIpo, ipoDelisting[0])){
-					mutualIpo = ipoDelisting[0];
-				}
-				if(!Objects.equals(mutualDelisting, ipoDelisting[1])){
-					mutualDelisting = ipoDelisting[1];
-				}
+			if(prevSymbols == null){
+				prevSymbols = symbols;
+			}else if(getSymbolId(symbols.iterator().next()) != NOT_FOUND){
+				prevSymbols.add(symbols.iterator().next());
 			}
+			updateStockCache();
+			updateMutualIpoDelisting( getMutualIpoDelisting(prevSymbols));
+
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
 			//return data of multiple symbols
 			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
-			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) 
-					&& sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
-				return queryStockData(mutualIpo, mutualDelisting);
+			if(Objects.equals(prevStartDate, startDate) || Objects.equals(prevEndDate, endDate)) {
+				prevStartDate = startDate;
+				prevEndDate = endDate;
+				if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) && sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
+					return queryStockData(prevSymbols,mutualIpo, mutualDelisting);
 
-				//return data of all symbols from ipo date to end date if start date is before ipo date
-			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
-				return queryStockData(mutualIpo, endDate);
+					//return data of all symbols from ipo date to end date if start date is before ipo date
+				}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
+					return queryStockData(prevSymbols,mutualIpo, endDate);
 
-				//return data of all symbols from ipo date to end date if end date is after delisting date
-			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
-				return queryStockData(startDate, mutualDelisting);
+					//return data of all symbols from ipo date to end date if end date is after delisting date
+				}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
+					return queryStockData(prevSymbols,startDate, mutualDelisting);
+				}
+				return queryStockData(prevSymbols,startDate, endDate);
 			}
 
 			//return data of one symbol
-			//if(getSymbolId(symbol) != NOT_FOUND){
-				return queryStockData(startDate, endDate);
-			//}
+			if(getSymbolId(symbols.iterator().next()) != NOT_FOUND){
+				return queryStockData(prevSymbols,startDate, endDate);
+			}
 		}catch(ParseException ex){
-			logger.error("queryStockData() failed: error on using SimpleDateFormat." + ex.getMessage());
+			logger.error("queryStockData():ParseException. Error on using SimpleDateFormat." + ex.getMessage());
+		}catch(SQLException ex){
+			logger.error("queryStockData():SQLException.", ex.getMessage());
 		}
 		return null;
+	}
+
+	/**
+	 * @param ipoDelisting
+	 */
+	private static void updateMutualIpoDelisting(String[] ipoDelisting) {
+		if(ipoDelisting != null){
+			if(!Objects.equals(mutualIpo, ipoDelisting[0])){
+				mutualIpo = ipoDelisting[0];
+			}
+			if(!Objects.equals(mutualDelisting, ipoDelisting[1])){
+				mutualDelisting = ipoDelisting[1];
+			}
+		}
+	}
+
+	/**
+	 * @throws SQLException
+	 */
+	private static void getConnection() throws SQLException {
+		//if(conn == null){ //TODO: why get error "connection closed" with this "if"
+		conn = ConnectionManager.getInstance().getConnection();
+		if (conn == null){
+			throw new SQLException("Could not make a connection to database");
+			//}
+		}
 	}
 
 	/**
@@ -117,17 +135,15 @@ public class StockDao {
 		//awaitTerminationAfterShutdown(executor);
 	}
 
-	
-
 	//data return structure: { "date": "symbol1":[price,split] , "symbol2":[price,split] }
 	// e.g. { "2010-1-1": "MSFT":[200,1.0] , "AAPL":[200,1.0] }
 	//		{ "2010-1-2": "MSFT":[300,2.0] , "AAPL":[300,2.0] }
-	private static Map<String,List<Stock>> queryStockData(String startDate, String endDate) {
+	private static Map<String,List<Stock>> queryStockData(Set<String> symbols, String startDate, String endDate) {
 		Map<String,List<Stock>> data = new TreeMap<String,List<Stock>>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			for(String symbol : prevSymbols) {
+			for(String symbol : symbols) {
 				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, symbol);
@@ -159,9 +175,15 @@ public class StockDao {
 		return null;
 	}
 
-	private static String[] getMutualIpoDelisting(){
+	/**
+	 * get shared ipo date and delisting date of symbols 
+	 * @param symbols a Set collection
+	 * @return an array with 2 elements.
+	 * First element is mutualIPO date, second one is mutualDelisting date
+	 */
+	private static String[] getMutualIpoDelisting(Set<String> symbols){
 		String symbolsStr = "'";
-		for( String s : prevSymbols){
+		for( String s : symbols){
 			symbolsStr += s;
 			symbolsStr += "','";
 		}
@@ -186,6 +208,26 @@ public class StockDao {
 			release(cstmt,rs);
 		}
 		return null;
+	}
+
+	private static int getSymbolId(String symbol) {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try{
+			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, symbol);
+			rs = pstmt.executeQuery();
+			if(rs.next()){
+				int symbolId = rs.getInt("symbol_id");
+				return symbolId;
+			}
+		}catch(SQLException ex){
+			logger.error(ex.getMessage());
+		}finally{
+			release(pstmt,rs);
+		}
+		return NOT_FOUND;
 	}
 
 	public static void close(){
