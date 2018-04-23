@@ -30,8 +30,8 @@ public class Investment {
 	 * add symbol to existing "symbols" Set
 	 * @param symbol
 	 */
-	public void addSymbol(String symbol){
-		this.symbols.add(symbol);
+	public void addSymbol(Set<String> symbol){
+		this.symbols.addAll(symbol);
 	}
 	
 	/**
