@@ -42,7 +42,7 @@ public class InvestmentController {
 		long budget = json.get("budget").getAsLong();
 		String startDate = json.get("startdate").getAsString();
 		String endDate = json.get("enddate").getAsString();
-		Set<String> symbols = jsonArrayToSet( json.get("symbols").getAsJsonArray());
+		Set<String> symbol = jsonArrayToSet( json.get("symbols").getAsJsonArray());
 		
 		int userId = Integer.parseInt(getSessionUserId(request));
 		Investment prev = getSessionInvestment(request);
@@ -56,9 +56,9 @@ public class InvestmentController {
 				prev.setEndDate(endDate);
 				investmentDao.update(userId, budget, startDate, endDate);
 			}
-			if( symbols!=null ){
-				prev.setSymbols(symbols);
-				//investmentDao.addSymbol(userId, symbol);
+			if( symbol.size()==1 && !prev.getSymbols().containsAll(symbol)){
+				prev.addSymbol(symbol);
+				investmentDao.addSymbol(userId, symbol.iterator().next());
 			}
 		}catch(SQLException ex){
 			logger.error("updateInvestment() failed." + ex.getMessage());
