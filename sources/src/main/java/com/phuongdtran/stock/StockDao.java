@@ -47,11 +47,12 @@ public class StockDao {
 	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) {
 		try{
 			getConnection();
-
+			String symbol = "";
 			if(prevSymbols == null){
 				prevSymbols = symbols;
-			}else if(getSymbolId(symbols.iterator().next()) != NOT_FOUND){
-				prevSymbols.add(symbols.iterator().next());
+			}else if( symbols.size()==1 ) {
+				symbol = symbols.iterator().next();
+				prevSymbols.add(symbol);
 			}
 			updateStockCache();
 			updateMutualIpoDelisting( getMutualIpoDelisting(prevSymbols));
@@ -59,7 +60,7 @@ public class StockDao {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
 			//return data of multiple symbols
 			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
-			if(Objects.equals(prevStartDate, startDate) || Objects.equals(prevEndDate, endDate)) {
+			if(!Objects.equals(prevStartDate, startDate) || !Objects.equals(prevEndDate, endDate) || symbols.size()>1) {
 				prevStartDate = startDate;
 				prevEndDate = endDate;
 				if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) && sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
@@ -77,8 +78,10 @@ public class StockDao {
 			}
 
 			//return data of one symbol
-			if(getSymbolId(symbols.iterator().next()) != NOT_FOUND){
+			if(getSymbolId(symbol) != NOT_FOUND){
 				return queryStockData(prevSymbols,startDate, endDate);
+			}else{
+				prevSymbols.remove(symbol);
 			}
 		}catch(ParseException ex){
 			logger.error("queryStockData():ParseException. Error on using SimpleDateFormat." + ex.getMessage());
