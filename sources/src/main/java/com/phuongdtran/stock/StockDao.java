@@ -39,7 +39,7 @@ public class StockDao {
 	 * It will do queries getting data from database.<br>
 	 * If requested data is unavailable, it will get that unavailable data from Quandl<br>
 	 * and insert into database before selecting.
-	 * @param symbol
+	 * @param symbols is a Set of multiple symbols when users logged in. a Set of one symbol when users add new symbol
 	 * @param startDate
 	 * @param endDate
 	 * @return
@@ -47,7 +47,7 @@ public class StockDao {
 	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) {
 		try{
 			getConnection();
-			String symbol = "";
+			String symbol = "";//holding a symbol in Set in case only need query data for one symbol
 			if(prevSymbols == null){
 				prevSymbols = symbols;
 			}else if( symbols.size()==1 ) {
@@ -56,37 +56,41 @@ public class StockDao {
 			}
 			updateStockCache();
 			updateMutualIpoDelisting( getMutualIpoDelisting(prevSymbols));
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
 			//return data of multiple symbols
-			//return data of all symbols from ipo date to delisting date if start date and end date are both out of range
 			if(!Objects.equals(prevStartDate, startDate) || !Objects.equals(prevEndDate, endDate) || symbols.size()>1) {
 				prevStartDate = startDate;
 				prevEndDate = endDate;
-				if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) && sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
-					return queryStockData(prevSymbols,mutualIpo, mutualDelisting);
-
-					//return data of all symbols from ipo date to end date if start date is before ipo date
-				}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
-					return queryStockData(prevSymbols,mutualIpo, endDate);
-
-					//return data of all symbols from ipo date to end date if end date is after delisting date
-				}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
-					return queryStockData(prevSymbols,startDate, mutualDelisting);
-				}
-				return queryStockData(prevSymbols,startDate, endDate);
+				return queryMutilpleSymbols(prevSymbols,startDate, endDate);
 			}
-
 			//return data of one symbol
 			if(getSymbolId(symbol) != NOT_FOUND){
 				return queryStockData(prevSymbols,startDate, endDate);
-			}else{
+			}else if( symbol != ""){
 				prevSymbols.remove(symbol);
 			}
-		}catch(ParseException ex){
-			logger.error("queryStockData():ParseException. Error on using SimpleDateFormat." + ex.getMessage());
 		}catch(SQLException ex){
 			logger.error("queryStockData():SQLException.", ex.getMessage());
+		}
+		return null;
+	}
+
+	private static Map<String, List<Stock>> queryMutilpleSymbols(Set<String> prevSymbols, String startDate, String endDate) {
+		try{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+			if(sdf.parse(startDate).before(sdf.parse(mutualIpo)) && sdf.parse(endDate).after(sdf.parse(mutualDelisting))) {
+				return queryStockData(prevSymbols,mutualIpo, mutualDelisting);
+
+				//return data of all symbols from ipo date to end date if start date is before ipo date
+			}else if (sdf.parse(startDate).before(sdf.parse(mutualIpo))) {
+				return queryStockData(prevSymbols,mutualIpo, endDate);
+
+				//return data of all symbols from ipo date to end date if end date is after delisting date
+			}else if(sdf.parse(endDate).after(sdf.parse(mutualDelisting))){
+				return queryStockData(prevSymbols,startDate, mutualDelisting);
+			}
+			return queryStockData(prevSymbols,startDate, endDate);
+		}catch(ParseException ex){
+			logger.error("queryStockData():ParseException. Error on using SimpleDateFormat." + ex.getMessage());
 		}
 		return null;
 	}
