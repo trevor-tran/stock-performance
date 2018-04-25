@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class StockDao {
 	private static Connection conn = null;
 	private static String mutualIpo = "";
 	private static String mutualDelisting = "";
-	private static Set<String> prevSymbols;
+	private static Set<String> prevSymbols = new HashSet<String>();
 	private static String prevEndDate;
 	private static String prevStartDate;
 	public static final int NOT_FOUND = -1;
@@ -39,7 +40,7 @@ public class StockDao {
 	 * It will do queries getting data from database.<br>
 	 * If requested data is unavailable, it will get that unavailable data from Quandl<br>
 	 * and insert into database before selecting.
-	 * @param symbols is a Set of multiple symbols when users logged in. a Set of one symbol when users add new symbol
+	 * @param symbols
 	 * @param startDate
 	 * @param endDate
 	 * @return
@@ -48,11 +49,14 @@ public class StockDao {
 		try{
 			getConnection();
 			String symbol = "";//holding a symbol in Set in case only need query data for one symbol
-			if(prevSymbols == null){
-				prevSymbols = symbols;
-			}else if( symbols.size()==1 ) {
-				symbol = symbols.iterator().next();
-				prevSymbols.add(symbol);
+			if(prevSymbols.isEmpty()){
+				prevSymbols.addAll(symbols);
+			} else{
+				symbols.removeAll(prevSymbols);
+				if(symbols.iterator().hasNext()){ 
+					symbol = symbols.iterator().next();
+					prevSymbols.add(symbol);
+				}
 			}
 			updateStockCache();
 			updateMutualIpoDelisting( getMutualIpoDelisting(prevSymbols));
