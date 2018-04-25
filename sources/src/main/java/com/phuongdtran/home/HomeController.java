@@ -37,8 +37,8 @@ public class HomeController {
 
 	public static Route fetchData = (Request request, Response response) -> {
 		if (SigninController.isSignIn(request, response) && clientAcceptsJson(request)) {
-			Investment inv = getSessionInvestment(request);
 			InvestmentController.updateInvestment(request);
+			Investment inv = getSessionInvestment(request);
 			//TODO: how to pass in symbol(s) from the request to getData()
 			Map<String,Map<String,Double>> data = StockController.getData(inv.getBudget(),inv.getStartDate(),inv.getEndDate(),inv.getSymbols());
 			
