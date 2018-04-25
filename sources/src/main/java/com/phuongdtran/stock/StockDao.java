@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class StockDao {
 			}
 			//return data of one symbol
 			if(getSymbolId(symbol) != NOT_FOUND){
-				return queryStockData(prevSymbols,startDate, endDate);
+				return queryStockData(new HashSet<String>(Arrays.asList(symbol)),startDate, endDate);
 			}else if( symbol != ""){
 				prevSymbols.remove(symbol);
 			}
@@ -78,6 +79,9 @@ public class StockDao {
 		return null;
 	}
 
+	public static void remove(String symbol) {
+		prevSymbols.remove(symbol);
+	}
 	private static Map<String, List<Stock>> queryMutilpleSymbols(Set<String> prevSymbols, String startDate, String endDate) {
 		try{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
