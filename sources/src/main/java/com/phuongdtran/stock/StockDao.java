@@ -60,7 +60,12 @@ public class StockDao {
 				}
 			}
 			updateStockCache();
-			updateMutualIpoDelisting( getMutualIpoDelisting(prevSymbols));
+			String[] ipoDelisting = getMutualIpoDelisting(prevSymbols);
+			if ( !Objects.equals(mutualIpo, ipoDelisting[0]) || !Objects.equals(mutualIpo, ipoDelisting[1])){
+				mutualIpo = ipoDelisting[0];
+				mutualDelisting = ipoDelisting[1];
+				return queryMutilpleSymbols(prevSymbols,startDate, endDate);
+			}
 			//return data of multiple symbols
 			if(!Objects.equals(prevStartDate, startDate) || !Objects.equals(prevEndDate, endDate) || symbols.size()>1) {
 				prevStartDate = startDate;
@@ -82,6 +87,7 @@ public class StockDao {
 	public static void remove(String symbol) {
 		prevSymbols.remove(symbol);
 	}
+	
 	private static Map<String, List<Stock>> queryMutilpleSymbols(Set<String> prevSymbols, String startDate, String endDate) {
 		try{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
