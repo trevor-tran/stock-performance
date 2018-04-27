@@ -110,20 +110,6 @@ public class StockDao {
 	}
 
 	/**
-	 * @param ipoDelisting
-	 */
-	private static void updateMutualIpoDelisting(String[] ipoDelisting) {
-		if(ipoDelisting != null){
-			if(!Objects.equals(mutualIpo, ipoDelisting[0])){
-				mutualIpo = ipoDelisting[0];
-			}
-			if(!Objects.equals(mutualDelisting, ipoDelisting[1])){
-				mutualDelisting = ipoDelisting[1];
-			}
-		}
-	}
-
-	/**
 	 * @throws SQLException
 	 */
 	private static void getConnection() throws SQLException {
