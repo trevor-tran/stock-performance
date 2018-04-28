@@ -20,5 +20,26 @@ Table Symbols:
 	ipo_date date,
 	delisting_date
 	
+//stored procedure
+
+ADD_TO_SYMBOLS_AND_CREATE_TABLE: create new table named after symbol( e.g. GOOGL, AAPL) for each symbol added to Symbols_table
+
+//the purpose of these is to get the date prior to the first date in table.
+FIRST_DATE_IN_TABLE:
+DIFF_TO_FIRST_DATE: 
+PREVIOUS_TO_FIRST_DATE:
+
+// get the date after the last date in table
+LAST_DATE_IN_TABLE:
+DIFF_TO_LAST_DATE:
+NEXT_TO_LAST_DATE:
+
+UPDATE_IPO_DELISTING_DATE: update ipo date and delisting date in Symbols_table
+
+GET_MUTUAL_IPO_DELISTING_DATE: 
+
+QUERY_DATA:
+
+	
 	
 	
