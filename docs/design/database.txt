@@ -1,20 +1,24 @@
-Table users:
+Table UserInfo:
 	user_id int primary
 	first_name varchar(20) not null
 	last_name varchar(20) not null
 	username varchar(100) not null
 	email varchar(50)
-	investment decimal(13,2)
+	budget decimal(13,2)
 	start_date date
 	end_date date
 	salt varchar(100)
 	hashed_password varchar(100)
 	google_user tinyint(1)
-Table stocks:
-	stock_id int primary
-	symbol varchar(10)
-	user_id int foreign key
+Table UserSymbol:
+	symbol varchar(5) primary
+	user_id int primary, foreign
 	number_of_shares double
+Table Symbols:
+	symbol_id primary,
+	symbol varchar(5),
+	ipo_date date,
+	delisting_date
 	
 	
 	
