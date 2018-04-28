@@ -33,13 +33,13 @@ public class StockController {
 			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
 			Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
 			// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
-			Map<String,Double> singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
-			balances.put(entry.getKey(), singleDayBalances);
+			Map<String,Double> oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+			balances.put(entry.getKey(), oneDayBalances);
 
 			while(iterator.hasNext() ){
 				entry = iterator.next();
-				singleDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
-				balances.put(entry.getKey(), singleDayBalances);
+				oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
+				balances.put(entry.getKey(), oneDayBalances);
 			}
 		}
 		StockDao.close();
