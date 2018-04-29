@@ -16,7 +16,7 @@ import com.phuongdtran.investment.Investment;
 
 public class StockController {
 
-	private static Map<String,Map<String,String>> summary;
+	private static Map<String,String> summary;
 	protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -61,10 +61,10 @@ public class StockController {
 		return singleDayBalances;
 	}
 
-	private static Map<String,Double> computeQuantity (long investment, List<Stock> firstEntry) {
+	private static Map<String,Double> computeQuantity (long budget, List<Stock> firstEntry) {
 		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
 		for(Stock stock : firstEntry) {
-			double quantity = investment / stock.getPrice(); 
+			double quantity = budget / stock.getPrice(); 
 			quantityOfStocks.put(stock.getTicker(), quantity);
 		}
 		return quantityOfStocks;
