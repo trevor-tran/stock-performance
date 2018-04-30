@@ -17,13 +17,18 @@ import com.phuongdtran.investment.Investment;
 
 public class StockController {
 
-	private static List<SummaryAttribute> saList = new ArrayList<SummaryAttribute>();
-	private static Map<String,List<SummaryAttribute>> summary = new TreeMap<String, List<SummaryAttribute>>();
+	private static List<SummaryAttribute> startList;
+	private static List<SummaryAttribute> endList;
+	private static Map<String,List<SummaryAttribute>> summary;
+	private static String start;
+	private static String end;
 	//protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
-		//recent added symbol received first		
+		startList = new ArrayList<SummaryAttribute>();
+		endList = new ArrayList<SummaryAttribute>();
+		summary = new TreeMap<String, List<SummaryAttribute>>();
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();	 
 		Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
 		if(data != null){
@@ -32,9 +37,9 @@ public class StockController {
 
 			//get first entry
 			Map.Entry<String,List<Stock>> entry = iterator.next();
+			start = entry.getKey();
 			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
 			Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
-			summary.put(entry.getKey(),saList)
 			// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 			Map<String,Double> oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 			balances.put(entry.getKey(), oneDayBalances);
@@ -76,7 +81,7 @@ public class StockController {
 			sa.setStartPrice(stock.getPrice());
 			sa.setStartBalance(budget);
 			sa.setStartQuantity(quantity);
-			saList.add(sa);
+			startList.add(sa);
 		}
 		return quantityOfStocks;
 	}
