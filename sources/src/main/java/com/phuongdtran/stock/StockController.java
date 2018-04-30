@@ -1,6 +1,7 @@
 package com.phuongdtran.stock;
 import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,8 +17,9 @@ import com.phuongdtran.investment.Investment;
 
 public class StockController {
 
-	private static Map<String,String> summary;
-	protected Set<String> symbols;
+	private static List<SummaryAttribute> saList = new ArrayList<SummaryAttribute>();
+	private static Map<String,List<SummaryAttribute>> summary = new TreeMap<String, List<SummaryAttribute>>();
+	//protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
@@ -32,11 +34,12 @@ public class StockController {
 			Map.Entry<String,List<Stock>> entry = iterator.next();
 			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
 			Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
+			summary.put(entry.getKey(),saList)
 			// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 			Map<String,Double> oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 			balances.put(entry.getKey(), oneDayBalances);
 
-			while(iterator.hasNext() ){
+			while( iterator.hasNext()){
 				entry = iterator.next();
 				oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 				balances.put(entry.getKey(), oneDayBalances);
@@ -64,8 +67,16 @@ public class StockController {
 	private static Map<String,Double> computeQuantity (long budget, List<Stock> firstEntry) {
 		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
 		for(Stock stock : firstEntry) {
-			double quantity = budget / stock.getPrice(); 
+			double quantity = budget / stock.getPrice();
 			quantityOfStocks.put(stock.getTicker(), quantity);
+			
+			//summary
+			SummaryAttribute sa = new SummaryAttribute();
+			sa.setSymbol(stock.getTicker());
+			sa.setStartPrice(stock.getPrice());
+			sa.setStartBalance(budget);
+			sa.setStartQuantity(quantity);
+			saList.add(sa);
 		}
 		return quantityOfStocks;
 	}
