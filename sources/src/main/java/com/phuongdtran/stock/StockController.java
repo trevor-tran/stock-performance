@@ -22,8 +22,6 @@ public class StockController {
 	private static Map<String,List<SummaryAttribute>> summary;
 	private static String start;//from
 	private static String end;//to
-	private static double startPrice;
-	private static double endPrice;
 	//protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
