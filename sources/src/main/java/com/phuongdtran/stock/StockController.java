@@ -13,11 +13,12 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.phuongdtran.investment.Investment;
 
 public class StockController {
 
-	private static List<SummaryAttribute> startList;
+	private static List<SummaryAttribute> summaryList;
 	private static List<SummaryAttribute> endList;
 	private static Map<String,List<SummaryAttribute>> summary;
 	private static String start;//from
@@ -26,8 +27,7 @@ public class StockController {
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
-		startList = new ArrayList<SummaryAttribute>();
-		endList = new ArrayList<SummaryAttribute>();
+		summaryList = new ArrayList<SummaryAttribute>();
 		summary = new TreeMap<String, List<SummaryAttribute>>();
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();	 
 		Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
@@ -49,6 +49,14 @@ public class StockController {
 				oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 				balances.put(entry.getKey(), oneDayBalances);
 			}
+			//"entry" is now pointed to last element in "data"
+			for(Stock stock : entry.getValue()){
+				for(SummaryAttribute sa : summaryList){
+					if( Objects.equal(stock.getTicker(), sa.getSymbol())){
+						sa.setEndPrice(stock.getPrice());
+					}
+				}
+			}
 		}
 		StockDao.close();
 		return balances;
@@ -60,7 +68,7 @@ public class StockController {
 			if(stock.getSplit() != 1d){
 				double numberOfShares = quantities.get(stock.getTicker());
 				numberOfShares = numberOfShares * stock.getSplit();
-				//update the quantity corresponding to each stock in quantityOfStocks Map
+				//update the quantity corresponding to each stock in quantityOfStocks
 				quantities.put(stock.getTicker(), numberOfShares);
 			}
 			double balance = round(quantities.get(stock.getTicker()) * stock.getPrice(), 2);
@@ -81,7 +89,7 @@ public class StockController {
 			sa.setStartPrice(stock.getPrice());
 			sa.setStartBalance(budget);
 			sa.setStartQuantity(quantity);
-			startList.add(sa);
+			summaryList.add(sa);
 		}
 		return quantityOfStocks;
 	}
