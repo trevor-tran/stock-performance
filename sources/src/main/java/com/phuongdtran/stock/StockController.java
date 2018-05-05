@@ -50,6 +50,7 @@ public class StockController {
 				balances.put(entry.getKey(), oneDayBalances);
 			}
 			//"entry" is now pointed to last element in "data"
+			end = entry.getKey();
 			for(Stock stock : entry.getValue()){
 				for(SummaryAttribute sa : summaryList){
 					if( Objects.equal(stock.getTicker(), sa.getSymbol())){
