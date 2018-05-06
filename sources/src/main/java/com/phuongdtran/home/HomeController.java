@@ -1,24 +1,19 @@
 package com.phuongdtran.home;
 
-import static com.phuongdtran.util.RequestUtil.*;
 import static com.phuongdtran.stock.StockController.getSummary;
 import static com.phuongdtran.util.JsonUtil.dataToJson;
 import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
 import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
+import static com.phuongdtran.util.RequestUtil.getSessionInvestment;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.phuongdtran.investment.Investment;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.stock.StockController;
+import com.phuongdtran.stock.SummaryAttribute;
 import com.phuongdtran.util.Path;
 import com.phuongdtran.util.ViewUtil;
 
@@ -50,7 +45,7 @@ public class HomeController {
 
 	public static Route fetchSummary = (Request request, Response response) -> {
 		if (clientAcceptsJson(request)){
-			Map<String,String> summary = getSummary();
+			Map<String,SummaryAttribute> summary = getSummary();
 			response.header("Content-Type", "application/json");
 			return dataToJson(summary);
 		}
