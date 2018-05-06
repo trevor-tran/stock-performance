@@ -18,17 +18,14 @@ import com.phuongdtran.investment.Investment;
 
 public class StockController {
 
-	private static List<SummaryAttribute> summaryList;
-	private static List<SummaryAttribute> endList;
-	private static Map<String,List<SummaryAttribute>> summary;
+	//private static List<SummaryAttribute> summaryList;
+	private static Map<String,SummaryAttribute> summary;
 	private static String start;//from
 	private static String end;//to
-	//protected Set<String> symbols;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
-		summaryList = new ArrayList<SummaryAttribute>();
-		summary = new TreeMap<String, List<SummaryAttribute>>();
+		summary = new HashMap<String,SummaryAttribute>();
 		Map<String,Map<String,Double>> balances = new TreeMap<String,Map<String,Double>>();	 
 		Map<String,List<Stock>> data = StockDao.getData(symbols, startDate, endDate);
 		if(data != null){
@@ -37,10 +34,10 @@ public class StockController {
 
 			//get first entry
 			Map.Entry<String,List<Stock>> entry = iterator.next();
-			start = entry.getKey();
+			//for( entry.getKey();
 			//e.g {"MSFT":14.2 , "AAPL":10.5 , "GOOGL":10.0}
 			Map<String,Double> quantityOfStocks = computeQuantity(budget, entry.getValue());
-			// singleDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
+			// oneDayBalances ==	{symbol:balance} e.g {"MSFT": 5000,"GOOGL": 10000}
 			Map<String,Double> oneDayBalances = computeBalances(entry.getValue(), quantityOfStocks);
 			balances.put(entry.getKey(), oneDayBalances);
 
@@ -50,17 +47,24 @@ public class StockController {
 				balances.put(entry.getKey(), oneDayBalances);
 			}
 			//"entry" is now pointed to last element in "data"
-			end = entry.getKey();
+			//end = entry.getKey();
+			Map<String,Double> lastDayBalances = balances.get(entry.getKey());
+			for(String ticker : lastDayBalances.keySet() ){
+				summary.get(ticker).setEndBalance(lastDayBalances.get(ticker));
+			}
 			for(Stock stock : entry.getValue()){
-				for(SummaryAttribute sa : summaryList){
-					if( Objects.equal(stock.getTicker(), sa.getSymbol())){
-						sa.setEndPrice(stock.getPrice());
-					}
-				}
+				summary.get(stock.getTicker()).setEndPrice(stock.getPrice());
+			}
+			for(String ticker : quantityOfStocks.keySet()){
+				summary.get(ticker).setEndQuantity(quantityOfStocks.get(ticker));
 			}
 		}
 		StockDao.close();
 		return balances;
+	}
+	
+	public static Map<String,SummaryAttribute> getSummary(){
+		return summary;
 	}
 
 	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
@@ -86,19 +90,14 @@ public class StockController {
 			
 			//summary
 			SummaryAttribute sa = new SummaryAttribute();
-			sa.setSymbol(stock.getTicker());
 			sa.setStartPrice(stock.getPrice());
 			sa.setStartBalance(budget);
 			sa.setStartQuantity(quantity);
-			summaryList.add(sa);
+			summary.put(stock.getTicker(), sa);
 		}
 		return quantityOfStocks;
 	}
-	//TODO: temporarily return null to avoiding fixing errors for now.
-	public static Map<String,String> getSummary(){
-		return null;
-	}
-
+	
 	// round numbers to nth decimal places
 	private static double round(double number,int n){
 		double decimal = Math.pow(10, n);
