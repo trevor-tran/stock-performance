@@ -221,7 +221,7 @@ public class StockDao {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			String sql = "SELECT symbol_id FROM Symbols WHERE symbol=?";
+			String sql = "SELECT symbol_id FROM symbols WHERE symbol=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, symbol);
 			rs = pstmt.executeQuery();

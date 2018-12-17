@@ -32,8 +32,8 @@ public class InvestmentDao {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			String sql = "SELECT usr.budget, usr.start_date, usr.end_date, inv.symbol FROM UserInfo AS usr "
-					+ "INNER JOIN UserSymbol AS inv "
+			String sql = "SELECT usr.budget, usr.start_date, usr.end_date, inv.symbol FROM userinfo AS usr "
+					+ "INNER JOIN usersymbol AS inv "
 					+ "WHERE usr.user_id = inv.user_id AND usr.user_id = ?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
@@ -60,7 +60,7 @@ public class InvestmentDao {
 	
 	public void update( int userId, long budget, String startDate, String endDate){
 		PreparedStatement pstmt = null;
-		String sql = "UPDATE UserInfo SET budget=?, start_date=?,end_date=? WHERE user_id=?";
+		String sql = "UPDATE userinfo SET budget=?, start_date=?,end_date=? WHERE user_id=?";
 		try{
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, budget);
@@ -78,7 +78,7 @@ public class InvestmentDao {
 	
 	public void addSymbol( int userId, String symbol){
 		PreparedStatement pstmt = null;
-		String sql = "INSERT INTO UserSymbol(user_id,symbol) VALUES(?,?)";
+		String sql = "INSERT INTO usersymbol(user_id,symbol) VALUES(?,?)";
 		try{
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
