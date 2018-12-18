@@ -151,7 +151,7 @@ public class StockDao {
 		ResultSet rs = null;
 		try{
 			for(String symbol : symbols) {
-				String sql = "{CALL QUERY_DATA(?, ?, ?)}";
+				String sql = "{call query_data(?, ?, ?)}";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, symbol);
 				pstmt.setString(2, startDate);
@@ -197,7 +197,7 @@ public class StockDao {
 		//cut off trailing ( ,' )
 		symbolsStr = symbolsStr.substring(0, symbolsStr.length()-2);
 		//must be this way to have the symbolsStr in double quotes. e.g "'MSFT','GOOGL'"
-		String sql = String.format(" CALL GET_MUTUAL_IPO_DELISTING_DATE(\"%s\")",symbolsStr);
+		String sql = String.format("call get_mutual_ipo_delisting_date(\"%s\")",symbolsStr);
 		CallableStatement cstmt = null;
 		ResultSet rs = null;
 		try{
