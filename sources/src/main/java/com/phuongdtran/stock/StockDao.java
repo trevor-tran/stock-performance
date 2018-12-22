@@ -126,7 +126,7 @@ public class StockDao {
 	 * @param endDate<br>
 	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
-	private static void updateStockCache() {
+	private static void updateStockCache() { //TODO: tables not updated when date changed
 		ThreadPoolExecutor executor = ThreadPool.getInstance();
 		List<CacheCallable> callables = new ArrayList<CacheCallable>();
 		try{
