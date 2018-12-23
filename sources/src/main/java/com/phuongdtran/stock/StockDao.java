@@ -59,6 +59,9 @@ public class StockDao {
 					prevSymbols.add(symbol);
 				}
 			}
+			//TODO: why should I have following two lines?
+			prevStartDate = startDate;
+			prevEndDate = endDate;
 			updateStockCache();
 			String[] ipoDelisting = getMutualIpoDelisting(prevSymbols);
 			if ( !Objects.equals(mutualIpo, ipoDelisting[0]) || !Objects.equals(mutualIpo, ipoDelisting[1])){

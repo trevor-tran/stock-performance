@@ -46,7 +46,7 @@
         $bodyContent
     </div>
 </main>
-<script type="text/javascript" src="/js/main.js?ver=build_502"></script>
+<script type="text/javascript" src="/js/main.js?ver=build_505"></script>
 <footer>
 		Source code at <a href="https://github.com/PhuongDTran/stock-performance" target="_blank">Github</li>		
 	</nav>
