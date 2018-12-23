@@ -31,7 +31,7 @@ import com.google.gson.JsonObject;
 public class CacheCallable implements Callable<Void> {
 
 	//quandl api keys
-	private static final String[] apiKeys = { "LSHfJJyvzYHUyU9jHpn6", "gCex5psCGUqRBsjyXAxs"};
+	private static final String[] apiKeys = { "GdpasDzBLtED9Y-8oDBJ", "gCex5psCGUqRBsjyXAxs"};
 	private static int index = 0;
 	private String symbol;
 	private String startDate;
@@ -196,6 +196,7 @@ public class CacheCallable implements Callable<Void> {
 
 	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
 	//https://github.com/google/gson/blob/master/UserGuide.md
+	//TODO: Quandl Wiki is no longer available
 	private JsonArray getQuandlData(String symbol, String startDate, String endDate) {
 		try{
 			URI uri = getRequestUri(symbol, startDate, endDate);
