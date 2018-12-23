@@ -31,8 +31,10 @@ import com.google.gson.JsonObject;
 public class CacheCallable implements Callable<Void> {
 
 	//quandl api keys
-	private static final String[] apiKeys = { "GdpasDzBLtED9Y-8oDBJ", "gCex5psCGUqRBsjyXAxs"};
-	private static int index = 0;
+	//private static final String[] apiKeys = { "GdpasDzBLtED9Y-8oDBJ", "gCex5psCGUqRBsjyXAxs"};
+	//private static int index = 0;
+	//alpha vantange key
+	private static final String apiKey = "PDOGDFRY2VU8A943"; 
 	private String symbol;
 	private String startDate;
 	private String endDate;
@@ -232,7 +234,7 @@ public class CacheCallable implements Callable<Void> {
 	}
 
 	//build URL to request data from Quandl
-	private URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
+	/*private URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
 		//https://docs.quandl.com/docs/parameters-1
 		URI uri = new URIBuilder()
 				.setScheme("https")
@@ -243,6 +245,19 @@ public class CacheCallable implements Callable<Void> {
 				.setParameter("date.lte", endDate)
 				.setParameter("ticker", symbol)
 				.setParameter("api_key", apiKeys[index++ % 2])
+				.build();
+		return uri;
+	}
+	*/
+	private URI getRequestUri( String symbol)throws URISyntaxException{
+		URI uri = new URIBuilder()
+				.setScheme("https")
+				.setHost("alphavantage.co")
+				.setPath("query")
+				.setParameter("function", "TIME_SERIES_DAILY_ADJUSTED")
+				.setParameter("symbol", symbol)
+				.setParameter("outputsize", "full")
+				.setParameter("apikey", apiKey)
 				.build();
 		return uri;
 	}
