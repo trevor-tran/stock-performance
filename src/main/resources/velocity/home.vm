@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+<form id="homecontainer">   
+	<!--rechart graph -->  
+</form>
+#end
