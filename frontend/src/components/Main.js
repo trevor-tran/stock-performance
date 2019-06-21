@@ -3,14 +3,15 @@ import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 
-import '../css/Main.css';
+import './css/Main.css';
 
 import Footer from './Footer';
+import Header from './Header';
 
 function Main() {
   return (
     <React.Fragment>
-      <p> hi main</p>
+      <Header/>
       <Router>
         <Route path="/signin" component={SigninForm} />
         <Route path="/signup" component={SignupForm} />
