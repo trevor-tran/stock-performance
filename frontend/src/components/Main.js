@@ -13,8 +13,8 @@ function Main() {
     <React.Fragment>
       <Header/>
       <Router>
-        <Route path="/signin" component={SigninForm} />
-        <Route path="/signup" component={SignupForm} />
+        <Route path="/signin/" component={SigninForm} />
+        <Route path="/signup/" component={SignupForm} />
         {/* <Route path="*" render={() => (
           <Redirect to="/signin" />
         )} /> */}
