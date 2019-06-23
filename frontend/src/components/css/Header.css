@@ -5,7 +5,12 @@ header {
   background-color: #4b2e83;
 }
 
-#signin {
+#menu {
+  display: inline-block;
   position: absolute;
   right: 5%;
+}
+
+#menu .button {
+  margin-right: 1vw;
 }

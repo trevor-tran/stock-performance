@@ -6,10 +6,11 @@ import './css/Form.css'
 function SigninForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   return (
     <Paper className="signin-form">
         <h1 className="title">Sign In</h1>
-        <p>Enter your username and password below</p>
+        <label>Enter your username and password below</label>
         <FormControl>
           <label>Username</label>
           <Input 
@@ -26,7 +27,16 @@ function SigninForm() {
             required
             onChange={e => setPassword(e.target.value)} 
           />
-          <Button className="submit" variant="contained" color="primary">Submit</Button>
+          <Button 
+            className="submit" 
+            variant="contained" 
+            color="primary"
+            onClick={()=> {
+              console.log( username)
+              console.log (password)
+            }}>
+            Submit
+          </Button>
         </FormControl>
     </Paper>
   );

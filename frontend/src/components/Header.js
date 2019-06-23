@@ -1,9 +1,6 @@
 import React from 'react';
 
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import { Divider, Button, Typography, Toolbar, AppBar, FormControl} from '@material-ui/core';
 
 import "./css/Header.css";
 
@@ -13,7 +10,10 @@ function Header() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">Stock Performance</Typography>
-          <Button id="signin" variant='outlined' color="inherit">Sign in</Button>
+          <FormControl id="menu">
+            <Button className="button" variant='outlined' color="inherit">Sign up</Button>
+            <Button className="button"  variant='outlined' color="inherit">Sign in</Button>
+          </FormControl>
         </Toolbar>
       </AppBar>
   );
