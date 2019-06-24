@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 
@@ -13,11 +13,13 @@ function Main() {
     <React.Fragment>
       <Header/>
       <Router>
-        <Route path="/signin/" component={SigninForm} />
-        <Route path="/signup/" component={SignupForm} />
-        {/* <Route path="*" render={() => (
-          <Redirect to="/signin" />
-        )} /> */}
+        <Switch>
+        <Route exact path="/signin/" component={SigninForm} />
+        <Route exact path="/signup/" component={SignupForm} />
+        <Route path="*" render={() => (
+          <Redirect to="/signin/" />
+        )} />
+        </Switch>
       </Router>
     </React.Fragment>
   );
