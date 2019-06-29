@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch, withRouter } from 'react-router-dom';
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 
@@ -11,11 +11,11 @@ import Header from './Header';
 function Main() {
   return (
     <React.Fragment>
-      <Header/>
       <Router>
+      <Header/>
         <Switch>
-        <Route exact path="/signin/" component={SigninForm} />
-        <Route exact path="/signup/" component={SignupForm} />
+        <Route exact path="/signin/" component={withRouter(SigninForm)} />
+        <Route exact path="/signup/" component={withRouter(SignupForm)} />
         <Route path="*" render={() => (
           <Redirect to="/signin/" />
         )} />
