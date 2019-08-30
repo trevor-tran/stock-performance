@@ -4,10 +4,12 @@ import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'rec
 import update from 'immutability-helper';
 import moment from 'moment';
 
-function Home() {
+function MainPage() {
   const [budget, setBudget] = useState("");
   const [start_date, setStartDate ] = useState("");
   const [end_date, setEndDate] = useState("");
   const [symbols, setSymbols] = useState([]);
   const [deleted_symbol, setDeletedSymbol] = useState("");
 }
+
+export default MainPage;
