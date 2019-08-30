@@ -6,20 +6,27 @@ import static com.phuongdtran.util.RequestUtil.getSessionUserId;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+
+import com.phuongdtran.util.Message;
 import com.phuongdtran.util.Path;
 import com.phuongdtran.util.ViewUtil;
 
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class SignupController {
+	
+	private static Gson gson = new Gson();
 
 	public static Route handleSignupDisplay = (Request request, Response response ) -> {
+		System.out.println("in dipslay");
 		String currentUserId = getSessionUserId(request);
 		//allow to sign up a new account when no user has not signed in
 		if(currentUserId == null){
@@ -31,28 +38,36 @@ public class SignupController {
 	};
 	
 	public static Route handleSignupPost = ( Request request, Response response) -> {
-		Map<String,Object> model = new HashMap<String,Object>();
+//		Map<String,Object> model = new HashMap<String,Object>();
 		//extracts credentials
-		String firstName = request.queryParams("firstname");
-		String lastName = request.queryParams("lastname");
-		String email = request.queryParams("emailaddress");
-		String username = request.queryParams("username");
-		String password = request.queryParams("password");
-		String reenterPassword = request.queryParams("reenterpassword"); 
+		JSONObject json = new JSONObject(request.body());
+		String firstName = (String)json.get("firstname");
+		String lastName = (String)json.get("lastname");
+		String email = (String)json.get("emailaddress");
+		String username = (String)json.get("username");
+		String password = (String)json.get("password");
+//		String reenterPassword = request.queryParams("reenterpassword"); 
+		// message sent back to client
+		Message message = null;
 		if (usernameExists(username)) {
-			model.put("usernameExists", true);
-		}else if(! Objects.equals(password, reenterPassword)) {
-			model.put("passwordNotMatch",true);
-			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
+//			model.put("usernameExists", true);
+			message = new Message("failure", "Username already exists");
+//		}else if(! Objects.equals(password, reenterPassword)) {
+//			model.put("passwordNotMatch",true);
+//			return ViewUtil.render(request, model, Path.Templates.SIGNUP);
 		}else if (!isPasswordComplex(password)) {
-			model.put("passwordNotComplex", true);
+//			model.put("passwordNotComplex", true);
+			message = new Message("failure", "Password is not complex");
 		}
 		//TODO: Email Address Validation
 		else{
 			addUser(firstName, lastName, email, username, password);
-			model.put("signupSucceeded", true);
+//			model.put("signupSucceeded", true);
+			message = new Message("success", "ok");
 		}
-		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
+//		return ViewUtil.render(request, model, Path.Templates.SIGNUP);
+		System.out.println(gson.toJson(message));
+		return gson.toJson(message);
 	};
 	
 	/**

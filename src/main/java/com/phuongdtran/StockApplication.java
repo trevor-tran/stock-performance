@@ -34,10 +34,10 @@ public class StockApplication {
 		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
 		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
 		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
-		get(Path.Web.SIGNIN, 							SigninController.handleSigninDisplay);
-		post(Path.Web.SIGNIN, 							SigninController.handleSigninPost);
+//		get(Path.Web.SIGNIN, 							SigninController.handleSigninDisplay);
+		post(Path.Web.SIGNIN, 							SigninController.handleSignin);
 		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
-		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
+//		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
 		post(Path.Web.SIGNUP, 							SignupController.handleSignupPost);
 		post(Path.Web.REMOVESYMBOL,						InvestmentController.removeSymbol);
 		get("*", 					ViewUtil.notFound);
