@@ -35,7 +35,7 @@ public class UserDao{
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			String sql = "SELECT first_name FROM userinfo WHERE user_id=?";
+			String sql = "SELECT first_name FROM UserInfo WHERE user_id=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
 			rs = pstmt.executeQuery();
@@ -63,7 +63,7 @@ public class UserDao{
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			String sql = "SELECT user_id FROM userinfo WHERE username=?";
+			String sql = "SELECT user_id FROM UserInfo WHERE username=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, username);
 			rs = pstmt.executeQuery();
@@ -91,7 +91,7 @@ public class UserDao{
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try{
-			String sql = "SELECT salt,hashed_password FROM userinfo WHERE user_id=?";
+			String sql = "SELECT salt,hashed_password FROM UserInfo WHERE user_id=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, userId);
 			rs = pstmt.executeQuery();
@@ -121,7 +121,7 @@ public class UserDao{
 	public void addUser(String firstName,String lastName,String email, String username,String salt,String hashedPassword){
 		PreparedStatement pstmt = null;
 		try{
-			String sql = "INSERT INTO userinfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
+			String sql = "INSERT INTO UserInfo( first_name, last_name, email, username, salt, hashed_password, google_user) "
 					+ "VALUES(?, ?, ?, ?, ?, ?, ?)";
 			pstmt = conn.prepareStatement(sql);
 
@@ -150,7 +150,7 @@ public class UserDao{
 	public void addGoogleUser(String gUserIdentifier, String firstName,String lastName,String email){
 		PreparedStatement pstmt = null;
 		try{
-			String sql = "INSERT INTO userinfo(username, first_name, last_name, email, google_user) "
+			String sql = "INSERT INTO UserInfo(username, first_name, last_name, email, google_user) "
 					+ "VALUES(?, ?, ?, ?, ?)";	
 			pstmt = conn.prepareStatement(sql);
 
