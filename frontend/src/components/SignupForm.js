@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { Paper, FormControl, Input, Button } from '@material-ui/core';
-
 import { Context } from '../store';
+import { withRouter } from 'react-router-dom'
 
 // css
 import './css/Form.css'
 
-function SignupForm() {
+const SignupForm = withRouter(({history}) => {
   
   const {state, dispatch} = useContext(Context)
 
@@ -21,10 +21,12 @@ function SignupForm() {
 
   const submit = () => {
     if (state.current_user) {
+      // a user already logged in
       setMessage("Please log out before sign up")
     } else if (password !== confirm_password) {
       setMessage("Password does not match")
     }else {
+      // validate info on server (check if username already exists etc.)
       let url = "http://localhost:4567/signup/";
       fetch(url, {
         method: 'POST',
@@ -44,7 +46,8 @@ function SignupForm() {
         if (json.status === "failure") {
          return json.msg;
         }else {
-          dispatch({type:'SET_USER', payload: username})
+          dispatch({type:'SET_USER', payload: username});
+          history.push('/graph/')
           return undefined;
         }
       }).then (msg => {
@@ -115,6 +118,6 @@ function SignupForm() {
       </FormControl>
     </Paper>
   );
-}
+})
 
-export default SignupForm;
+export default SignupForm

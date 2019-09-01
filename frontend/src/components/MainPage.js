@@ -11,6 +11,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 import Header from './Header';
+import Graph from "./Graph";
 
 // state management
 import { Context, initialState, reducer } from '../store'
@@ -28,6 +29,9 @@ function MainPage() {
           {/* an alternative way for component is render={() => <SigninForm/>} */}
           <Route exact path="/signin/" component={SigninForm} />
           <Route exact path="/signup/" component={SignupForm} />
+          <Route exact path="/graph/" render={() => (
+          state.current_user ? (<Graph/>) : (alert("Please log in!"), (<Redirect to="/signin/"/>)) 
+          )}/>
           <Route path="*" render={() => (
             <Redirect to="/signin/" />
           )} />
