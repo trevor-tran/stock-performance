@@ -11,7 +11,6 @@ import com.phuongdtran.home.HomeController;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.signup.SignupController;
-import com.phuongdtran.util.CORSFilter;
 import com.phuongdtran.util.DatabaseConnection;
 import com.phuongdtran.util.Filters;
 import com.phuongdtran.util.Path;
@@ -60,11 +59,9 @@ public class StockApplication {
 		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
 		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
 		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
-		//		get(Path.Web.SIGNIN, 							SigninController.handleSigninDisplay);
-		post(Path.Web.SIGNIN, 							SigninController.handleSignin);
+		post(Path.Web.SIGNIN, 							SigninController.signin);
 		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
-		//		get(Path.Web.SIGNUP, 							SignupController.handleSignupDisplay);
-		post(Path.Web.SIGNUP, 							SignupController.handleSignupPost);
+		post(Path.Web.SIGNUP, 							SignupController.signup);
 		post(Path.Web.REMOVESYMBOL,						InvestmentController.removeSymbol);
 		get("*", 					ViewUtil.notFound);
 

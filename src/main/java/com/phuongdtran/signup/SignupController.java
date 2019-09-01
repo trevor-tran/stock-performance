@@ -18,9 +18,9 @@ import spark.Route;
 
 public class SignupController {
 	
-	private static Gson gson = new Gson();
+	private static final Gson gson = new Gson();
 	
-	public static Route handleSignupPost = ( Request request, Response response) -> {
+	public static Route signup = ( Request request, Response response) -> {
 		//extracts credentials
 		JSONObject json = new JSONObject(request.body());
 		String firstName = (String)json.get("firstname");

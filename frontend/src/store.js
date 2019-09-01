@@ -1,4 +1,5 @@
 import React from 'react'
+import {types} from './components/utils/Constants'
 
 export const initialState = {
   budget: 0,
@@ -6,13 +7,16 @@ export const initialState = {
   end_date: "",
   symbols: [],
   deleted_symbol: "",
-  current_user: ""
+  current_user: "",
+  first_name:""
 }
 
 export function reducer(state, action) {
   switch (action.type) {
-    case 'SET_USER':
+    case types.SET_USER:
       return { ...state, current_user: action.payload }
+    case types.SET_FIRST_NAME:
+      return {...state, first_name: action.payload}
     default:
       return state
   }

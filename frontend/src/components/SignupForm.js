@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Paper, FormControl, Input, Button } from '@material-ui/core';
 import { Context } from '../store';
+import {types, urls} from './utils/Constants'
 import { withRouter } from 'react-router-dom'
 
 // css
@@ -10,7 +11,7 @@ const SignupForm = withRouter(({history}) => {
   
   const {state, dispatch} = useContext(Context)
 
-
+  // local states
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ const SignupForm = withRouter(({history}) => {
       setMessage("Password does not match")
     }else {
       // validate info on server (check if username already exists etc.)
-      let url = "http://localhost:4567/signup/";
+      let url = urls.SERVER_URL + urls.SIGNUP;
       fetch(url, {
         method: 'POST',
         body: JSON.stringify({
@@ -47,8 +48,8 @@ const SignupForm = withRouter(({history}) => {
         if (json.status === "failure") {
           setMessage(json.msg)         
         }else {
-          dispatch({type:'SET_USER', payload: username});
-          history.push('/graph/')
+          dispatch({type: types.SET_USER, payload: username});
+          history.push(urls.GRAPH)
         }
       }).catch(err => {
         console.error(err);

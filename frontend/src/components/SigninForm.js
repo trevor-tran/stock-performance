@@ -1,16 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Paper, FormControl, Input, Button } from '@material-ui/core';
+import {types, urls} from './utils/Constants'
+import {withRouter} from 'react-router-dom'
+import {Context} from '../store'
 
+// css
 import './css/Form.css'
 
-function SigninForm() {
+const SigninForm = withRouter(({history}) => {
+
+  const {dispatch} = useContext(Context)
+
+  // local states
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
 
+  const submit = () => {
+    let url = urls.SERVER_URL + urls.SIGNIN;
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({
+        'username': username,
+        'password': password
+      })
+    }).then (response => {
+      return response.json();
+    }).then (json => {
+      // status is either "failure" or "success"
+      if (json.status === "failure") {
+        // fail!!! server sends back error message
+        setMessage(json.msg)
+      } else {
+        // success! server sends back user first name
+        dispatch({type: types.SET_USER, payload: username})
+        dispatch({type: types.SET_FIRST_NAME, payload: json.msg})
+        history.push(urls.GRAPH)
+      }
+    }).catch (err => {
+      console.error(err);
+    });
+  } 
   return (
     <Paper className="signin-form">
         <h1 className="title">Sign In</h1>
-        <label>Enter your username and password below</label>
+        { message ? (<p style={{color:"red"}}>{message}</p>) : null}
         <FormControl>
           <label>Username</label>
           <Input 
@@ -31,15 +65,12 @@ function SigninForm() {
             className="submit" 
             variant="contained" 
             color="primary"
-            onClick={()=> {
-              console.log( username)
-              console.log (password)
-            }}>
+            onClick={() => submit()}>
             Submit
           </Button>
         </FormControl>
     </Paper>
   );
-}
+})
 
 export default SigninForm;

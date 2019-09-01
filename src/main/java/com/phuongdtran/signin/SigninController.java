@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -19,10 +20,12 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.gson.Gson;
 import com.phuongdtran.investment.Investment;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.user.UserController;
 import com.phuongdtran.util.JsonUtil;
+import com.phuongdtran.util.Message;
 import com.phuongdtran.util.Path;
 import com.phuongdtran.util.ViewUtil;
 
@@ -30,35 +33,47 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 public class SigninController {
-
+	private static final Gson gson = new Gson();
+	
 	private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 	//the client ID you created for your app in the Google Developers Console
 	//https://developers.google.com/identity/sign-in/web/sign-in
 	private static final String APP_CLIENT_ID = "60643896300-nmj8u9au70jb4512hfs4ao2254e4j0t2.apps.googleusercontent.com";
 	
-	public static Route handleSigninDisplay = (Request request, Response response) -> {
-		Map<String,Object> model = new HashMap<String,Object>();
-		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
-	};
+//	public static Route handleSigninDisplay = (Request request, Response response) -> {
+//		Map<String,Object> model = new HashMap<String,Object>();
+//		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
+//	};
 
-	public static Route handleSigninPost = (Request request, Response response) -> {
-		Map<String,Object> model = new HashMap<String,Object>();
-		String username = getQueryUsername(request);
-		String password = getQueryPassword(request);
-		if ( username.contains(" ")){
-			model.put("usernameContainsSpace", true);
-		}
+	public static Route signin = (Request request, Response response) -> {
+//		Map<String,Object> model = new HashMap<String,Object>();
+		Message message = null;
+		JSONObject json = new JSONObject(request.body());
+		String username = (String)json.get("username");
+		String password = (String)json.get("password");
 		int userId = UserController.authenticate(username, password);
 		if(userId == INVALID_USER_ID){
-			model.put("authenticationFailed", true);
-		}else{
+			message = new Message("failure", "Wrong username or password");
+		} else {
 			String firstName = UserController.getFirstName(userId);
-			request.session().attribute("firstName", StringUtils.capitalize(firstName));
-			request.session().attribute("currentUserId", userId);
-			response.redirect(Path.Web.HOME);
+			message = new Message("success", firstName);
+//			return null;
 		}
-		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
+		return gson.toJson(message);
+//		if (username.contains(" ")){
+//			model.put("usernameContainsSpace", true);
+//		}
+//		int userId = UserController.authenticate(username, password);
+//		if(userId == INVALID_USER_ID){
+//			model.put("authenticationFailed", true);
+//		}else{
+//			String firstName = UserController.getFirstName(userId);
+//			request.session().attribute("firstname", StringUtils.capitalize(firstName));
+//			request.session().attribute("userid", userId);
+//			response.redirect(Path.Web.HOME);
+//		}
+//		return ViewUtil.render(request, model, Path.Templates.SIGNIN);
 	};
 	
 	public static Route fetchInvestment = (Request request, Response response) -> {
