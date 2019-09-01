@@ -43,15 +43,13 @@ const SignupForm = withRouter(({history}) => {
       }).then(response => {
         return response.json()
       }).then (json => {
+        // status is either "failure" or "success"
         if (json.status === "failure") {
-         return json.msg;
+          setMessage(json.msg)         
         }else {
           dispatch({type:'SET_USER', payload: username});
           history.push('/graph/')
-          return undefined;
         }
-      }).then (msg => {
-        setMessage(msg)
       }).catch(err => {
         console.error(err);
       });
