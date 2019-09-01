@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Paper, FormControl, Input, Button } from '@material-ui/core';
 
-import constants from './utils/Constants'
+import { Context } from '../store';
 
 // css
 import './css/Form.css'
 
 function SignupForm() {
+  
+  const {state, dispatch} = useContext(Context)
+
+
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,7 +20,9 @@ function SignupForm() {
   const [message, setMessage] = useState(undefined)
 
   const submit = () => {
-    if (password !== confirm_password) {
+    if (state.current_user) {
+      setMessage("Please log out before sign up")
+    } else if (password !== confirm_password) {
       setMessage("Password does not match")
     }else {
       let url = "http://localhost:4567/signup/";
@@ -38,6 +44,7 @@ function SignupForm() {
         if (json.status === "failure") {
          return json.msg;
         }else {
+          dispatch({type:'SET_USER', payload: username})
           return undefined;
         }
       }).then (msg => {

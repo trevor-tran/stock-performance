@@ -1,29 +1,31 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import ReactDOM from "react-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import update from 'immutability-helper';
 import moment from 'moment';
 
 //routers
-import { BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 
 // other components
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 import Header from './Header';
 
+// state management
+import { Context, initialState, reducer } from '../store'
+
 
 function MainPage() {
-  const [budget, setBudget] = useState("");
-  const [start_date, setStartDate] = useState("");
-  const [end_date, setEndDate] = useState("");
-  const [symbols, setSymbols] = useState([]);
-  const [deleted_symbol, setDeletedSymbol] = useState("");
+  const [state, dispatch] = useReducer(reducer, initialState)
+
   return (
-    <React.Fragment>
+    <Context.Provider value={{ state, dispatch }}>
       <Router>
         <Header />
         <Switch>
+          {/* https://github.com/ReactTraining/react-router/issues/4105#issuecomment-291834881 */}
+          {/* an alternative way for component is render={() => <SigninForm/>} */}
           <Route exact path="/signin/" component={SigninForm} />
           <Route exact path="/signup/" component={SignupForm} />
           <Route path="*" render={() => (
@@ -31,7 +33,7 @@ function MainPage() {
           )} />
         </Switch>
       </Router>
-    </React.Fragment>
+    </Context.Provider>
   )
 }
 
