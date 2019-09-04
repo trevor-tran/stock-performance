@@ -1,50 +1,35 @@
 package com.phuongdtran.stock;
-import static com.phuongdtran.stock.StockDao.NOT_FOUND;
-import static com.phuongdtran.util.Release.release;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
-import org.apache.http.HttpException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.http.HttpException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.URISyntaxException;
+import java.sql.*;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import static com.phuongdtran.stock.StockDao.NOT_FOUND;
+import static com.phuongdtran.util.Release.release;
+
 
 public class CacheCallable implements Callable<Void> {
 
-	// quandl api keys
-	private static final String[] apiKeys = { "GdpasDzBLtED9Y-8oDBJ", "gCex5psCGUqRBsjyXAxs"};
 	private static int index = 0;
-	//alpha vantange key
-	private static final String apiKey = "PDOGDFRY2VU8A943"; 
+	
 	private String symbol;
-	private String startDate;
-	private String endDate;
 	private Connection conn;
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public CacheCallable(String symbol, String startDate, String endDate, Connection conn) throws NullPointerException {
+	public CacheCallable(String symbol, Connection conn) throws NullPointerException {
 		this.symbol = symbol;
-		this.startDate = startDate;
-		this.endDate = endDate;
 		if(conn == null){
 			throw new NullPointerException("Connection is null");
 		}
@@ -57,9 +42,9 @@ public class CacheCallable implements Callable<Void> {
 		if(getSymbolId(symbol) == NOT_FOUND){
 			//only add ticker to SYMBOLS table and create a new table for that ticker
 			//if got data return from Quandl 
-			insertData(symbol, startDate, endDate);
+			insertData(symbol);
 		}else if(getSymbolId(symbol) != NOT_FOUND){
-			mayUpdateTable(symbol, startDate, endDate);
+			mayUpdateTable(symbol);
 		}
 		return null;
 	}
@@ -121,11 +106,11 @@ public class CacheCallable implements Callable<Void> {
 		}
 	}
 
-	private void insertData(String symbol, String startDate, String endDate){
+	private void insertData(String symbol){
 		CallableStatement cstmt = null;
 		try{
-			JsonArray quandlData = getQuandlData(symbol, startDate, endDate);
-			if(quandlData != null){
+            Map<String,JsonObject> stockData = StockAPIHandler.get(symbol);
+			if(stockData != null){
 				int symbolId = getSymbolId(symbol);
 				if(symbolId == NOT_FOUND){
 					//add new symbol to SYMBOLS table and create new table after the symbol
@@ -136,13 +121,10 @@ public class CacheCallable implements Callable<Void> {
 					cstmt.executeUpdate();
 					symbolId = getSymbolId(symbol);
 				}
-				for (JsonElement element : quandlData) {
-					//each element is [date, ticker, price, split]
-					// e.g. ["2016-12-28", "MSFT", 62.99, 2.0]
-					JsonArray e = element.getAsJsonArray();
-					String date = e.get(0).getAsString(); 
-					double price = e.get(2).getAsDouble();
-					double split = e.get(3).getAsDouble();
+				for (String date : stockData.keySet()) {
+		            JsonObject value = stockData.get(date);
+					double price = value.getAsJsonPrimitive("price").getAsDouble();
+					double split = value.getAsJsonPrimitive("split").getAsDouble();
 					//get ready to insert into table
 					String sql = String.format("INSERT INTO %s VALUES(?, ?, ?, ?)",symbol);
 					cstmt = conn.prepareCall(sql);
@@ -154,8 +136,10 @@ public class CacheCallable implements Callable<Void> {
 				}
 				updateIpoDelistingDate(symbol);
 			}
-		}catch(SQLException ex){
-			logger.error("insertData() failed." + ex.getMessage());
+		}catch(SQLException ex) {
+            logger.error("Failed to update database." + ex.getMessage());
+        }catch (IOException ex) {
+            logger.error("Failed to get data from an API service." + ex.getMessage());
 		}finally{
 			release(cstmt);
 		}
@@ -194,71 +178,5 @@ public class CacheCallable implements Callable<Void> {
 			release(pstmt,rs);
 		}
 		return NOT_FOUND;
-	}
-
-	//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
-	//https://github.com/google/gson/blob/master/UserGuide.md
-	//TODO: Quandl Wiki is no longer available
-	private JsonArray getQuandlData(String symbol, String startDate, String endDate) {
-		try{
-			URI uri = getRequestUri(symbol, startDate, endDate);
-			CloseableHttpClient httpclient = HttpClients.createDefault();
-			HttpGet request = new HttpGet(uri);
-			System.out.println("http get: " + request.getURI());//TODO: uri printing, need del later
-			ResponseHandler<Map<String,JsonObject>> rh = new QuandlResponseHandler();
-			Map<String,JsonObject> quandlResponse = httpclient.execute(request,rh);
-			//throw error message if failed to request data
-			if(quandlResponse.containsKey("failure")){
-				JsonObject error = quandlResponse.get("failure").getAsJsonObject("quandl_error");
-				String code = error.get("code").getAsString();
-				String msg = error.get("message").getAsString();
-				throw new HttpException("Quandl error code: " + code + ". Message: " + msg);
-			}else{
-				//handle data if success
-				JsonArray dataArr = quandlResponse.get("success").getAsJsonObject("datatable").getAsJsonArray("data");
-				if(dataArr.size() == 0){
-					return null;
-				}
-				return dataArr;
-			} 
-		}catch (HttpException ex){
-			logger.error("HttpException:"+ex.getMessage());
-		}catch(ClientProtocolException ex){
-			logger.error("ClientProtocolException:" + ex.getMessage());
-		}catch(IOException ex){
-			logger.error("IOException:"+ex.getMessage());	
-		}catch(URISyntaxException ex){
-			logger.error("URISyntaxException:"+ex.getMessage());	
-		}
-		return null; //TODO: may need a proper return 
-	}
-
-	//build URL to request data from Quandl
-	private URI getRequestUri(String symbol, String startDate, String endDate) throws URISyntaxException{
-		//https://docs.quandl.com/docs/parameters-1
-		URI uri = new URIBuilder()
-				.setScheme("https")
-				.setHost("quandl.com")
-				.setPath("/api/v3/datatables/WIKI/PRICES.json")
-				.setParameter("qopts.columns", "date,ticker,close,split_ratio")
-				.setParameter("date.gte", startDate)
-				.setParameter("date.lte", endDate)
-				.setParameter("ticker", symbol)
-				.setParameter("api_key", apiKeys[index++ % 2])
-				.build();
-		return uri;
-	}
-	
-	private URI getRequestUri( String symbol)throws URISyntaxException{
-		URI uri = new URIBuilder()
-				.setScheme("https")
-				.setHost("alphavantage.co")
-				.setPath("query")
-				.setParameter("function", "TIME_SERIES_DAILY_ADJUSTED")
-				.setParameter("symbol", symbol)
-				.setParameter("outputsize", "full")
-				.setParameter("apikey", apiKey)
-				.build();
-		return uri;
 	}
 }

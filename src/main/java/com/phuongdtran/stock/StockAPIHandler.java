@@ -1,19 +1,16 @@
 package com.phuongdtran.stock;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import okhttp3.*;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-//https://hc.apache.org/httpcomponents-client-ga/tutorial/html/fundamentals.html#d5e49
+/**
+ * It will decide where to get stock data from such as Quandl API or Alpha Vantage API
+ */
 public class StockAPIHandler {
 	private static final String ALPHA_VANTAGE_KEY = "PDOGDFRY2VU8A943"; 
 	private static final int HTTP_OK = 200;
