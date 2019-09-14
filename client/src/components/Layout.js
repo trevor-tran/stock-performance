@@ -12,13 +12,13 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 import Header from './Header';
-import Graph from "./Graph";
+import GraphContainer from "./GraphContainer";
 
 // state management
 import { Context, initialState, reducer } from '../store'
 
 
-function MainPage() {
+function Layout() {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   return (
@@ -31,7 +31,7 @@ function MainPage() {
           <Route exact path={urls.SIGNIN} component={SigninForm} />
           <Route exact path={urls.SIGNUP} component={SignupForm} />
           <Route exact path={urls.GRAPH} render={() => (
-          state.current_user ? (<Graph/>) : (alert("Please log in!"), (<Redirect to={urls.SIGNIN}/>)) 
+          state.current_user ? (<GraphContainer/>) : (alert("Please log in!"), (<Redirect to={urls.SIGNIN}/>)) 
           )}/>
           <Route path="*" render={() => (
             <Redirect to= {urls.SIGNIN} />
@@ -42,4 +42,4 @@ function MainPage() {
   )
 }
 
-export default MainPage;
+export default Layout;

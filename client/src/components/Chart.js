@@ -2,9 +2,10 @@ import React from "react";
 import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 import { data } from './utils/data'
+import { Paper } from "@material-ui/core";
 
 // const data = [{name: 'Page A', uv: 400, pv: 2400, amt: 2400}];
-function Graph() {
+function Chart() {
 
   // //properties
   // const data = this.props.getData;
@@ -19,7 +20,7 @@ function Graph() {
   //   lines.push(<Line type="monotone" key={symbol} dataKey={symbol} dot={false} unit=" USD" stroke={color} />);
   // });
   return (
-    <div className="graph" style={{width: "80vw", height:"60vh"}}>
+    <Paper className="graph" style={{width: "80vw", height:"60vh", margin:'auto'}}>
       <ResponsiveContainer width='100%' height='100%'>
         {/* <LineChart data={data}>
           <XAxis dataKey="date" angle={-20} textAnchor="end" height={55} />
@@ -41,8 +42,8 @@ function Graph() {
         </LineChart>
       </ResponsiveContainer>
       {/* <p>here</p> */}
-    </div>
+    </Paper>
   );
 }
 
-export default Graph;
+export default Chart;
