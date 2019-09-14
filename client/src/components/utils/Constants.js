@@ -5,6 +5,10 @@ export const urls = {
   GRAPH: '/graph/'
 }
 
+export const keys = {
+  ENTER: 13
+}
+
 export const types = {
   SET_USER : 'SET_USER',
   SET_FIRST_NAME :'SET_FIRST_NAME'

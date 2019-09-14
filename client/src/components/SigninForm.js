@@ -1,16 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { Paper, FormControl, Input, Button } from '@material-ui/core';
-import {types, urls} from './utils/Constants'
 import {withRouter} from 'react-router-dom'
 import {Context} from '../store'
 
+// constants
+import {types, urls, keys} from './utils/Constants'
 // css
 import './css/Form.css'
 
 const SigninForm = withRouter(({history}) => {
-
   const {dispatch} = useContext(Context)
-
   // local states
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +40,12 @@ const SigninForm = withRouter(({history}) => {
       console.error(err);
     });
   } 
+
+  const keyUpHandler = ({keyCode}) => {
+    if(keyCode === keys.ENTER) {
+      submit()
+    }
+  }
   return (
     <Paper className="signin-form">
         <h1 className="title">Sign In</h1>
@@ -52,6 +57,7 @@ const SigninForm = withRouter(({history}) => {
             placeholder="Enter user name" 
             required
             onChange={e => setUsername(e.target.value)}
+            onKeyUp={keyUpHandler}
           />
           <label>Password</label>
           <Input 
@@ -59,7 +65,8 @@ const SigninForm = withRouter(({history}) => {
             type="password" 
             placeholder="Enter password" 
             required
-            onChange={e => setPassword(e.target.value)} 
+            onChange={e => setPassword(e.target.value)}
+            onKeyUp={keyUpHandler} 
           />
           <Button 
             className="submit" 
