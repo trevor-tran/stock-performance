@@ -54,10 +54,10 @@ public class SigninController {
 		String password = (String)json.get("password");
 		int userId = UserController.authenticate(username, password);
 		if(userId == INVALID_USER_ID){
-			message = new Message("failure", "Wrong username or password");
+			message = new Message(false, "Wrong username or password");
 		} else {
 			String firstName = UserController.getFirstName(userId);
-			message = new Message("success", firstName);
+			message = new Message(true, firstName);
 //			return null;
 		}
 		return gson.toJson(message);

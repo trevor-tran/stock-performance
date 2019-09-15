@@ -31,12 +31,12 @@ public class SignupController {
 		// message sent back to client
 		Message message = null;
 		if (usernameExists(username)) {
-			message = new Message("failure", "Username already exists");
+			message = new Message(false, "Username already exists");
 		}else if (!isPasswordComplex(password)) {
-			message = new Message("failure", "Password is not complex");
+			message = new Message(false, "Password is not complex");
 		}else{
 			addUser(firstName, lastName, email, username, password);
-			message = new Message("success", "ok");
+			message = new Message(false, "ok");
 		}
 		return gson.toJson(message);
 	};

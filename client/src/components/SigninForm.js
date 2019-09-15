@@ -10,38 +10,46 @@ import './css/Form.css'
 
 const SigninForm = withRouter(({history}) => {
   const {dispatch} = useContext(Context)
-  // local states
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const initialState = {
+    username: null,
+    password: null,
+    message: null,
+    is_submiting: false
+  }
+  const [data, setData] = useState(initialState);
+
 
   const submit = () => {
+    setData({...data, is_submiting:true})
     let url = urls.SERVER_URL + urls.SIGNIN;
     fetch(url, {
       method: 'POST',
       body: JSON.stringify({
-        'username': username,
-        'password': password
+        'username': data.username,
+        'password': data.password
       })
     }).then (response => {
-      return response.json();
+      if (response.ok) {
+        return response.json();
+      }
+      throw response
     }).then (json => {
-      // status is either "failure" or "success"
-      if (json.status === "failure") {
-        // fail!!! server sends back error message
-        setMessage(json.msg)
-      } else {
-        // success! server sends back user first name
-        dispatch({type: types.SET_USER, payload: username})
-        dispatch({type: types.SET_FIRST_NAME, payload: json.msg})
+      if (json.success) {
+        dispatch({type: types.LOGIN, payload: {user: data.username, token:"token", first_name: json.msg}})
         history.push(urls.GRAPH)
+      } else {
+        throw json
       }
     }).catch (err => {
-      console.error(err);
+      setData({...data, is_submiting: false, message: err.msg || err.statusText})
     });
-  } 
+  }
+  
+  const handleInputChange = (e) => {
+    setData({...data, [e.target.name]: e.target.value})
+  }
 
-  const keyUpHandler = ({keyCode}) => {
+  const handleKeyUp = ({keyCode}) => {
     if(keyCode === keys.ENTER) {
       submit()
     }
@@ -49,26 +57,29 @@ const SigninForm = withRouter(({history}) => {
   return (
     <Paper className="signin-form">
         <h1 className="title">Sign In</h1>
-        { message ? (<p style={{color:"red"}}>{message}</p>) : null}
+        { data.message ? (<p style={{color:"red"}}>{data.message}</p>) : null}
         <FormControl>
           <label>Username</label>
           <Input 
+            name="username"
             className="text-field" 
             placeholder="Enter user name" 
             required
-            onChange={e => setUsername(e.target.value)}
-            onKeyUp={keyUpHandler}
+            onChange={handleInputChange}
+            onKeyUp={handleKeyUp}
           />
           <label>Password</label>
           <Input 
+          name="password"
             className="text-field" 
             type="password" 
             placeholder="Enter password" 
             required
-            onChange={e => setPassword(e.target.value)}
-            onKeyUp={keyUpHandler} 
+            onChange={handleInputChange}
+            onKeyUp={handleKeyUp} 
           />
           <Button 
+            disabled={data.is_submiting}
             className="submit" 
             variant="contained" 
             color="primary"

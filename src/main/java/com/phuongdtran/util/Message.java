@@ -1,11 +1,11 @@
 package com.phuongdtran.util;
 
 public class Message {
-	private String status;
+	private boolean success;
 	private String msg;
 	
-	public Message(String status, String msg) {
-		this.status = status;
+	public Message(boolean success, String msg) {
+		this.success = success;
 		this.msg = msg;
 	}
 }

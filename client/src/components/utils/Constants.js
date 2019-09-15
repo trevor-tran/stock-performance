@@ -10,6 +10,6 @@ export const keys = {
 }
 
 export const types = {
-  SET_USER : 'SET_USER',
-  SET_FIRST_NAME :'SET_FIRST_NAME'
+  LOGIN : 'LOGIN',
+  LOGOUT : 'LOGOUT'
 }
