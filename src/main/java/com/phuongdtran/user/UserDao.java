@@ -1,5 +1,6 @@
 package com.phuongdtran.user;
 
+import com.google.gson.Gson;
 import com.phuongdtran.executor.IExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,11 @@ public class UserDao implements IUserDao{
 	private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private IExecutor executor;
 	private boolean isOpen;
-
+	private Gson gson;
 	public UserDao( IExecutor executor) {
 		this.executor = executor;
 		isOpen = false;
+		gson = new Gson();
 	}
 
 	@Override
@@ -46,12 +48,24 @@ public class UserDao implements IUserDao{
 	@Override
 	public String getFirstName(String username) throws SQLException {
 		connectionOpened();
+		String query = "MATCH (u:User) WHERE u.username=$username RETURN u.firstName as firstname";
+		Iterator<Map<String, Object>> iterator = executor.query(query, map("username", username));
+		if (iterator.hasNext()) {
+			Map<String, Object> firstName = map(iterator.next());
+			return firstName.get("firstname").toString();
+		}
 		return null;
 	}
 
 	@Override
 	public Password getPassword(String username) throws SQLException {
 		connectionOpened();
+		String query = "MATCH (u:User) WHERE u.username=$username RETURN u.hash as hash, u.salt as salt";
+		Iterator<Map<String, Object>> iterator = executor.query(query, map("username", username));
+		if (iterator.hasNext()) {
+			Map<String, Object> credentials = map(iterator.next());
+			return new Password(credentials.get("salt").toString(), credentials.get("hash").toString());
+		}
 		return null;
 	}
 

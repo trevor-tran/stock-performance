@@ -43,7 +43,6 @@ public class SigninController {
 //	};
 
 	public static Route signin = (Request request, Response response) -> {
-//		Map<String,Object> model = new HashMap<String,Object>();
 		Message message = null;
 		JSONObject json = new JSONObject(request.body());
 		String username = (String)json.get("username");

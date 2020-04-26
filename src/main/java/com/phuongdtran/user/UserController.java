@@ -18,8 +18,7 @@ public class UserController {
 		UserDao userDao = new UserDao(new CytherExecutor());
 		try{
 			userDao.open();
-			boolean doesExist =  userDao.exists(username);
-			return doesExist;
+			return userDao.exists(username);
 		}catch(SQLException ex){
 			logger.error("usernameExists() failed." + ex.getMessage());
 			return false;
@@ -37,7 +36,7 @@ public class UserController {
 			logger.error("getFirstName() failed." + ex.getMessage());
 			return null;
 		}finally{
-//			userDao.close();
+			userDao.close();
 		}
 	}
 

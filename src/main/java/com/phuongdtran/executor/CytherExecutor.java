@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+
 import static org.neo4j.driver.Values.parameters;
 
 /**
@@ -55,6 +57,20 @@ public class CytherExecutor implements IExecutor {
         final Result result = session.run(query, params);
         return new ResultIterator(result);
     }
+
+
+    @Override
+    public boolean create(String query, Map<String, Object> params) {
+        return session.writeTransaction( tx ->  {
+            try {
+                tx.run(query, params);
+                return true;
+            }catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
 
     static class ResultIterator implements Iterator<Map<String, Object>> {
         private Result result;
@@ -130,22 +146,6 @@ public class CytherExecutor implements IExecutor {
 //            return null;
 //        }
 //    }
-
-    @Override
-    public boolean create(String query, Map<String, Object> params) {
-        PreparedStatement statement = null;
-        try {
-            statement = conn.prepareStatement(query);
-            setParameters(statement, params);
-            return statement.executeUpdate() > 0;
-        } catch (SQLException ex) {
-            logger.error(ex.getMessage());
-            refreshConnection();
-            return false;
-        } finally {
-            ReleaseStatement.release(statement);
-        }
-    }
 
     private void refreshConnection(){
         ConnectionManager.getInstance().releaseConnection(conn);

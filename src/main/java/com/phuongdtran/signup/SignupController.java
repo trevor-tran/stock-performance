@@ -36,7 +36,7 @@ public class SignupController {
 					.email(email)
 					.build();
 			UserController.add(user);
-			message = new Message(false, "ok");
+			message = new Message(true, "ok");
 		}
 		return gson.toJson(message);
 	};
