@@ -1,5 +1,5 @@
 package com.phuongdtran.investment;
-import static com.phuongdtran.util.Release.release;
+import static com.phuongdtran.util.ReleaseStatement.release;
 
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;

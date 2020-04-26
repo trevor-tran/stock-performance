@@ -43,7 +43,8 @@ public class DatabaseConnection {
 		try {
 			// pre-load the mysql driver class, before we start using JDBC calls
 			//   https://dev.mysql.com/doc/connector-j/5.1/en/connector-j-usagenotes-connect-drivermanager.html
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
+//			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			Class.forName("org.neo4j.jdbc.Driver").newInstance();
 			getDbSettings();
 		} catch (Exception ex) {
 			logger.error("cannot initialize database connection:"+ ex.getMessage());
@@ -54,7 +55,8 @@ public class DatabaseConnection {
 	{
 		try {
 			String sslParam = useSSL ? "" : "?useSSL=false";
-			return DriverManager.getConnection("jdbc:mysql://" + hostname + ":" + port + "/" + dbName + sslParam, userName, password);
+//			return DriverManager.getConnection("jdbc:mysql://" + hostname + ":" + port + "/" + dbName + sslParam, userName, password);
+			return DriverManager.getConnection("jdbc:neo4j:http://" + hostname + ":" + port, userName, password);
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
 			logger.error("SQLState: " + ex.getSQLState());

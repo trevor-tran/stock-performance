@@ -8,7 +8,7 @@ import { withRouter } from 'react-router-dom'
 import './css/Form.css'
 
 const SignupForm = withRouter(({history}) => {
-  
+
   const {state, dispatch} = useContext(Context)
 
   // local states
@@ -46,7 +46,7 @@ const SignupForm = withRouter(({history}) => {
       }).then (json => {
         // status is either "failure" or "success"
         if (json.status === "failure") {
-          setMessage(json.msg)         
+          setMessage(json.msg)
         }else {
           dispatch({type: types.SET_USER, payload: username});
           history.push(urls.GRAPH)

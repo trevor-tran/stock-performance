@@ -13,6 +13,14 @@
 				</manifest> </archive> <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
 				</descriptorRefs> </configuration> </plugin> -->
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<archive>
@@ -72,7 +80,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.6</version>
+			<version>1.18.12</version>
 		</dependency>
 
 		<dependency>
@@ -123,5 +131,31 @@
 			<artifactId>json</artifactId>
 			<version>20180130</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.2.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.neo4j/neo4j-jdbc-driver -->
+<!--		<dependency>-->
+<!--			<groupId>org.neo4j</groupId>-->
+<!--			<artifactId>neo4j-jdbc-driver</artifactId>-->
+<!--			<version>3.1.0</version>-->
+<!--		</dependency>-->
+		<!-- https://mvnrepository.com/artifact/org.neo4j/neo4j-collections -->
+		<dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-collections</artifactId>
+			<version>3.0.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver -->
+		<dependency>
+			<groupId>org.neo4j.driver</groupId>
+			<artifactId>neo4j-java-driver</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+
 	</dependencies>
 </project>

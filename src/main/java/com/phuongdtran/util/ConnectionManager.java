@@ -49,5 +49,4 @@ public class ConnectionManager {
 			DbUtils.closeQuietly(conn);
 		}
 	}
-
 }

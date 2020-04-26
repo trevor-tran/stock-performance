@@ -1,24 +1,25 @@
 package com.phuongdtran.user;
 
-import static com.phuongdtran.user.UserDao.INVALID_USER_ID;
-
-import java.lang.invoke.MethodHandles;
-import java.sql.SQLException;
-
+import com.phuongdtran.executor.CytherExecutor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import java.lang.invoke.MethodHandles;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UserController {
 
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static boolean usernameExists( String username){
-		UserDao userDao = null;
+	public static boolean exists(String username){
+		UserDao userDao = new UserDao(new CytherExecutor());
 		try{
-			userDao = new UserDao();
-			return userDao.getUserId(username) != INVALID_USER_ID;
+			userDao.open();
+			boolean doesExist =  userDao.exists(username);
+			return doesExist;
 		}catch(SQLException ex){
 			logger.error("usernameExists() failed." + ex.getMessage());
 			return false;
@@ -27,47 +28,62 @@ public class UserController {
 		}
 	}
 
-	public static String getFirstName(int userId){
-		UserDao userDao = null;
+	public static String getFirstName(String username){
+		UserDao userDao = new UserDao(new CytherExecutor());
 		try{
-			userDao = new UserDao();
-			//TODO: possible to have invalid userId,maybe need "if"
-			return userDao.getUserFirstName(userId);
+			userDao.open();
+			return userDao.getFirstName(username);
 		}catch(SQLException ex){
 			logger.error("getFirstName() failed." + ex.getMessage());
-			return "";
+			return null;
+		}finally{
+//			userDao.close();
+		}
+	}
+
+	public static boolean authenticate(String username, String passphrase){
+		UserDao userDao = new UserDao(new CytherExecutor());
+		try{
+			userDao.open();
+			if (username.isEmpty() || passphrase.isEmpty()){
+				return false;
+			}
+			if (!userDao.exists(username)) {
+				return false;
+			}
+			Password password = userDao.getPassword(username);
+			return password.matches(passphrase);
+		}catch(SQLException ex){
+			logger.error("authenticate() failed." + ex.getMessage());
+			return false;
+		}finally{
+			userDao.close();
+		}
+	}
+
+	public static void add(User user){
+		UserDao userDao = new UserDao(new CytherExecutor());
+		try{
+			userDao.open();
+			userDao.add(user);
+		}catch(SQLException ex){
+			logger.error("addUser() failed." + ex.getMessage());
 		}finally{
 			userDao.close();
 		}
 	}
 
 	/**
-	 * @param username
-	 * @param password
-	 * @return <i>-1</i> if authentication failed, <i>user_id</i> if succeeded
-	 * @throws Exception
+	 * Check if password contains at least one lower case letter,
+	 * one upper case letter, one number, and length of at least eight.
+	 * @see <a href ="http://stackoverflow.com/questions/3802192/regexp-java-for-password-validation">link</a>
+	 * @param passphrase
+	 * @return <i>true</i> if password is complex, <i>false</i> if not
 	 */
-	public static int authenticate(String username, String password){
-		UserDao userDao = null;
-		try{
-			userDao = new UserDao();
-			if( username.isEmpty() || password.isEmpty() ){
-				return INVALID_USER_ID;
-			}
-			int userId = userDao.getUserId(username);
-			if(userId == INVALID_USER_ID){
-				return INVALID_USER_ID;
-			}
-			else{
-				Password signingInUser = userDao.getSigninCredentials(userId);
-				return signingInUser.matches(password) ? userId : INVALID_USER_ID;
-			}
-		}catch(SQLException ex){
-			logger.error("authenticate() failed." + ex.getMessage());
-			return INVALID_USER_ID;
-		}finally{
-			userDao.close();
-		}
+	public static boolean isComplex(String passphrase) {
+		Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
+		Matcher matcher = pattern.matcher(passphrase);
+		return matcher.matches();
 	}
 
 	/**
@@ -75,49 +91,29 @@ public class UserController {
 	 * @param payload
 	 * @return userID in database table
 	 */
-	public static int addGoogleAndGetId(Payload payload) {
-		UserDao userDao = null;
-		try{
-			userDao = new UserDao(); 
-			//e.g gUserIdentifier == "212312312312321"
-			String gUserIdentifier = payload.getSubject();
-			// username is gUserIdentifier
-			int userId = userDao.getUserId(gUserIdentifier); 
-			if( userId == INVALID_USER_ID){
-				String email = payload.getEmail();
-				String firstName = (String)payload.get("given_name");
-				String lastName = (String)payload.get("family_name");
-				userDao.addGoogleUser(gUserIdentifier, firstName, lastName, email);
-				userId = userDao.getUserId(gUserIdentifier);
-			}
-			return userId;
-		}catch(SQLException ex){
-			logger.error("addUser() failed." + ex.getMessage());
-			return INVALID_USER_ID;
-		}finally{
-			userDao.close();
-		}
-	}
+//	public static int addGoogleAndGetId(Payload payload) {
+//		UserDao userDao = null;
+//		try{
+//			userDao = new UserDao();
+//			//e.g gUserIdentifier == "212312312312321"
+//			String gUserIdentifier = payload.getSubject();
+//			// username is gUserIdentifier
+//			int userId = userDao.getUserId(gUserIdentifier);
+//			if( userId == INVALID_USER_ID){
+//				String email = payload.getEmail();
+//				String firstName = (String)payload.get("given_name");
+//				String lastName = (String)payload.get("family_name");
+//				userDao.addGoogleUser(gUserIdentifier, firstName, lastName, email);
+//				userId = userDao.getUserId(gUserIdentifier);
+//			}
+//			return userId;
+//		}catch(SQLException ex){
+//			logger.error("addUser() failed." + ex.getMessage());
+//			return INVALID_USER_ID;
+//		}finally{
+//			userDao.close();
+//		}
+//	}
 
-	/**
-	 * Hash password and create a new user in database
-	 * @param firstName
-	 * @param lastName
-	 * @param email
-	 * @param username
-	 * @param password
-	 * @throws Exception
-	 */
-	public static void addUser(String firstName,String lastName,String email, String username,String password){
-		UserDao userDao = null;
-		try{
-			userDao = new UserDao();
-			Password newPassword = new Password(password);
-			userDao.addUser(firstName, lastName, email, username, newPassword.getSalt(), newPassword.getHashedPassword());;
-		}catch(SQLException ex){
-			logger.error("addUser() failed." + ex.getMessage());
-		}finally{
-			userDao.close();
-		}
-	}	
+
 }

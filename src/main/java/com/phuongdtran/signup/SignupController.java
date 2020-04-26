@@ -1,16 +1,11 @@
 package com.phuongdtran.signup;
 
-import static com.phuongdtran.user.UserController.addUser;
-import static com.phuongdtran.user.UserController.usernameExists;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONObject;
-
 import com.google.gson.Gson;
+import com.phuongdtran.user.Password;
+import com.phuongdtran.user.User;
+import com.phuongdtran.user.UserController;
 import com.phuongdtran.util.Message;
-
+import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -27,30 +22,22 @@ public class SignupController {
 		String lastName = (String)json.get("lastname");
 		String email = (String)json.get("emailaddress");
 		String username = (String)json.get("username");
-		String password = (String)json.get("password");
+		String passphrase = (String)json.get("password");
 		// message sent back to client
 		Message message = null;
-		if (usernameExists(username)) {
+		if (UserController.exists(username)) {
 			message = new Message(false, "Username already exists");
-		}else if (!isPasswordComplex(password)) {
+		}else if (!UserController.isComplex(passphrase)) {
 			message = new Message(false, "Password is not complex");
 		}else{
-			addUser(firstName, lastName, email, username, password);
+			User user = new User.Builder(username, new Password(passphrase))
+					.firstName(firstName)
+					.lastName(lastName)
+					.email(email)
+					.build();
+			UserController.add(user);
 			message = new Message(false, "ok");
 		}
 		return gson.toJson(message);
 	};
-	
-	/**
-	 * Check if password contains at least one lower case letter,
-	 * one upper case letter, one number, and length of at least eight.
-	 * @see <a href ="http://stackoverflow.com/questions/3802192/regexp-java-for-password-validation">link</a>
-	 * @param password
-	 * @return <i>true</i> if password is complex, <i>false</i> if not
-	 */
-	private static boolean isPasswordComplex(String password) {
-		Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$");
-		Matcher matcher = pattern.matcher(password);
-		return matcher.matches();
-	}
 }

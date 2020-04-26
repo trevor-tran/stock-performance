@@ -1,30 +1,18 @@
 package com.phuongdtran.stock;
 
-import static com.phuongdtran.util.Release.release;
-
-import java.lang.invoke.MethodHandles;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ThreadPoolExecutor;
-
+import com.phuongdtran.util.ConnectionManager;
+import com.phuongdtran.util.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.phuongdtran.util.ConnectionManager;
-import com.phuongdtran.util.ThreadPool;
+import java.lang.invoke.MethodHandles;
+import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import static com.phuongdtran.util.ReleaseStatement.release;
 public class StockDao {
 
 
@@ -49,20 +37,21 @@ public class StockDao {
 	public static Map<String,List<Stock>> getData(Set<String> symbols, String startDate, String endDate) {
 		try{
 			getConnection();
-			String symbol = "";//holding a symbol in Set in case only need query data for one symbol
-			if(prevSymbols.isEmpty()){
-				prevSymbols.addAll(symbols);
-			} else{
-				symbols.removeAll(prevSymbols);
-				if(symbols.iterator().hasNext()){ 
-					symbol = symbols.iterator().next();
-					prevSymbols.add(symbol);
-				}
-			}
-			//TODO: why should I have following two lines?
-			prevStartDate = startDate;
-			prevEndDate = endDate;
-			updateStockCache();
+//			String symbol = "";//holding a symbol in Set in case only need query data for one symbol
+//			if(prevSymbols.isEmpty()){
+//				prevSymbols.addAll(symbols);
+//			} else{
+//				symbols.removeAll(prevSymbols);
+//				if(symbols.iterator().hasNext()){
+//					symbol = symbols.iterator().next();
+//					prevSymbols.add(symbol);
+//				}
+//			}
+//			//TODO: why should I have following two lines?
+//			prevStartDate = startDate;
+//			prevEndDate = endDate;
+			String symbol = null;
+			updateStockCache(symbols, startDate, endDate);
 			String[] ipoDelisting = getMutualIpoDelisting(prevSymbols);
 			if ( !Objects.equals(mutualIpo, ipoDelisting[0]) || !Objects.equals(mutualIpo, ipoDelisting[1])){
 				mutualIpo = ipoDelisting[0];
@@ -116,27 +105,23 @@ public class StockDao {
 	 * @throws SQLException
 	 */
 	private static void getConnection() throws SQLException {
-		//if(conn == null){ //TODO: why get error "connection closed" with this "if"
 		conn = ConnectionManager.getInstance().getConnection();
 		if (conn == null){
 			throw new SQLException("Could not make a connection to database");
-			//}
 		}
 	}
 
 	/**
-	 * @param startDate
-	 * @param endDate<br>
 	 * Referenced at <a href="http://www.baeldung.com/java-executor-wait-for-threads">http://www.baeldung.com</a>
 	 */
-	private static void updateStockCache() { //TODO: tables not updated when date changed
+	private static void updateStockCache(Set<String> symbols, String startDate, String endDate) {
 		ThreadPoolExecutor executor = ThreadPool.getInstance();
-		List<CacheCallable> callables = new ArrayList<CacheCallable>();
+		List<CacheCallable> updateDBCalls = new ArrayList<CacheCallable>();
 		try{
-			for(String s : prevSymbols){
-				callables.add(new CacheCallable(s, prevStartDate, prevEndDate, conn));
+			for(String symbol : symbols){
+//				updateDBCalls.add(new CacheCallable(symbol, conn));
 			}
-			executor.invokeAll(callables);
+			executor.invokeAll(updateDBCalls);
 		}catch( InterruptedException ex) {
 			logger.error("updateStockCache() failed." + ex.getMessage());
 		}catch( NullPointerException ex){

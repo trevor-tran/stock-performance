@@ -9,7 +9,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Release {
+public class ReleaseStatement {
 	
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	

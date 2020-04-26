@@ -11,10 +11,7 @@ import com.phuongdtran.home.HomeController;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.signup.SignupController;
-import com.phuongdtran.util.DatabaseConnection;
-import com.phuongdtran.util.Filters;
-import com.phuongdtran.util.Path;
-import com.phuongdtran.util.ViewUtil;
+import com.phuongdtran.util.*;
 
 
 public class StockApplication {
@@ -23,6 +20,7 @@ public class StockApplication {
 
 
 		DatabaseConnection.initialize();
+		Neo4jConnection.initialize();
 
 		//configure Spark
 		port(4567);
@@ -57,7 +55,7 @@ public class StockApplication {
 		get(Path.Web.HOME,  	     					HomeController.handleHomeDisplay);
 		post(Path.Web.STOCKDATA,	"application/json", HomeController.fetchData);
 		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
-		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
+//		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
 		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
 		post(Path.Web.SIGNIN, 							SigninController.signin);
 		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
