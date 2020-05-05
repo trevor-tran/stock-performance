@@ -28,7 +28,7 @@ public class SummaryCallable implements Callable<Map<String,String>>{
 		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
 		for(Stock stock : firstEntry) {
 			double quantity = investment / stock.getPrice(); 
-			quantityOfStocks.put(stock.getTicker(), quantity);
+			quantityOfStocks.put(stock.getSymbol(), quantity);
 		}
 		return quantityOfStocks;
 	}

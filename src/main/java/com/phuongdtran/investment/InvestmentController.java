@@ -99,7 +99,7 @@ public class InvestmentController {
 			investmentDao.removeSymbol(userId,symbol);
 			//remove symbol in session attribute
 			getSessionInvestment(request).removeSymbol(symbol);
-			StockDao.remove(symbol);
+//			StockDao.remove(symbol);
 			response.status(200);
 		}catch(SQLException ex){
 			logger.error("removeSymbol() failed." + ex.getMessage());

@@ -1,6 +1,8 @@
 package com.phuongdtran.stock;
 
 
+import lombok.Getter;
+
 /**
  * Three fields: <b>ticker, price, split</b> <br>
  * <b>ticker</b> is stock symbol such as <i>MSFT,GOOGL</i> <br>
@@ -10,28 +12,22 @@ package com.phuongdtran.stock;
  *
  */
 public class Stock {
-	private String ticker;
+	@Getter
+	private String symbol;
+	@Getter
+	private String date;
+	@Getter
 	private double price;
+	@Getter
 	private double split;
+	@Getter
+	private double dividend;
 	
-	public Stock(String ticker, double price, double split){
-		this.ticker = ticker;
+	public Stock(String symbol, String date, double price, double split, double dividend){
+		this.symbol = symbol;
+		this.date = date;
 		this.price = price;
 		this.split = split;
+		this.dividend = dividend;
 	}
-
-	public String getTicker() {
-		return ticker;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public double getSplit() {
-		return split;
-	}
-	
-	
-
 }

@@ -35,6 +35,7 @@ public class UserDao implements IUserDao{
 	@Override
 	public void close() {
 		executor.close();
+		isOpen = false;
 	}
 
 	@Override

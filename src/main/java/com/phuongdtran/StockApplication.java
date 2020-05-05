@@ -11,6 +11,7 @@ import com.phuongdtran.home.HomeController;
 import com.phuongdtran.investment.InvestmentController;
 import com.phuongdtran.signin.SigninController;
 import com.phuongdtran.signup.SignupController;
+import com.phuongdtran.stock.StockController;
 import com.phuongdtran.util.*;
 
 
@@ -52,16 +53,16 @@ public class StockApplication {
 		before("*", Filters.addTrailingSlashes);
 
 		// Set up routes
-		get(Path.Web.HOME,  	     					HomeController.handleHomeDisplay);
-		post(Path.Web.STOCKDATA,	"application/json", HomeController.fetchData);
-		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
+//		get(Path.Web.HOME,  	     					HomeController.handleHomeDisplay);
+		post(Path.Web.DATA,	"application/json", StockController.getData);
+//		get(Path.Web.SUMMARY,		"application/json", HomeController.fetchSummary);
 //		post(Path.Web.GOOGLESIGNIN,						SigninController.handleGoogleSignin);
 		get(Path.Web.SIGNIN,		"application/json",	SigninController.fetchInvestment);
 		post(Path.Web.SIGNIN, 							SigninController.signin);
 		post(Path.Web.SIGNOUT, 							SigninController.handleSignoutPost);
 		post(Path.Web.SIGNUP, 							SignupController.signup);
 		post(Path.Web.REMOVESYMBOL,						InvestmentController.removeSymbol);
-		get("*", 					ViewUtil.notFound);
+//		get("*", 					ViewUtil.notFound);
 
 		//after(Path.Web.HOME,       Filters.addGzipHeader);
 	}

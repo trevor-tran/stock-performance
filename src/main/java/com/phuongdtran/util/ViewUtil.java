@@ -32,10 +32,10 @@ public class ViewUtil {
         return "No suitable content found. Please specify either 'html/text' or 'application/json'.";
     };
     
-	public static Route notFound = (Request request, Response response) -> {
-		response.status(HttpStatus.NOT_FOUND_404);
-		return render(request, new HashMap<>(), Path.Templates.NOT_FOUND); 
-	};
+//	public static Route notFound = (Request request, Response response) -> {
+//		response.status(HttpStatus.NOT_FOUND_404);
+//		return render(request, new HashMap<>(), Path.Templates.NOT_FOUND);
+//	};
 	
 	private static VelocityTemplateEngine strictVelocityEngine() {
         VelocityEngine configuredEngine = new VelocityEngine();

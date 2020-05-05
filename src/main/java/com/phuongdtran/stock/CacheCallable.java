@@ -10,8 +10,6 @@ import java.sql.*;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import static com.phuongdtran.stock.StockDao.NOT_FOUND;
-import static com.phuongdtran.util.ReleaseStatement.release;
 
 
 public class CacheCallable implements Callable<Void> {
