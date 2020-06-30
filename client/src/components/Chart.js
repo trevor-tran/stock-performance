@@ -31,8 +31,8 @@ function Chart() {
 
     // there are TWO actions changing state.symbols
     // a symbol is either added to the list or removed from the list
-
-    if (!Array.isArray(state.symbols) || state.symbols.length == 0) {
+    const {symbols} = state;
+    if (!Array.isArray(symbols) || symbols.length == 0) {
       setParsedData([]);
     } else if (parsedData.length > state.symbols.length) {
       // a symbol removed from state.symbols, therefore corresponding stock data in parsedData also need removed
@@ -40,7 +40,7 @@ function Chart() {
       console.log("a symbol removed")
       const parsedDataAfterSymbolRemoved = [];
       parsedData.forEach(obj => {
-        if (state.symbols.includes(obj.symbol)) {
+        if (symbols.includes(obj.symbol)) {
           const copy = {...obj};
           parsedDataAfterSymbolRemoved.push(copy);
         }
@@ -54,7 +54,7 @@ function Chart() {
       fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-          symbols: state.symbols
+          symbols: symbols
         }),
         headers: {
           'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ function Chart() {
 
       }).then(json => {
         if (json.success) {
-          setParsedData(dataParser(state.symbols, JSON.parse(json.msg)));
+          setParsedData(dataParser(symbols, JSON.parse(json.msg)));
         } else {
           throw json.msg;
         }
@@ -77,6 +77,9 @@ function Chart() {
   // data fetched from server is in different format from what expected to use in Rechart
   // reference utils/data.js to see sample data used in Rechart.
   // this function parses server-format data to Rechart-format data
+  // @params:
+  //      json: json data got from server
+  //      list of symbols looked up in json
   const dataParser = (symbols, json) => {
     let parsedData = [];
     symbols.map(symbol => {
@@ -84,11 +87,17 @@ function Chart() {
       let stockInfoForASymbol = new Object();
       stockInfoForASymbol["symbol"] = symbol;
       stockInfoForASymbol["data"] = new Array();
-      data.map(oneday => {
-        const formatedDate = moment(oneday.date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
-        stockInfoForASymbol["data"].push({ date: formatedDate, value: Number(oneday.price) });
-      });
+      data.map(oneday =>
+        stockInfoForASymbol["data"].push({ date: oneday.date, value: Number(oneday.price) })
+      );
+
+      // since date is in YYYY-MM-DD format, sort it before changing to user-friendly date format
       stockInfoForASymbol["data"].sort((o1, o2) => o1.date.localeCompare(o2.date));
+
+      // change to user-friendly date format
+      stockInfoForASymbol["data"].forEach (obj => {
+        obj.date = moment(obj.date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
+      });
       parsedData.push(stockInfoForASymbol);
     })
     return parsedData;
