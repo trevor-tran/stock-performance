@@ -29,11 +29,9 @@ public class StockManager {
         Map<String, List<Stock>> data = new HashMap<>();
         for (String symbol: symbols) {
             Map<String, JsonObject> raw = StockAPIHandler.get(symbol);
-            if (data != null) {
+            if (raw != null) {
                 List<Stock> stocks = new ArrayList<>();
-                Iterator<Map.Entry<String, JsonObject>> iter = raw.entrySet().iterator();
-                while (iter.hasNext()) {
-                    Map.Entry<String, JsonObject> entry = iter.next();
+                for (Map.Entry<String, JsonObject> entry : raw.entrySet()) {
                     JsonElement price = entry.getValue().getAsJsonPrimitive("price");
                     JsonElement dividend = entry.getValue().getAsJsonPrimitive("dividend");
                     JsonElement split = entry.getValue().getAsJsonPrimitive("split");

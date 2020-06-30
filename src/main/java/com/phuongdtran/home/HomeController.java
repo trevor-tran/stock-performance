@@ -1,25 +1,25 @@
 package com.phuongdtran.home;
 
-import static com.phuongdtran.stock.StockController.getSummary;
-import static com.phuongdtran.util.JsonUtil.dataToJson;
-import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
-import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
-import static com.phuongdtran.util.RequestUtil.getSessionInvestment;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.phuongdtran.investment.Investment;
-import com.phuongdtran.investment.InvestmentController;
-import com.phuongdtran.signin.SigninController;
-import com.phuongdtran.stock.StockController;
-import com.phuongdtran.stock.SummaryAttribute;
-import com.phuongdtran.util.Path;
-import com.phuongdtran.util.ViewUtil;
-
-import spark.Request;
-import spark.Response;
-import spark.Route;
+//import static com.phuongdtran.stock.StockController.getSummary;
+//import static com.phuongdtran.util.JsonUtil.dataToJson;
+//import static com.phuongdtran.util.RequestUtil.clientAcceptsHtml;
+//import static com.phuongdtran.util.RequestUtil.clientAcceptsJson;
+//import static com.phuongdtran.util.RequestUtil.getSessionInvestment;
+//
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//import com.phuongdtran.investment.Investment;
+//import com.phuongdtran.investment.InvestmentController;
+//import com.phuongdtran.signin.SigninController;
+//import com.phuongdtran.stock.StockController;
+//import com.phuongdtran.stock.SummaryAttribute;
+//import com.phuongdtran.util.Path;
+//import com.phuongdtran.util.ViewUtil;
+//
+//import spark.Request;
+//import spark.Response;
+//import spark.Route;
 public class HomeController {
 
 //	public static Route handleHomeDisplay = (Request request, Response response) -> {

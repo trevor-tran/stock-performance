@@ -4,9 +4,11 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.phuongdtran.executor.CytherExecutor;
 import com.phuongdtran.util.Message;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +19,6 @@ import spark.Route;
 
 public class StockController {
 
-	//private static List<SummaryAttribute> summaryList;
-	private static Map<String,SummaryAttribute> summary;
 	private static String start;//from
 	private static String end;//to
 	final static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -26,16 +26,21 @@ public class StockController {
 	private static final StockManager stockManager = StockManager.getInstance();
 
 	public static Route getData = (Request request, Response response) -> {
-		StockDao stockDao = new StockDao(new CytherExecutor());
-		Message message = null;
+		Message message;
 		JSONObject json = new JSONObject(request.body());
-		String symbol = (String)json.get("symbol");
-		Map<String, List<Stock>> stockData = stockManager.get(new ArrayList<>(Arrays.asList(symbol)));
+		JSONArray jsonSymbols = json.getJSONArray("symbols");
+		List<String> symbols = new ArrayList<>();
+		for (int i = 0; i < jsonSymbols.length(); i++) {
+			symbols.add(jsonSymbols.getString(i));
+		}
+		Map<String, List<Stock>> stockData = stockManager.get(symbols);
 //		String password = (String)json.get("password");
 		if (stockData.size() == 0) {
 			message = new Message(false, "Cannot get data");
+		} else {
+			message = new Message(true, gson.toJson(stockData));
 		}
-		return gson.toJson(stockData);
+		return gson.toJson(message);
 	};
 
 //	public static Map<String,Map<String,Double>> getData(long budget, String startDate,String endDate, Set<String> symbols) {
@@ -76,45 +81,42 @@ public class StockController {
 //		StockDao.close();
 //		return balances;
 //	}
-	
-	public static Map<String,SummaryAttribute> getSummary(){
-		return summary;
-	}
 
-	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
-		Map<String,Double> singleDayBalances = new HashMap<String,Double>();
-		for (Stock stock : stockList){
-			if(stock.getSplit() != 1d){
-				double numberOfShares = quantities.get(stock.getSymbol());
-				numberOfShares = numberOfShares * stock.getSplit();
-				//update the quantity corresponding to each stock in quantityOfStocks
-				quantities.put(stock.getSymbol(), numberOfShares);
-			}
-			double balance = round(quantities.get(stock.getSymbol()) * stock.getPrice(), 2);
-			singleDayBalances.put(stock.getSymbol(), balance);
-		}
-		return singleDayBalances;
-	}
 
-	private static Map<String,Double> computeQuantity (long budget, List<Stock> firstEntry) {
-		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
-		for(Stock stock : firstEntry) {
-			double quantity = budget / stock.getPrice();
-			quantityOfStocks.put(stock.getSymbol(), quantity);
-			
-			//summary
-			SummaryAttribute sa = new SummaryAttribute();
-			sa.setStartPrice(stock.getPrice());
-			sa.setStartBalance(budget);
-			sa.setStartQuantity(quantity);
-			summary.put(stock.getSymbol(), sa);
-		}
-		return quantityOfStocks;
-	}
-	
-	// round numbers to nth decimal places
-	private static double round(double number,int n){
-		double decimal = Math.pow(10, n);
-		return Math.round(number * decimal) / decimal; 
-	}
+//	private static Map<String,Double> computeBalances( List<Stock> stockList, Map<String, Double> quantities) {
+//		Map<String,Double> singleDayBalances = new HashMap<String,Double>();
+//		for (Stock stock : stockList){
+//			if(stock.getSplit() != 1d){
+//				double numberOfShares = quantities.get(stock.getSymbol());
+//				numberOfShares = numberOfShares * stock.getSplit();
+//				//update the quantity corresponding to each stock in quantityOfStocks
+//				quantities.put(stock.getSymbol(), numberOfShares);
+//			}
+//			double balance = round(quantities.get(stock.getSymbol()) * stock.getPrice(), 2);
+//			singleDayBalances.put(stock.getSymbol(), balance);
+//		}
+//		return singleDayBalances;
+//	}
+
+//	private static Map<String,Double> computeQuantity (long budget, List<Stock> firstEntry) {
+//		Map<String,Double> quantityOfStocks = new HashMap<String,Double>();
+//		for(Stock stock : firstEntry) {
+//			double quantity = budget / stock.getPrice();
+//			quantityOfStocks.put(stock.getSymbol(), quantity);
+//
+//			//summary
+//			SummaryAttribute sa = new SummaryAttribute();
+//			sa.setStartPrice(stock.getPrice());
+//			sa.setStartBalance(budget);
+//			sa.setStartQuantity(quantity);
+//			summary.put(stock.getSymbol(), sa);
+//		}
+//		return quantityOfStocks;
+//	}
+//
+//	// round numbers to nth decimal places
+//	private static double round(double number,int n){
+//		double decimal = Math.pow(10, n);
+//		return Math.round(number * decimal) / decimal;
+//	}
 }

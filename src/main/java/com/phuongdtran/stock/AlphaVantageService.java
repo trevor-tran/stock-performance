@@ -7,7 +7,6 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map;
 
 public class AlphaVantageService implements IStockService {
     private final String ALPHA_VANTAGE_KEY = "PDOGDFRY2VU8A943";
@@ -92,7 +91,7 @@ public class AlphaVantageService implements IStockService {
                 .addPathSegment("query")
                 .setQueryParameter("function", "TIME_SERIES_DAILY_ADJUSTED")
                 .setQueryParameter("symbol", symbol)
-                .setQueryParameter("outputsize", "full")
+                .setQueryParameter("outputsize", "compact")
                 .setQueryParameter("apikey", ALPHA_VANTAGE_KEY)
                 .build();
         System.out.println(url.toString());

@@ -41,4 +41,31 @@ export const data = [
     "pv": 4300,
     "amt": 2100
   }
-]
+];
+
+export const series = [
+  {
+    symbol: 'MSFT',
+    data: [
+      { date: '2019-10-20', value: Math.random() },
+      { date: '2018-10-20', value: Math.random() },
+      { date: '2017-10-20', value: Math.random() },
+    ],
+  },
+  {
+    symbol: 'TSLA',
+    data: [
+      { date: '2019-10-20', value: Math.random() },
+      { date: '2018-10-20', value: Math.random() },
+      { date: '2017-10-20', value: Math.random() },
+    ],
+  },
+  {
+    symbol: 'AAPL',
+    data: [
+      { date: '2019-10-20', value: Math.random() },
+      { date: '2018-10-20', value: Math.random() },
+      { date: '2017-10-20', value: Math.random() },
+    ],
+  },
+];

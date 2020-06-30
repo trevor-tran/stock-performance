@@ -2,7 +2,8 @@ export const urls = {
   SERVER_URL:"http://localhost:4567",
   SIGNIN: '/signin/',
   SIGNUP: '/signup/',
-  GRAPH: '/graph/'
+  GRAPH: '/graph/',
+  DATA: '/data/'
 }
 
 export const keys = {
@@ -11,5 +12,7 @@ export const keys = {
 
 export const types = {
   LOGIN : 'LOGIN',
-  LOGOUT : 'LOGOUT'
+  LOGOUT : 'LOGOUT',
+  ADD_SYMBOL: 'ADD_SYMBOL',
+  REMOVE_SYSMBOL: 'REMOVE_SYMBOL'
 }
