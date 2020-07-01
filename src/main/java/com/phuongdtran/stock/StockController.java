@@ -28,14 +28,18 @@ public class StockController {
 	public static Route getData = (Request request, Response response) -> {
 		Message message;
 		JSONObject json = new JSONObject(request.body());
+
+		String startDate = (String)json.get("start_date");
+		String endDate = (String)json.get("end_date");
+
 		JSONArray jsonSymbols = json.getJSONArray("symbols");
 		List<String> symbols = new ArrayList<>();
 		for (int i = 0; i < jsonSymbols.length(); i++) {
 			symbols.add(jsonSymbols.getString(i));
 		}
-		Map<String, List<Stock>> stockData = stockManager.get(symbols);
-//		String password = (String)json.get("password");
-		if (stockData.size() == 0) {
+
+		Map<String, List<Stock>> stockData = stockManager.get(symbols, startDate, endDate);
+		if (stockData == null || stockData.size() == 0) {
 			message = new Message(false, "Cannot get data");
 		} else {
 			message = new Message(true, gson.toJson(stockData));

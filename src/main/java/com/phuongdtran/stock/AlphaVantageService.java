@@ -91,7 +91,7 @@ public class AlphaVantageService implements IStockService {
                 .addPathSegment("query")
                 .setQueryParameter("function", "TIME_SERIES_DAILY_ADJUSTED")
                 .setQueryParameter("symbol", symbol)
-                .setQueryParameter("outputsize", "compact")
+                .setQueryParameter("outputsize", "full")
                 .setQueryParameter("apikey", ALPHA_VANTAGE_KEY)
                 .build();
         System.out.println(url.toString());
