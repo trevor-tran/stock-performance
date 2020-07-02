@@ -41,6 +41,10 @@ public class StockManager {
                 if (ticker == null) {
                     // get stock data from a financial service and store it in DB
                     cacheStock(symbol);
+                } else {
+//                    if (startDate.compareTo(ticker.getIpo()) < 0) {
+//                        cacheStock(symbol);
+//                    }
                 }
             }
             Map<String, List<Stock>> data = new HashMap<>();

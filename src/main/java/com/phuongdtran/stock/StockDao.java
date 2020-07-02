@@ -56,6 +56,15 @@ public class StockDao implements IStockDao {
 		return true;
 	}
 
+	private void setSymbolInfo(String symbol, String date) throws SQLException {
+		connectionOpened();
+		String query = " MATCH (s:Symbol {name: $symbol}) " +
+						" SET " +
+						" (CASE WHEN date($d) < s.ipo THEN s END).ipo = date($d), " +
+						" (CASE WHEN date($d) > s.delisting THEN s END).delisting = date($d)";
+		executor.create(query, map("symbol", symbol, "d", date));
+	}
+
 	/**
 	 * return null if there is no info for the symbol
 	 * @param symbol
@@ -97,6 +106,7 @@ public class StockDao implements IStockDao {
 					Double.parseDouble(singleDay.get("dividend").toString()));
 			result.add(stock);
 		}
+//		result.sort(Comparator.comparing(Stock::getDate));
 		return result;
 	}
 
@@ -111,15 +121,17 @@ public class StockDao implements IStockDao {
 
 	private boolean addDateNode(String symbol, String date, double price, double dividend, double split) throws SQLException {
 		connectionOpened();
-//		String query = "CREATE (d:Date {date: date($date), symbol:$symbol, price: $price, dividend: $dividend, split: $split})";
-		String query = "MATCH (s:Symbol) WHERE toUpper(s.name) = toUpper($symbol) " +
+		symbol = symbol.toUpperCase();
+		setSymbolInfo(symbol ,date);
+		String query = "MATCH (s:Symbol) WHERE s.name = $symbol " +
 					" MERGE (d:Date {date: date($date), symbol:$symbol, price: $price, dividend: $dividend, split: $split}) <-[:HAS]- (s)";
 		return executor.create(query, map("symbol", symbol, "date", date, "price", price, "dividend", dividend, "split", split));
 	}
 
 	private boolean addSymbolNode(String symbol) throws SQLException {
 		connectionOpened();
-		String query = "CREATE (s:Symbol {name:$symbol, ipo: date(), delisting: date()} )";
+		symbol = symbol.toUpperCase();
+		String query = "CREATE (s:Symbol {name:$symbol, ipo: date(), delisting: date('1792-05-17')} )";
 		return executor.create(query, map("symbol", symbol));
 	}
 
