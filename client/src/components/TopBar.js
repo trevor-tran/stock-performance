@@ -14,25 +14,34 @@ function TopBar() {
   const { dispatch } = useContext(Context);
 
   const [budget, setBudget] = useState("");
-  const [start, setStart] = useState();
-  const [end, setEnd] = useState();
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
   const [symbol, setSymbol] = useState("");
 
-
-
-
-
   useEffect(() => {
-    setStart(Date.now());
-    setEnd(Date.now());
+    setStartDate(Date.now());
+    setEndDate(Date.now());
   }, []);
 
-  const convertToDate = (ms) => {
-    return moment(ms).format("L");
-  }
-
   const submit = () => {
-    dispatch({ type: types.ADD_SYMBOL, payload: { symbol } });
+    if (symbol) {
+      dispatch({ type: types.ADD_SYMBOL, payload: { symbol: symbol.toUpperCase() }});
+    }
+
+    if (budget && Number(budget) > 0) {
+      dispatch({ type: types.BUDGET, payload: {budget}});
+    }
+
+    dispatch ({
+      type: types.START_DATE,
+      payload: {startDate: moment(startDate).format("YYYY-MM-DD")}
+    });
+
+    dispatch ({
+      type: types.END_DATE,
+      payload: {endDate: moment(endDate).format("YYYY-MM-DD")}
+    });
+
     setSymbol("");
   }
 
@@ -41,12 +50,6 @@ function TopBar() {
     const value = e.target.value;
     if (name === 'budget') {
       setBudget(value);
-    } else if (name === 'start') {
-      console.log(value)
-      setStart(moment(value, DATE_FORMAT).unix())
-    } else if (name === 'end') {
-      console.log(moment(value, DATE_FORMAT).unix())
-      setEnd(moment(value, DATE_FORMAT).unix());
     } else if (name === 'symbol') {
       setSymbol(value);
     }
@@ -65,6 +68,10 @@ function TopBar() {
           variant="outlined"
           value={budget}
           onChange={handleChange}
+          inputProps = {{
+            step: 10,
+            min: 1
+          }}
         />
 
         <KeyboardDatePicker
@@ -73,8 +80,8 @@ function TopBar() {
           format={DATE_FORMAT}
           margin="normal"
           label="Start date"
-          value={start}
-          onChange={date => setStart(date)}
+          value={startDate}
+          onChange={date => setStartDate(date)}
         />
 
         <KeyboardDatePicker
@@ -83,8 +90,8 @@ function TopBar() {
           format={DATE_FORMAT}
           margin="normal"
           label="End date"
-          value={end}
-          onChange={date => setEnd(date)}
+          value={endDate}
+          onChange={date => setEndDate(date)}
         />
 
         <TextField

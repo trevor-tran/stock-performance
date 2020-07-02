@@ -1,7 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-import { data, series } from './utils/data';
 import { Paper } from "@material-ui/core";
 
 import { Context } from '../store';
@@ -31,17 +30,16 @@ function Chart() {
 
     // there are TWO actions changing state.symbols
     // a symbol is either added to the list or removed from the list
-    const {symbols} = state;
+    const { symbols, end_date, start_date, budget } = state;
     if (!Array.isArray(symbols) || symbols.length == 0) {
       setParsedData([]);
     } else if (parsedData.length > state.symbols.length) {
       // a symbol removed from state.symbols, therefore corresponding stock data in parsedData also need removed
       // no API calls needed
-      console.log("a symbol removed")
       const parsedDataAfterSymbolRemoved = [];
       parsedData.forEach(obj => {
         if (symbols.includes(obj.symbol)) {
-          const copy = {...obj};
+          const copy = { ...obj };
           parsedDataAfterSymbolRemoved.push(copy);
         }
       });
@@ -50,11 +48,13 @@ function Chart() {
       // need to get stock data from server
       console.log("fetching data from server...");
 
-      let url = urls.SERVER_URL + urls.DATA;
+      const url = urls.SERVER_URL + urls.DATA;
       fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-          symbols: symbols
+          symbols: symbols,
+          start_date: start_date,
+          end_date: end_date
         }),
         headers: {
           'Content-Type': 'application/json'
@@ -64,7 +64,8 @@ function Chart() {
 
       }).then(json => {
         if (json.success) {
-          setParsedData(dataParser(symbols, JSON.parse(json.msg)));
+          const balances = computeBalances(budget, dataParser(symbols, JSON.parse(json.msg)));
+          setParsedData(balances);
         } else {
           throw json.msg;
         }
@@ -72,7 +73,28 @@ function Chart() {
         console.error(err);
       });
     }
-  }, [state.symbols]);
+  }, [state.symbols, state.start_date, state.end_date]);
+
+  const computeBalances = (budget, parsedData) => {
+    const balances = parsedData.map(obj => {
+      let {data} = obj;
+      let numShares = 1;
+      const newData = data.map((subObj, index) => {
+        let newSubObj = {...subObj};
+        if (index === 0) {
+          numShares = Number(budget) * 1.0 / Number(subObj.value);
+          newSubObj.value = Number(budget);
+        } else {
+          newSubObj.value = roundUp(numShares * Number(subObj.value), 2);
+        }
+        return newSubObj;
+      });
+      let newObj = {...obj};
+      newObj.data = newData;
+      return newObj;
+    });
+    return balances;
+  }
 
   // data fetched from server is in different format from what expected to use in Rechart
   // reference utils/data.js to see sample data used in Rechart.
@@ -88,20 +110,32 @@ function Chart() {
       stockInfoForASymbol["symbol"] = symbol;
       stockInfoForASymbol["data"] = new Array();
       data.map(oneday =>
-        stockInfoForASymbol["data"].push({ date: oneday.date, value: Number(oneday.price) })
+        stockInfoForASymbol["data"].push({
+          date: oneday.date,
+          value: Number(oneday.price),
+          split: Number(oneday.split),
+          dividend: Number(oneday.dividend)
+        })
       );
 
       // since date is in YYYY-MM-DD format, sort it before changing to user-friendly date format
       stockInfoForASymbol["data"].sort((o1, o2) => o1.date.localeCompare(o2.date));
 
       // change to user-friendly date format
-      stockInfoForASymbol["data"].forEach (obj => {
+      stockInfoForASymbol["data"].forEach(obj => {
         obj.date = moment(obj.date, "YYYY-MM-DD", true).format("DD MMM. YYYY");
       });
       parsedData.push(stockInfoForASymbol);
     })
     return parsedData;
   }
+
+  // https://stackoverflow.com/questions/5191088/how-to-round-up-a-number-in-javascript
+  function roundUp(num, precision) {
+    precision = Math.pow(10, precision)
+    return Math.ceil(num * precision) / precision
+  }
+
 
   return (
     <Paper className="graph" style={{ width: "80vw", height: "60vh", margin: 'auto' }}>

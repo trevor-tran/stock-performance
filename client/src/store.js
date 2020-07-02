@@ -2,7 +2,7 @@ import React from 'react'
 import {types} from './components/utils/Constants'
 
 export const initialState = {
-  budget: 0,
+  budget: 1,
   start_date: null,
   end_date: null,
   symbols: [],
@@ -41,6 +41,19 @@ export function reducer(state = initialState, action) {
       const removedSymbols = state.symbols.filter(s => s !== action.payload.symbol);
       return {...state,
         symbols: removedSymbols
+      }
+    case types.START_DATE:
+      return {...state,
+        start_date: action.payload.startDate
+      }
+    case types.END_DATE:
+      return {...state,
+        end_date: action.payload.endDate
+      }
+    case types.BUDGET:
+      return {
+        ...state,
+        budget: action.payload.budget
       }
     default:
       return state
