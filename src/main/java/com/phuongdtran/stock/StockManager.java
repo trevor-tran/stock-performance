@@ -6,6 +6,8 @@ import com.phuongdtran.executor.CytherExecutor;
 import com.phuongdtran.util.ConnectionManager;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class StockManager {
@@ -30,6 +32,9 @@ public class StockManager {
     }
 
     public Map<String, List<Stock>> get(List<String> symbols, String startDate, String endDate) {
+        List<Ticker> tickers = new ArrayList<>();
+        Map<String, List<Stock>> data = new HashMap<>();
+        Map<String, String> queryDates;
         try {
             if (!isOpen) {
                 stockDao.open();
@@ -42,32 +47,19 @@ public class StockManager {
                     // get stock data from a financial service and store it in DB
                     cacheStock(symbol);
                 } else {
+                    // may need to cache stock in compact
 //                    if (startDate.compareTo(ticker.getIpo()) < 0) {
 //                        cacheStock(symbol);
 //                    }
                 }
+                ticker = stockDao.getSymbolInfo(symbol);
+                tickers.add(ticker);
             }
-            Map<String, List<Stock>> data = new HashMap<>();
+            queryDates = findQueryDates(tickers, startDate, endDate);
             for(String symbol :symbols) {
-                List<Stock> singleSymbol = stockDao.get(symbol, startDate, endDate);
+                List<Stock> singleSymbol = stockDao.get(symbol, queryDates.get("start"), queryDates.get("end"));
                 data.put(symbol.toUpperCase(), singleSymbol);
             }
-//            for (String symbol : symbols) {
-//                Map<String, JsonObject> raw = StockAPIHandler.get(symbol);
-//                if (raw != null) {
-//                    List<Stock> stocks = new ArrayList<>();
-//                    for (Map.Entry<String, JsonObject> entry : raw.entrySet()) {
-//                        JsonElement price = entry.getValue().getAsJsonPrimitive("price");
-//                        JsonElement dividend = entry.getValue().getAsJsonPrimitive("dividend");
-//                        JsonElement split = entry.getValue().getAsJsonPrimitive("split");
-//
-//                        Stock stock = new Stock(symbol, entry.getKey(), price.getAsDouble(),
-//                                split.getAsDouble(), dividend.getAsDouble());
-//                        stocks.add(stock);
-//                    }
-//                    data.put(symbol, stocks);
-//                }
-//            }
             stockDao.close();
             isOpen = false;
             return data;
@@ -92,5 +84,33 @@ public class StockManager {
                 stockDao.add(stock);
             }
         }
+    }
+
+    private Map<String, String> findQueryDates(List<Ticker> tickers, String startDate, String endDate) {
+        Map<String,String> queryDates = new HashMap<>();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String mutualIpo = "1792-05-17";
+        String mutualDelisting = LocalDate.now().format(formatter);
+
+        for (Ticker ticker : tickers) {
+            if (mutualIpo.compareTo(ticker.getIpo()) < 0) {
+                mutualIpo = ticker.getIpo();
+            }
+            if (mutualDelisting.compareTo(ticker.getDelisting()) > 0) {
+                mutualDelisting = ticker.getDelisting();
+            }
+        }
+
+        queryDates.put("start", startDate);
+        queryDates.put("end", endDate);
+        if (startDate.compareTo(mutualIpo) < 0) {
+            queryDates.put("start", mutualIpo);
+        }
+        if (endDate.compareTo(mutualDelisting) > 0) {
+            queryDates.put("end", mutualDelisting);
+        }
+
+        return queryDates;
     }
 }
