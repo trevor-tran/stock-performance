@@ -28,12 +28,12 @@ public class StockAPIHandler {
 	 * @return stock data if able to get data from the API service. Otherwise, return null.
 	 * @throws IOException
 	 */
-	public static Map<String,JsonObject> get(String symbol){
+	public static Map<String,JsonObject> get(String symbol, IStockService.OUTPUTSIZE outputsize){
 		try {
 			if (stockService == null) {
 				stockService = new AlphaVantageService();
 			}
-			return stockService.get(symbol);
+			return stockService.get(symbol, outputsize);
 		}catch (IOException ex) {
 			ex.getStackTrace();
 			return null;

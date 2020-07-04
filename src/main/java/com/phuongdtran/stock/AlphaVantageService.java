@@ -13,7 +13,6 @@ public class AlphaVantageService implements IStockService {
     private final int HTTP_OK = 200;
     private final Gson gson = new Gson();
 
-
     /**
      * Get stock data from a stock API service and parse the data into a Map that each entry has the following format:
      * { date : {
@@ -28,10 +27,10 @@ public class AlphaVantageService implements IStockService {
      * @throws IOException
      */
     @Override
-    public Map<String, JsonObject> get(String symbol) throws IOException{
+    public Map<String, JsonObject> get(String symbol, OUTPUTSIZE outputsize) throws IOException{
         OkHttpClient client = new OkHttpClient();
         Response response = null;
-        HttpUrl url = buildUrl(symbol);
+        HttpUrl url = buildUrl(symbol, outputsize);
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -84,14 +83,18 @@ public class AlphaVantageService implements IStockService {
         return parsed;
     }
 
-    private HttpUrl buildUrl(String symbol) {
+    private HttpUrl buildUrl(String symbol, OUTPUTSIZE outputsize) {
+        String size = "full";
+        if (outputsize == OUTPUTSIZE.COMPACT) {
+            size = "compact";
+        }
         HttpUrl url = new HttpUrl.Builder()
                 .scheme("https")
                 .host("www.alphavantage.co")
                 .addPathSegment("query")
                 .setQueryParameter("function", "TIME_SERIES_DAILY_ADJUSTED")
                 .setQueryParameter("symbol", symbol)
-                .setQueryParameter("outputsize", "full")
+                .setQueryParameter("outputsize", size)
                 .setQueryParameter("apikey", ALPHA_VANTAGE_KEY)
                 .build();
         System.out.println(url.toString());
