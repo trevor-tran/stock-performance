@@ -1,15 +1,15 @@
 package com.phuongdtran.stock;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.phuongdtran.executor.CytherExecutor;
 import com.phuongdtran.util.ConnectionManager;
 import com.phuongdtran.util.ThreadPool;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,13 +17,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class StockManager {
 
     private static StockManager instance = null;
-
-    private IStockDao stockDao;
-    private boolean isOpen;
     private DateTimeFormatter formatter;
 
     private StockManager() {
-        stockDao = new StockDao(new CytherExecutor());
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
@@ -39,16 +35,15 @@ public class StockManager {
 
     public Map<String, List<Stock>> get(List<String> symbols, String startDate, String endDate) {
         List<Ticker> tickers = new ArrayList<>();
-        List<Future<Ticker>> futures = new ArrayList<>();
+        List<Future<Ticker>> futures;
+        List<Future<Map<String,List<Stock>>>> queryFutures;
         Map<String, List<Stock>> data = new HashMap<>();
         Map<String, String> queryDates;
         try {
-            if (!isOpen) {
-                stockDao.open();
-                isOpen = true;
-            }
+
 
             ThreadPoolExecutor executor = ThreadPool.getInstance();
+
             List<CacheCallable> callables = new ArrayList<>();
             for (String symbol : symbols) {
                 callables.add(new CacheCallable(symbol, new CytherExecutor(), startDate, endDate));
@@ -57,45 +52,22 @@ public class StockManager {
             for (Future<Ticker> t : futures) {
                 tickers.add(t.get());
             }
+
             queryDates = findQueryDates(tickers, startDate, endDate);
+            List<QueryCallable> queryCallables = new ArrayList<>();
             for(String symbol :symbols) {
-                List<Stock> singleSymbol = stockDao.get(symbol, queryDates.get("start"), queryDates.get("end"));
-                data.put(symbol.toUpperCase(), singleSymbol);
+                queryCallables.add(new QueryCallable(symbol, new CytherExecutor(), queryDates.get("start"), queryDates.get("end")));
             }
-//            stockDao.close();
-//            isOpen = false;
+            queryFutures = executor.invokeAll(queryCallables);
+            for (Future<Map<String,List<Stock>>> qf : queryFutures) {
+                data.putAll(qf.get());
+            }
             return data;
-        } catch (SQLException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }
     }
-
-//    private void cacheStockFull(String symbol) throws SQLException{
-//        if (!isOpen) return;
-//        cacheStock(symbol, IStockService.OUTPUTSIZE.FULL);
-//
-//    }
-//
-//    private void cacheStockCompact(String symbol) throws SQLException {
-//        if (!isOpen) return;
-//        cacheStock(symbol, IStockService.OUTPUTSIZE.COMPACT);
-//    }
-//
-//    private void cacheStock(String symbol, IStockService.OUTPUTSIZE outputsize) throws SQLException {
-//        Map<String, JsonObject> raw = StockAPIHandler.get(symbol, outputsize);
-//        if (raw != null) {
-//            for (Map.Entry<String, JsonObject> entry : raw.entrySet()) {
-//                JsonElement price = entry.getValue().getAsJsonPrimitive("price");
-//                JsonElement dividend = entry.getValue().getAsJsonPrimitive("dividend");
-//                JsonElement split = entry.getValue().getAsJsonPrimitive("split");
-//
-//                Stock stock = new Stock(symbol, entry.getKey(), price.getAsDouble(),
-//                        split.getAsDouble(), dividend.getAsDouble());
-//                stockDao.add(stock);
-//            }
-//        }
-//    }
 
     /**
      * Each stock may have different ipo dates and, possibly, delisting dates.
