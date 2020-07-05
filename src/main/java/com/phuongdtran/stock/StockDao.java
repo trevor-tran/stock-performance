@@ -34,24 +34,27 @@ public class StockDao implements IStockDao {
 
 	@Override
 	public void open() throws SQLException {
-		executor.open();
-		isOpen = true;
+		if (!isOpen) {
+			executor.open();
+			isOpen = true;
+		}
 	}
 
 	@Override
 	public void close() {
-		executor.close();
-		isOpen = false;
+		if (isOpen) {
+			executor.close();
+			isOpen = false;
+		}
 	}
 
 	@Override
 	public boolean add(Stock stock) throws SQLException {
 		connectionOpened();
-		if (!existsSymbolNode(stock.getSymbol())) {
-			addSymbolNode(stock.getSymbol());
+		if (!existsSymbol(stock.getSymbol())) {
+			addSymbol(stock.getSymbol());
 		}
-		addDateNode(stock.getSymbol(), stock.getDate(), stock.getPrice(), stock.getDividend(), stock.getSplit());
-//		addRelationship(stock.getSymbol(), stock.getDate());
+		addDate(stock.getSymbol(), stock.getDate(), stock.getPrice(), stock.getDividend(), stock.getSplit());
 
 		return true;
 	}
@@ -75,7 +78,7 @@ public class StockDao implements IStockDao {
 	public Ticker getSymbolInfo(String symbol) throws SQLException {
 		connectionOpened();
 		symbol = symbol.toUpperCase();
-		if (!existsSymbolNode(symbol)) {
+		if (!existsSymbol(symbol)) {
 			return null;
 		}
 		String query = "MATCH (s:Symbol) WHERE toUpper(s.name) = $symbol RETURN s.ipo AS ipo, s.delisting AS delisting";
@@ -106,20 +109,10 @@ public class StockDao implements IStockDao {
 					Double.parseDouble(singleDay.get("dividend").toString()));
 			result.add(stock);
 		}
-//		result.sort(Comparator.comparing(Stock::getDate));
 		return result;
 	}
 
-	private boolean addRelationship(String symbol, String date) throws SQLException {
-		connectionOpened();
-		String query = "MATCH (s:Symbol), (d:Date) " +
-				"WHERE s.symbol=d.symbol AND d=date($date) " +
-				"CREATE (s)-[r:HAS]->(d)";
-		return executor.create(query, map("symbol", symbol, "date", date));
-
-	}
-
-	private boolean addDateNode(String symbol, String date, double price, double dividend, double split) throws SQLException {
+	private boolean addDate(String symbol, String date, double price, double dividend, double split) throws SQLException {
 		connectionOpened();
 		symbol = symbol.toUpperCase();
 		setSymbolInfo(symbol ,date);
@@ -128,14 +121,14 @@ public class StockDao implements IStockDao {
 		return executor.create(query, map("symbol", symbol, "date", date, "price", price, "dividend", dividend, "split", split));
 	}
 
-	private boolean addSymbolNode(String symbol) throws SQLException {
+	private boolean addSymbol(String symbol) throws SQLException {
 		connectionOpened();
 		symbol = symbol.toUpperCase();
 		String query = "CREATE (s:Symbol {name:$symbol, ipo: date(), delisting: date('1792-05-17')} )";
 		return executor.create(query, map("symbol", symbol));
 	}
 
-	private boolean existsSymbolNode(String symbol) throws SQLException {
+	private boolean existsSymbol(String symbol) throws SQLException {
 		connectionOpened();
 		symbol = symbol.toUpperCase();
 		String query = "MATCH (s:Symbol) WHERE s.name=$symbol RETURN s";
