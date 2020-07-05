@@ -8,19 +8,21 @@ import { Context } from '../store';
 import { types} from './utils/Constants'
 
 const DATE_FORMAT = ("MM/dd/yyyy");
+const MAX_START_DATE = moment(Date.now()).subtract(7,'d');
 
 function TopBar() {
 
-  const { dispatch } = useContext(Context);
+  const {state, dispatch } = useContext(Context);
 
-  const [budget, setBudget] = useState("");
+  const [budget, setBudget] = useState(0);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [symbol, setSymbol] = useState("");
 
   useEffect(() => {
-    setStartDate(Date.now());
+    setStartDate(MAX_START_DATE);
     setEndDate(Date.now());
+    setBudget(Number(state.budget));
   }, []);
 
   const submit = () => {
@@ -82,6 +84,7 @@ function TopBar() {
           label="Start date"
           value={startDate}
           onChange={date => setStartDate(date)}
+          maxDate = {MAX_START_DATE}
         />
 
         <KeyboardDatePicker
@@ -92,6 +95,7 @@ function TopBar() {
           label="End date"
           value={endDate}
           onChange={date => setEndDate(date)}
+          maxDate = {Date.now()}
         />
 
         <TextField

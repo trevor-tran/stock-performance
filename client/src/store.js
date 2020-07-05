@@ -2,14 +2,14 @@ import React from 'react'
 import {types} from './components/utils/Constants'
 
 export const initialState = {
-  budget: 1,
-  start_date: null,
-  end_date: null,
+  budget: 1000,
+  start_date: "",
+  end_date: "",
   symbols: [],
-  deleted_symbol: null,
-  user: null,
-  token: null,
-  first_name: null,
+  deleted_symbol: "",
+  user: "",
+  token: "",
+  first_name: "",
   is_authenticated: false
 }
 
