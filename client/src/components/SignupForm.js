@@ -1,15 +1,15 @@
 import React, { useState, useContext } from 'react';
-import { Paper, FormControl, Input, Button } from '@material-ui/core';
+import { Paper, Input, Button } from '@material-ui/core';
 import { Context } from '../store';
-import {types, urls} from './utils/Constants'
+import { types, urls } from './utils/Constants'
 import { withRouter } from 'react-router-dom'
 
 // css
 import './css/Form.css'
 
-const SignupForm = withRouter(({history}) => {
+const SignupForm = withRouter(({ history }) => {
 
-  const {state, dispatch} = useContext(Context)
+  const { state, dispatch } = useContext(Context)
 
   // local states
   const [first_name, setFirstName] = useState("");
@@ -26,7 +26,7 @@ const SignupForm = withRouter(({history}) => {
       setMessage("Please log out before sign up")
     } else if (password !== confirm_password) {
       setMessage("Password does not match")
-    }else {
+    } else {
       // validate info on server (check if username already exists etc.)
       let url = urls.SERVER_URL + urls.SIGNUP;
       fetch(url, {
@@ -38,17 +38,17 @@ const SignupForm = withRouter(({history}) => {
           'username': username,
           'password': password
         }),
-        headers:{
+        headers: {
           'Content-Type': 'application/json'
         }
       }).then(response => {
         return response.json()
-      }).then (json => {
+      }).then(json => {
         // status is either "failure" or "success"
         if (json.status === "failure") {
           setMessage(json.msg)
-        }else {
-          dispatch({type: types.SET_USER, payload: username});
+        } else {
+          dispatch({ type: types.SET_USER, payload: username });
           history.push(urls.GRAPH)
         }
       }).catch(err => {
@@ -58,10 +58,10 @@ const SignupForm = withRouter(({history}) => {
   }
 
   return (
-    <Paper className="signin-form">
+    <Paper className="signup-form">
       <h1 className="title">Sign-up Form</h1>
-      { message ? (<p style={{color:"red"}}>{message}</p>) : null}
-      <FormControl>
+      {message ? (<p style={{ color: "red" }}>{message}</p>) : null}
+      <div className="label-input-container">
         <label>First name</label>
         <Input
           className="text-field"
@@ -69,6 +69,8 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setFirstName(e.target.value)}
         />
+      </div>
+      <div className="label-input-container">
         <label>Last name</label>
         <Input
           className="text-field"
@@ -76,6 +78,8 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setLastName(e.target.value)}
         />
+      </div>
+      <div className="label-input-container">
         <label>Email address</label>
         <Input
           className="text-field"
@@ -84,6 +88,8 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setEmail(e.target.value)}
         />
+      </div>
+      <div className="label-input-container">
         <label>Username</label>
         <Input
           className="text-field"
@@ -91,6 +97,8 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setUsername(e.target.value)}
         />
+      </div>
+      <div className="label-input-container">
         <label>Enter password</label>
         <Input
           className="text-field"
@@ -99,6 +107,8 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setPassword(e.target.value)}
         />
+      </div>
+      <div className="label-input-container">
         <label>Re-enter password</label>
         <Input
           className="text-field"
@@ -107,14 +117,15 @@ const SignupForm = withRouter(({history}) => {
           required
           onChange={e => setConfirmPassword(e.target.value)}
         />
-        <Button
-          className="submit"
-          variant="contained"
-          color="primary"
-          onClick={submit}>
-          Submit
-          </Button>
-      </FormControl>
+      </div>
+      <Button
+        style={{marginTop: "10px", marginBottom: "5px"}}
+        className="submit-button"
+        variant="contained"
+        color="primary"
+        onClick={submit}>
+        Submit
+      </Button>
     </Paper>
   );
 })

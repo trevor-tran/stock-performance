@@ -14,7 +14,7 @@ function TopBar() {
 
   const {state, dispatch } = useContext(Context);
 
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState(Number(state.budget));
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [symbol, setSymbol] = useState("");
@@ -22,7 +22,6 @@ function TopBar() {
   useEffect(() => {
     setStartDate(MAX_START_DATE);
     setEndDate(Date.now());
-    setBudget(Number(state.budget));
   }, []);
 
   const submit = () => {

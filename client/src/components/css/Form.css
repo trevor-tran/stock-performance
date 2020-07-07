@@ -1,29 +1,42 @@
 .signin-form {
-	max-width: 30vw;
+	max-width: 20vw;
 	margin: auto;
+	text-align: center;
 }
-
+.signup-form {
+	max-width: 25vw;
+	margin: auto;
+	text-align: center;
+}
 .title {
 	text-align: center;
 }
 
 .signin-form label {
 	margin-top: 5%;
-	padding-left: 5px;
 	display: block;
 	max-width: 100%;
 }
 
 .text-field {
 	border: 1px solid #ddd;
-	padding: 3%;
+	padding: 2%;
 	max-width: 100%;
 	border-radius: 3px;
 	margin-top: 5%;
-	margin-left: 20%;
 }
 
-.submit {
+.label-input-container {
+	margin-left: 10px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	text-align: center;
+	justify-content: space-between;
+	margin-right: 10px;
+}
+
+.submit-button {
 	cursor: pointer;
-	width: 30%;
+	width: 40%;
 }

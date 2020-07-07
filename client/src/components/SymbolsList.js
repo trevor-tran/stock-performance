@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 import { Context } from '../store';
-import {types, urls} from './utils/Constants'
+import {types} from './utils/Constants'
 
 function SymbolsList() {
 

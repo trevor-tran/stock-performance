@@ -19,7 +19,7 @@ function Chart() {
     // there are TWO actions changing state.symbols
     // a symbol is either added to the list or removed from the list
     const { symbols, end_date, start_date, budget } = state;
-    if (!Array.isArray(symbols) || symbols.length == 0) {
+    if (!Array.isArray(symbols) || symbols.length === 0) {
       setParsedData([]);
     } else if (parsedData.length > state.symbols.length) {
       // a symbol removed from state.symbols, therefore corresponding stock data in parsedData also need removed
@@ -61,7 +61,7 @@ function Chart() {
         console.error(err);
       });
     }
-  }, [state.symbols, state.start_date, state.end_date]);
+  }, [state.symbols, state.start_date, state.end_date, state.budget]);
 
   const computeBalances = (budget, parsedData) => {
     const balances = parsedData.map(obj => {
@@ -92,11 +92,12 @@ function Chart() {
   //      list of symbols looked up in json
   const dataParser = (symbols, json) => {
     let parsedData = [];
-    symbols.map(symbol => {
+
+    symbols.forEach(symbol => {
       const data = json[symbol];
-      let stockInfoForASymbol = new Object();
+      let stockInfoForASymbol = {};
       stockInfoForASymbol["symbol"] = symbol;
-      stockInfoForASymbol["data"] = new Array();
+      stockInfoForASymbol["data"] = [];
       data.map(oneday =>
         stockInfoForASymbol["data"].push({
           date: oneday.date,
