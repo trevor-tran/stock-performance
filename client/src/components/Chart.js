@@ -73,7 +73,9 @@ function Chart() {
           numShares = Number(budget) * 1.0 / Number(subObj.value);
           newSubObj.value = Number(budget);
         } else {
-          newSubObj.value = roundUp(numShares * Number(subObj.value), 2);
+          numShares = numShares * Number(subObj.split);
+          const totalDividend = numShares * Number(subObj.dividend);
+          newSubObj.value = roundUp(numShares * Number(subObj.value) + totalDividend, 2);
         }
         return newSubObj;
       });
@@ -138,7 +140,7 @@ function Chart() {
           <Legend />
           <Legend />
           {parsedData.map((s, idx) => (
-            <Line dataKey="value" data={s.data} name={s.symbol} key={s.symbol} stroke={COLORS[idx % COLORS.length]}/>
+            <Line dataKey="value" data={s.data} name={s.symbol} key={s.symbol} stroke={COLORS[idx % COLORS.length]} dot={false}/>
           ))}
         </LineChart>
       </ResponsiveContainer>
