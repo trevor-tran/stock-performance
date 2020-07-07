@@ -31,7 +31,7 @@ function Layout() {
           <Route exact path={urls.SIGNIN} component={SigninForm} />
           <Route exact path={urls.SIGNUP} component={SignupForm} />
           <Route exact path={urls.GRAPH} render={() => (
-          state.is_authenticated ? (<GraphContainer/>) : (alert("Please log in!"), (<Redirect to={urls.SIGNIN}/>)) 
+          state.is_authenticated ? (<GraphContainer/>) : (alert("Please log in!"), (<Redirect to={urls.SIGNIN}/>))
           )}/>
           <Route path="*" render={() => (
             <Redirect to= {urls.SIGNIN} />

@@ -1,0 +1,16 @@
+#budget {
+  margin-right: 10px;
+}
+
+.top-bar {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: baseline;
+}
+
+.update-button {
+  cursor: pointer;
+	height: 50%;
+}

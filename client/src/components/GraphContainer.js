@@ -8,7 +8,7 @@ import SymbolsList from './SymbolsList'
 function GraphContainer() {
 
   return (
-    <table className="homecontainer">
+    <table className="bar-chart-container" style={{margin: "auto", textAlign: "center"}}>
       <tbody>
         <tr>
           <td colSpan="2"><TopBar /></td>

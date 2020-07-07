@@ -129,7 +129,7 @@ function Chart() {
 
 
   return (
-    <Paper className="graph" style={{ width: "80vw", height: "60vh", margin: 'auto' }}>
+    <Paper className="graph" style={{ width: "80vw", height: "60vh", margin: 'auto'}}>
       <ResponsiveContainer width='100%' height='100%'>
         <LineChart width={730} height={250} data={parsedData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

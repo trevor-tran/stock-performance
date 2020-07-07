@@ -5,7 +5,10 @@ import DateFnsUtils from '@date-io/date-fns'
 import moment from 'moment';
 
 import { Context } from '../store';
-import { types} from './utils/Constants'
+import { types} from './utils/Constants';
+
+//css
+import "./css/TopBar.css"
 
 const DATE_FORMAT = ("MM/dd/yyyy");
 const MAX_START_DATE = moment(Date.now()).subtract(7,'d');
@@ -107,7 +110,7 @@ function TopBar() {
           onChange={handleChange}
         />
 
-        <Button variant="outlined" color="primary" onClick={submit}>Update</Button>
+        <Button className="update-button" variant="outlined" color="primary" onClick={submit}>Update</Button>
       </Paper>
     </MuiPickersUtilsProvider>
   )
