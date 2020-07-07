@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 import SigninForm from './SigninForm';
 import SignupForm from './SignupForm';
 import Header from './Header';
+import Footer from './Footer';
 import GraphContainer from "./GraphContainer";
 
 // state management
@@ -37,6 +38,7 @@ function Layout() {
             <Redirect to= {urls.SIGNIN} />
           )} />
         </Switch>
+        <Footer/>
       </Router>
     </Context.Provider>
   )
