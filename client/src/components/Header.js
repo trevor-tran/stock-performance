@@ -20,11 +20,11 @@ const Header = withRouter(({history}) => {
       <Toolbar>
         <Typography variant="h6">Stock Performance</Typography>
         <FormControl id="menu">
-          {state.is_authenticated ? 
+          {state.is_authenticated ?
             (<Button className="button" color="inherit" onClick={signout}>Sign out</Button>) :
             (<Button component={Link} to={urls.SIGNIN} className="button" color="inherit"> Sign in </Button>)
           }
-          <Button component={Link} to={urls.SIGNUP} className="button" variant='outlined' color="inherit">Sign up</Button>
+          <Button disabled={state.is_authenticated} component={Link} to={urls.SIGNUP} className="button" variant='outlined' color="inherit">Sign up</Button>
         </FormControl>
       </Toolbar>
     </AppBar>

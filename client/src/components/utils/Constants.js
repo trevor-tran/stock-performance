@@ -17,5 +17,13 @@ export const types = {
   REMOVE_SYSMBOL: 'REMOVE_SYMBOL',
   START_DATE: 'START_DATE',
   END_DATE: 'END_DATE',
-  BUDGET: 'BUDGET'
+  BUDGET: 'BUDGET',
+  ALL: 'ALL'
+}
+
+export const sessions = {
+  USER: "user",
+  AUTHENTICATED: "is_authenticated",
+  USER_STATE: "user_state",
+  STOCK_DATA: "stock_data"
 }

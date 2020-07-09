@@ -35,7 +35,7 @@ const SigninForm = withRouter(({ history }) => {
       throw response
     }).then(json => {
       if (json.success) {
-        dispatch({ type: types.LOGIN, payload: { user: data.username, token: "token", first_name: json.msg } })
+        dispatch({ type: types.LOGIN, payload: { user: data.username, first_name: json.msg } })
         history.push(urls.GRAPH)
       } else {
         throw json
@@ -63,7 +63,7 @@ const SigninForm = withRouter(({ history }) => {
         <Input
           name="username"
           className="text-field"
-          placeholder="Enter user name"
+          placeholder="username"
           required
           onChange={handleInputChange}
           onKeyUp={handleKeyUp}
@@ -76,7 +76,7 @@ const SigninForm = withRouter(({ history }) => {
           name="password"
           className="text-field"
           type="password"
-          placeholder="Enter password"
+          placeholder="password"
           required
           onChange={handleInputChange}
           onKeyUp={handleKeyUp}

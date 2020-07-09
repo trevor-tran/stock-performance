@@ -6,18 +6,16 @@ export const initialState = {
   start_date: "",
   end_date: "",
   symbols: [],
-  deleted_symbol: "",
   user: "",
-  token: "",
-  first_name: "",
   is_authenticated: false
 }
 
 export function reducer(state = initialState, action) {
   switch (action.type) {
+    case types.ALL:
+      const newState = action.payload;
+      return newState;
     case types.LOGIN:
-      localStorage.setItem("user", JSON.stringify(action.payload.user))
-      localStorage.setItem("token", JSON.stringify(action.payload.token))
       return { ...state,
         user: action.payload.user,
         first_name: action.payload.first_name,
@@ -25,7 +23,7 @@ export function reducer(state = initialState, action) {
         is_authenticated: true
       }
     case types.LOGOUT:
-      localStorage.clear();
+      sessionStorage.clear();
       return {...initialState}
     case types.ADD_SYMBOL:
       const foundIndex = state.symbols.findIndex(e => e === action.payload.symbol);

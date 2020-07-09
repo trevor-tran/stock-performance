@@ -4,16 +4,24 @@ import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tool
 import { Paper } from "@material-ui/core";
 
 import { Context } from '../store';
-import { urls } from './utils/Constants';
+import { urls, sessions } from './utils/Constants';
 import moment from 'moment';
+
+import Overlay from "./Overlay";
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];
 
 function Chart() {
 
-  const { state } = useContext(Context);
+  let stockData = [];
+  if (sessionStorage.getItem(sessions.STOCK_DATA)) {
+    stockData = JSON.parse(sessionStorage.getItem(sessions.STOCK_DATA));
+    console.log(stockData)
+  }
 
-  const [parsedData, setParsedData] = useState([]);
+  const { state } = useContext(Context);
+  const [parsedData, setParsedData] = useState(stockData);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // there are TWO actions changing state.symbols
@@ -21,6 +29,7 @@ function Chart() {
     const { symbols, end_date, start_date, budget } = state;
     if (!Array.isArray(symbols) || symbols.length === 0) {
       setParsedData([]);
+      sessionStorage.setItem(sessions.STOCK_DATA, []);
     } else if (parsedData.length > state.symbols.length) {
       // a symbol removed from state.symbols, therefore corresponding stock data in parsedData also need removed
       // no API calls needed
@@ -32,7 +41,9 @@ function Chart() {
         }
       });
       setParsedData(parsedDataAfterSymbolRemoved);
+      sessionStorage.setItem(sessions.STOCK_DATA, JSON.stringify(parsedDataAfterSymbolRemoved));
     } else {
+      setIsLoading(true);
       // need to get stock data from server
       console.log("fetching data from server...");
 
@@ -54,21 +65,27 @@ function Chart() {
         if (json.success) {
           const balances = computeBalances(budget, dataParser(symbols, JSON.parse(json.msg)));
           setParsedData(balances);
+          setIsLoading(false);
+          // session storage
+          sessionStorage.setItem(sessions.STOCK_DATA, JSON.stringify(balances));
         } else {
           throw json.msg;
         }
       }).catch(err => {
+        setIsLoading(false);
         console.error(err);
       });
     }
+    // session storage
+    sessionStorage.setItem(sessions.USER_STATE, JSON.stringify(state));
   }, [state.symbols, state.start_date, state.end_date, state.budget]);
 
   const computeBalances = (budget, parsedData) => {
     const balances = parsedData.map(obj => {
-      let {data} = obj;
+      let { data } = obj;
       let numShares = 1;
       const newData = data.map((subObj, index) => {
-        let newSubObj = {...subObj};
+        let newSubObj = { ...subObj };
         if (index === 0) {
           numShares = Number(budget) * 1.0 / Number(subObj.value);
           newSubObj.value = Number(budget);
@@ -79,7 +96,7 @@ function Chart() {
         }
         return newSubObj;
       });
-      let newObj = {...obj};
+      let newObj = { ...obj };
       newObj.data = newData;
       return newObj;
     });
@@ -127,24 +144,27 @@ function Chart() {
     return Math.ceil(num * precision) / precision
   }
 
-
   return (
-    <Paper className="graph" style={{ width: "80vw", height: "60vh", margin: 'auto'}}>
-      <ResponsiveContainer width='100%' height='100%'>
-        <LineChart width={730} height={250} data={parsedData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-          <YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
-          <Tooltip />
-          <Legend />
-          <Legend />
-          {parsedData.map((s, idx) => (
-            <Line dataKey="value" data={s.data} name={s.symbol} key={s.symbol} stroke={COLORS[idx % COLORS.length]} dot={false}/>
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
-    </Paper>
+    <React.Fragment>
+      <Paper className="graph" style={{ width: "80vw", height: "60vh", margin: 'auto' }}>
+        <ResponsiveContainer width='100%' height='100%'>
+          <LineChart width={730} height={250} data={parsedData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
+            <YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
+            <Tooltip />
+            <Legend />
+            <Legend />
+            {parsedData.map((s, idx) => (
+              <Line dataKey="value" data={s.data} name={s.symbol} key={s.symbol} stroke={COLORS[idx % COLORS.length]} dot={false} />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </Paper>
+      {isLoading ? <Overlay /> : null}
+      {/* <Overlay/> */}
+    </React.Fragment>
   );
 }
 
