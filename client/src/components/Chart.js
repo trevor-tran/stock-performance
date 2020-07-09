@@ -8,6 +8,7 @@ import { urls, sessions } from './utils/Constants';
 import moment from 'moment';
 
 import Overlay from "./Overlay";
+import { sub } from "date-fns";
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];
 
@@ -90,9 +91,11 @@ function Chart() {
           numShares = Number(budget) * 1.0 / Number(subObj.value);
           newSubObj.value = Number(budget);
         } else {
-          numShares = numShares * Number(subObj.split);
-          const totalDividend = numShares * Number(subObj.dividend);
-          newSubObj.value = roundUp(numShares * Number(subObj.value) + totalDividend, 2);
+          const {split, dividend, value} = subObj; // "value" is price
+          // assumption: stock split and dividend don't occure on same day
+          numShares = numShares * Number(split);
+          numShares += numShares * Number(dividend) / Number(value);
+          newSubObj.value = roundUp(numShares * Number(value), 2); // "newSubObj.value" is balance
         }
         return newSubObj;
       });
