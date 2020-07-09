@@ -1,10 +1,8 @@
 package com.phuongdtran.executor;
 
 import com.phuongdtran.util.Neo4jConnection;
-import com.phuongdtran.util.ReleaseStatement;
 import com.phuongdtran.util.ConnectionManager;
 import org.neo4j.driver.Driver;
-import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.slf4j.Logger;
@@ -13,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.sql.*;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-
-import static org.neo4j.driver.Values.parameters;
 
 /**
  * @author Michael Hunger @since 22.10.13

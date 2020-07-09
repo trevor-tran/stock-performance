@@ -28,7 +28,7 @@ public class Neo4jConnection {
     public static Driver getConnection() {
         if (driver == null) {
             String uri = String.format("bolt://%s:%s", hostname, port);
-            driver = GraphDatabase.driver(uri, AuthTokens.basic("neo4j", "S2duyphuong"));
+            driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password));
         }
         return driver;
     }
@@ -40,11 +40,6 @@ public class Neo4jConnection {
     public static void close() {
         driver.close();
         driver = null;
-    }
-
-    private static Driver getConnection(String hostname, String port, String username, String password) {
-        String uri = String.format("neo4j://%s:%s", hostname, port);
-        return GraphDatabase.driver(uri, AuthTokens.basic(username, password));
     }
 
     private static void getDbSettings(){
