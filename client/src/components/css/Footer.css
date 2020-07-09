@@ -1,0 +1,16 @@
+
+#footer {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	/* height: 50px; */
+	width: 100%;
+	text-align: center;
+	vertical-align: center;
+	background: #fff;
+	border-top: 1px solid #f9a11b;
+	font-size: 12px;
+	font: sans-serif;
+  display: 'block';
+  padding: '20px';
+}

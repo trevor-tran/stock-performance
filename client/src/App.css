@@ -1,0 +1,32 @@
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: Tahoma, Arial, sans-serif;
+	position: relative;
+	min-height: 100%;
+}
+
+body {
+	padding: 0 0 40px;
+	color: #333;
+	background: #f4f4f4;
+}
+
+h1, h2, h3, h4 {
+	font-family: Verdana, Geneva, sans-serif;
+	color: #444;
+	font-weight: bold;
+}
+
+small {
+	color: #555;
+}
+
+a {
+	text-decoration: none;
+	color: #ff7761;
+}

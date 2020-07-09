@@ -1,0 +1,20 @@
+#budget {
+  margin-right: 10px;
+}
+
+.top-bar {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.update-button {
+  cursor: pointer;
+	height: 50%;
+}
+
+.dropbox {
+  width: 25%;
+}
