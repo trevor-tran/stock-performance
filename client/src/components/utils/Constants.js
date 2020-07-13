@@ -1,9 +1,9 @@
 export const urls = {
   SERVER_URL:"http://localhost:4567",
-  SIGNIN: '/signin/',
-  SIGNUP: '/signup/',
-  GRAPH: '/graph/',
-  DATA: '/data/'
+  SIGNIN: '/stock/signin/',
+  SIGNUP: '/stock/signup/',
+  GRAPH: '/stock/graph/',
+  DATA: '/stock/data/'
 }
 
 export const keys = {

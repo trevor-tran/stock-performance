@@ -41,7 +41,7 @@ function Layout() {
           <Route exact path={urls.GRAPH} render={() => (
           state.is_authenticated ? <GraphContainer/> : <Redirect to={urls.SIGNIN}/>
           )}/>
-           <Route path="/" render={() => {
+           <Route path="/stock/" render={() => {
             return <Redirect to={urls.SIGNIN}/>
           }} />
           <Route path="*" render={() => {
