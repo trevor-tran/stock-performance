@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //connect to database
+// used to use for MySQL, not using it anymore
+// leave it here in case of changing database technology in the future
 public class DatabaseConnection {
 
 	/** 

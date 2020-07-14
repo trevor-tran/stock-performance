@@ -17,7 +17,6 @@ public class StockApplication {
 	public static void main(String[] args) {
 
 
-		DatabaseConnection.initialize();
 		Neo4jConnection.initialize();
 
 		//configure Spark
