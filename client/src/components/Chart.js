@@ -4,11 +4,10 @@ import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, CartesianGrid, Tool
 import { Paper } from "@material-ui/core";
 
 import { Context } from '../store';
-import { urls, sessions } from './utils/Constants';
+import { sessions, fetchURLs } from './utils/Constants';
 import moment from 'moment';
 
 import Overlay from "./Overlay";
-import { sub } from "date-fns";
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];
 
@@ -48,7 +47,7 @@ function Chart() {
       // need to get stock data from server
       console.log("fetching data from server...");
 
-      const url = urls.SERVER_URL + urls.DATA;
+      const url = fetchURLs.DATA;
       fetch(url, {
         method: 'POST',
         body: JSON.stringify({

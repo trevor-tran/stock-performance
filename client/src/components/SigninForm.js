@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom'
 import { Context } from '../store'
 
 // constants
-import { types, urls, keys } from './utils/Constants'
+import { types, clientURLs, keys, fetchURLs } from './utils/Constants'
 // css
 import './css/Form.css'
 
@@ -21,7 +21,7 @@ const SigninForm = withRouter(({ history }) => {
 
   const submit = () => {
     setData({ ...data, is_submiting: true })
-    let url = urls.SERVER_URL + urls.SIGNIN;
+    let url = fetchURLs.SIGNIN;
     fetch(url, {
       method: 'POST',
       body: JSON.stringify({
@@ -36,7 +36,7 @@ const SigninForm = withRouter(({ history }) => {
     }).then(json => {
       if (json.success) {
         dispatch({ type: types.LOGIN, payload: { user: data.username, first_name: json.msg } })
-        history.push(urls.GRAPH)
+        history.push(clientURLs.GRAPH)
       } else {
         throw json
       }

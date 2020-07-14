@@ -1,5 +1,5 @@
 import React, { useReducer} from "react";
-import {urls, sessions} from './utils/Constants'
+import {clientURLs, sessions} from './utils/Constants'
 
 //routers
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
@@ -32,17 +32,17 @@ function Layout() {
           {/* an alternative way for component is render={() => <SigninForm/>} */}
           {/* <Route exact path={urls.SIGNIN} component={SigninForm} /> */}
 
-          <Route exact path={urls.SIGNIN} render={() => (
-            state.is_authenticated ? <Redirect to={urls.GRAPH}/> : <SigninForm/>
+          <Route exact path={clientURLs.SIGNIN} render={() => (
+            state.is_authenticated ? <Redirect to={clientURLs.GRAPH}/> : <SigninForm/>
           )}/>
-          <Route exact path={urls.SIGNUP} render={() => (
-            state.is_authenticated ? <Redirect to={urls.GRAPH}/> : <SignupForm/>
+          <Route exact path={clientURLs.SIGNUP} render={() => (
+            state.is_authenticated ? <Redirect to={clientURLs.GRAPH}/> : <SignupForm/>
           )}/>
-          <Route exact path={urls.GRAPH} render={() => (
-          state.is_authenticated ? <GraphContainer/> : <Redirect to={urls.SIGNIN}/>
+          <Route exact path={clientURLs.GRAPH} render={() => (
+          state.is_authenticated ? <GraphContainer/> : <Redirect to={clientURLs.SIGNIN}/>
           )}/>
            <Route path="/stock/" render={() => {
-            return <Redirect to={urls.SIGNIN}/>
+            return <Redirect to={clientURLs.SIGNIN}/>
           }} />
           <Route path="*" render={() => {
             return <NotFound/>

@@ -1,9 +1,15 @@
-export const urls = {
-  SERVER_URL:"http://localhost:4567",
-  SIGNIN: '/stock/signin/',
-  SIGNUP: '/stock/signup/',
-  GRAPH: '/stock/graph/',
-  DATA: '/stock/data/'
+const server = "http://phuongtran.me/stock";
+// const server = "http://localhost:3000/stock"
+export const fetchURLs = {
+  SIGNIN: server + "/server/signin/",
+  SIGNUP: server + "/server/signup/",
+  DATA: server + "/server/data/",
+}
+
+export const clientURLs = {
+  SIGNIN: "/stock/signin/",
+  SIGNUP: "/stock/signup/",
+  GRAPH: "/stock/graph/"
 }
 
 export const keys = {
