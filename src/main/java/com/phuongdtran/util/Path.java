@@ -5,8 +5,8 @@ import lombok.Getter;
 public class Path {
 
 	public static class Web {
-		@Getter public static final String SIGNIN = "/signin/";
-		@Getter public static final String SIGNUP = "/signup/";
-		@Getter public static final String DATA = "/data/";
+		@Getter public static final String SIGNIN = "/stock/server/signin/";
+		@Getter public static final String SIGNUP = "/stock/server/signup/";
+		@Getter public static final String DATA = "/stock/server/data/";
 	}
 }
