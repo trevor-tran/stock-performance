@@ -16,7 +16,6 @@ function Chart() {
   let stockData = [];
   if (sessionStorage.getItem(sessions.STOCK_DATA)) {
     stockData = JSON.parse(sessionStorage.getItem(sessions.STOCK_DATA));
-    console.log(stockData)
   }
 
   const { state } = useContext(Context);
@@ -45,8 +44,6 @@ function Chart() {
     } else {
       setIsLoading(true);
       // need to get stock data from server
-      console.log("fetching data from server...");
-
       const url = fetchURLs.DATA;
       fetch(url, {
         method: 'POST',
