@@ -1,4 +1,4 @@
-const server = "http://phuongtran.me/stock";
+const server = "http://www.phuongtran.me/stock";
 // const server = "http://localhost:3000/stock"
 export const fetchURLs = {
   SIGNIN: server + "/server/signin/",
