@@ -97,7 +97,6 @@ public class AlphaVantageService implements IStockService {
                 .setQueryParameter("outputsize", size)
                 .setQueryParameter("apikey", ALPHA_VANTAGE_KEY)
                 .build();
-        System.out.println(url.toString());
         return url;
     }
 
