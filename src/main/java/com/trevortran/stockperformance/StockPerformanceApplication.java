@@ -1,4 +1,4 @@
-package com.trevor.stockperformance;
+package com.trevortran.stockperformance;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

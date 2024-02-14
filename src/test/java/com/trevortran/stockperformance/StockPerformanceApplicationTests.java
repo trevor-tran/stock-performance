@@ -1,4 +1,4 @@
-package com.trevor.stockperformance;
+package com.trevortran.stockperformance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
