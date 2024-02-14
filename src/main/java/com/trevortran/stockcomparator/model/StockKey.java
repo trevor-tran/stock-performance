@@ -1,7 +1,6 @@
-package com.trevortran.stockperformance.model;
+package com.trevortran.stockcomparator.model;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.NonNull;
 

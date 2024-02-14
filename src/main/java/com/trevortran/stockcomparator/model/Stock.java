@@ -1,12 +1,10 @@
-package com.trevortran.stockperformance.model;
+package com.trevortran.stockcomparator.model;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Entity
 @Data

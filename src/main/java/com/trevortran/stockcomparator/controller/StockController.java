@@ -1,8 +1,8 @@
-package com.trevortran.stockperformance.controller;
+package com.trevortran.stockcomparator.controller;
 
-import com.trevortran.stockperformance.model.Stock;
-import com.trevortran.stockperformance.model.StockKey;
-import com.trevortran.stockperformance.model.StockRepository;
+import com.trevortran.stockcomparator.model.Stock;
+import com.trevortran.stockcomparator.model.StockKey;
+import com.trevortran.stockcomparator.model.StockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class StockController {
     private final Logger log = LoggerFactory.getLogger(StockController.class);
-    private StockRepository stockRepository;
+    private final StockRepository stockRepository;
 
     public StockController(StockRepository stockRepository) {
         this.stockRepository = stockRepository;

@@ -1,4 +1,4 @@
-package com.trevortran.stockperformance.model;
+package com.trevortran.stockcomparator.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
