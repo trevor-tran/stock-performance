@@ -14,9 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 
 public class StockServiceImpl implements StockService {
-    private final String ALPHA_VANTAGE_KEY = "";
+    private final String ALPHA_VANTAGE_KEY = "<removed>";
     RestTemplate restTemplate;
 
     public StockServiceImpl() {
@@ -24,7 +26,7 @@ public class StockServiceImpl implements StockService {
     }
 
     private URL buildUrl(String symbol, OUTPUT_SIZE size) throws MalformedURLException {
-        URL url = UriComponentsBuilder.newInstance()
+        return UriComponentsBuilder.newInstance()
                 .scheme("https")
                 .host("www.alphavantage.co")
                 .path("query")
@@ -35,8 +37,6 @@ public class StockServiceImpl implements StockService {
                 .build()
                 .toUri()
                 .toURL();
-
-        return url;
     }
 
     @Override
@@ -55,7 +55,7 @@ public class StockServiceImpl implements StockService {
         List<Stock> result = new ArrayList<>();
 
         LocalDate currentDate =LocalDate.now();
-        long diffDate = Duration.between(currentDate, start).toDays();
+        long diffDate = DAYS.between(start, currentDate);
         if (diffDate <= 100) {
             response = request(symbol, OUTPUT_SIZE.COMPACT);
         } else {

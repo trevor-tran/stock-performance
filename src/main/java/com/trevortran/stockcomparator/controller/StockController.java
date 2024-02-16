@@ -39,7 +39,13 @@ public class StockController {
 
     @GetMapping(value = "/stock/{symbol}", params = {"start", "end"})
     public ResponseEntity<List<Stock>> getStockRange(@PathVariable String symbol, @RequestParam LocalDate start, @RequestParam LocalDate end) {
+        updateDbIfNeeded(symbol, start, end);
         List<Stock> stocks = stockRepository.findStocksById_SymbolAndId_DateBetween(symbol, start, end);
         return ResponseEntity.ok(stocks);
+    }
+
+    private void updateDbIfNeeded(String symbol, LocalDate start, LocalDate end) {
+        List<Stock> stocks = stockService.request(symbol, start, end);
+        stockRepository.saveAllAndFlush(stocks);
     }
 }
