@@ -2,6 +2,7 @@ package com.trevortran.stockcomparator.services.alphavantage;
 
 import com.trevortran.stockcomparator.model.Stock;
 import com.trevortran.stockcomparator.model.StockKey;
+import com.trevortran.stockcomparator.model.Symbol;
 import com.trevortran.stockcomparator.services.StockService;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -73,7 +74,9 @@ public class StockServiceImpl implements StockService {
         return result;
     }
 
-    private Stock normalizeStock(String symbol, Map.Entry<LocalDate, StockDaily> dailyEntry) {
+    private Stock normalizeStock(String ticker, Map.Entry<LocalDate, StockDaily> dailyEntry) {
+        Symbol symbol = new Symbol();
+        symbol.setId(ticker);
         StockKey key = new StockKey(symbol, dailyEntry.getKey());
         return new Stock(key, dailyEntry.getValue().price(), 1d, 0d);
     }

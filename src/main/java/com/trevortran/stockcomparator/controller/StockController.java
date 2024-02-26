@@ -3,6 +3,7 @@ package com.trevortran.stockcomparator.controller;
 import com.trevortran.stockcomparator.model.Stock;
 import com.trevortran.stockcomparator.model.StockKey;
 import com.trevortran.stockcomparator.model.StockRepository;
+import com.trevortran.stockcomparator.model.Symbol;
 import com.trevortran.stockcomparator.services.alphavantage.StockServiceImpl;
 import com.trevortran.stockcomparator.services.StockService;
 import org.slf4j.Logger;
@@ -27,8 +28,10 @@ public class StockController {
         this.stockService = new StockServiceImpl();
     }
 
-    @GetMapping(value = "/stock/{symbol}", params = {"date"})
-    public ResponseEntity<Stock> getStock(@PathVariable String symbol, @RequestParam LocalDate date) {
+    @GetMapping(value = "/stock/{ticker}", params = {"date"})
+    public ResponseEntity<Stock> getStock(@PathVariable String ticker, @RequestParam LocalDate date) {
+        Symbol symbol = new Symbol();
+        symbol.setId(ticker);
         StockKey id = new StockKey(symbol, date);
         Optional<Stock> stock = stockRepository.findById(id);
         stockService.request("aapl");
