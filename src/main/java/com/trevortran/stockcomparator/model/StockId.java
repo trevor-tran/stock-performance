@@ -1,9 +1,6 @@
 package com.trevortran.stockcomparator.model;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +13,9 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockKey implements Serializable {
+public class StockId implements Serializable {
     @NonNull
-    @ManyToOne
-    @JoinColumn(name="symbol_id", referencedColumnName = "id")
-    private Symbol symbol;
+    private String ticker;
     @NonNull
     private LocalDate date;
 }

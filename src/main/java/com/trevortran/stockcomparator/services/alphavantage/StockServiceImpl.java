@@ -1,15 +1,13 @@
 package com.trevortran.stockcomparator.services.alphavantage;
 
 import com.trevortran.stockcomparator.model.Stock;
-import com.trevortran.stockcomparator.model.StockKey;
-import com.trevortran.stockcomparator.model.Symbol;
+import com.trevortran.stockcomparator.model.StockId;
 import com.trevortran.stockcomparator.services.StockService;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,19 +18,19 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 public class StockServiceImpl implements StockService {
     private final String ALPHA_VANTAGE_KEY = "<removed>";
-    RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public StockServiceImpl() {
         restTemplate = new RestTemplate();
     }
 
-    private URL buildUrl(String symbol, OUTPUT_SIZE size) throws MalformedURLException {
+    private URL buildUrl(String ticker, OUTPUT_SIZE size) throws MalformedURLException {
         return UriComponentsBuilder.newInstance()
                 .scheme("https")
                 .host("www.alphavantage.co")
                 .path("query")
                 .queryParam("function", "TIME_SERIES_DAILY")
-                .queryParam("symbol", symbol)
+                .queryParam("symbol", ticker)
                 .queryParam("outputsize", size.value)
                 .queryParam("apikey", ALPHA_VANTAGE_KEY)
                 .build()
@@ -41,26 +39,26 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public List<Stock> request(String symbol) {
-        return request(symbol, OUTPUT_SIZE.FULL);
+    public List<Stock> request(String ticker) {
+        return request(ticker, OUTPUT_SIZE.FULL);
     }
 
     @Override
-    public Stock request(String symbol, LocalDate date) {
+    public Stock request(String ticker, LocalDate date) {
         return null;
     }
 
     @Override
-    public List<Stock> request(String symbol, LocalDate start, LocalDate end) {
+    public List<Stock> request(String ticker, LocalDate start, LocalDate end) {
         List<Stock> response;
         List<Stock> result = new ArrayList<>();
 
-        LocalDate currentDate =LocalDate.now();
+        LocalDate currentDate = LocalDate.now();
         long diffDate = DAYS.between(start, currentDate);
         if (diffDate <= 100) {
-            response = request(symbol, OUTPUT_SIZE.COMPACT);
+            response = request(ticker, OUTPUT_SIZE.COMPACT);
         } else {
-            response = request(symbol);
+            response = request(ticker);
         }
 
         for (Stock s : response) {
@@ -75,20 +73,18 @@ public class StockServiceImpl implements StockService {
     }
 
     private Stock normalizeStock(String ticker, Map.Entry<LocalDate, StockDaily> dailyEntry) {
-        Symbol symbol = new Symbol();
-        symbol.setId(ticker);
-        StockKey key = new StockKey(symbol, dailyEntry.getKey());
+        StockId key = new StockId(ticker, dailyEntry.getKey());
         return new Stock(key, dailyEntry.getValue().price(), 1d, 0d);
     }
 
-    private List<Stock> request(String symbol, OUTPUT_SIZE size) {
+    private List<Stock> request(String ticker, OUTPUT_SIZE size) {
         List<Stock> receivedStocks = new ArrayList<>();
         try {
-            URL url = buildUrl(symbol, size);
+            URL url = buildUrl(ticker, size);
             StockData response = restTemplate.getForObject(url.toString(), StockData.class);
             if (response != null && response.data() != null) {
                 for (Map.Entry<LocalDate, StockDaily> dailyStock : response.data().entrySet()) {
-                    receivedStocks.add(normalizeStock(symbol, dailyStock));
+                    receivedStocks.add(normalizeStock(ticker, dailyStock));
                 }
             }
         }catch (MalformedURLException e) {
