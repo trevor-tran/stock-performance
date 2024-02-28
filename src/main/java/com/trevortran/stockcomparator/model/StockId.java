@@ -9,13 +9,13 @@ import lombok.NonNull;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-@Data
 @Embeddable
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockKey implements Serializable {
+public class StockId implements Serializable {
     @NonNull
-    private String symbol;
+    private String ticker;
     @NonNull
     private LocalDate date;
 }

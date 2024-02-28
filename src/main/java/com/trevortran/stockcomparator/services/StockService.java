@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface StockService {
-    List<Stock> request(String symbol);
-    Stock request(String symbol, LocalDate date);
-    List<Stock> request(String symbol, LocalDate start, LocalDate end);
+    List<Stock> request(String ticker);
+    Stock request(String ticker, LocalDate date);
+    List<Stock> request(String ticker, LocalDate start, LocalDate end);
 }
