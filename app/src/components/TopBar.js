@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { Paper, Button, TextField, Autocomplete } from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { useState, useEffect, useContext } from 'react'
+import { Paper, Button, TextField, Autocomplete, Box, CircularProgress } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import axios from 'axios';
 
 
 //css
@@ -18,54 +18,26 @@ export default function TopBar() {
   const [budget, setBudget] = useState(0);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState(Date.now() - 1);
-  const [symbol, setSymbol] = useState("");
-  const [symbolMatches, setSymbolMatches] = useState([]);
+  const [ticker, setTicker] = useState("");
+  const [tickerMatches, setTickerMatches] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setEndDate(Date.now() - 1);
-  }, []);
-
-  // this hook will make an API call
-  // to a finanicial service to get all of the symbols that best match the input from user.
-  useEffect(() => {
-    if (!symbol) return;
-    const url = "http://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + symbol + "&apikey=" + ALPHAVANTAGE_KEYS[0];
-    fetch(url, {
-      method: 'POST',
-      mode: "cors",
-      headers: {
-        'Accept': 'application/json'
-      }
-    }).then(response => {
-      if (response.status >= 200 && response.status <= 299) {
-        return response.json();
-      } else {
-        throw "Error in request";
-      }
-    }).then(json => {
-      if (!json["bestMatches"]) {
-        throw "This app has a limited number of requests, in minute or day, to a free financial service. Please don't type too many letters in a minute."
-      }
-
-      let bestMatches = [];
-      json["bestMatches"].forEach(obj => {
-        let match = {};
-        if (obj["8. currency"] === "USD") {
-          match["symbol"] = obj["1. symbol"];
-          match["name"] = obj["2. name"];
-          bestMatches.push(match);
-        }
-      });
-      setSymbolMatches(bestMatches);
-    }).catch(err => {
-      alert(err);
+    if (!ticker) return;
+    setLoading(true);
+    const url = "http://localhost:8080/api/symbol?keyword=";
+    axios.get(url + ticker
+    ).then(response => {
+      setTickerMatches(response.data);
+      setLoading(false);
+    }).catch(error => {
+      console.log(error);
+      setLoading(false);
     });
-  }, [symbol]);
-
+  }, [ticker])
 
   return (
-    <Paper className="top-bar">
-
+    <>
       <TextField
         type="number"
         label="Budget($)"
@@ -80,36 +52,42 @@ export default function TopBar() {
       />
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker label="Start Date" />
+        <DatePicker label="Start Date" />
       </LocalizationProvider>
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker label="End Date" />
+        <DatePicker label="End Date" />
       </LocalizationProvider>
 
       <Autocomplete
+        sx={{ minWidth: "300px", width: "400px" }}
         className="dropbox"
         freeSolo
-        disableClearable
-        options={symbolMatches}
-        value={symbol}
-        getOptionLabel={option => option.symbol ? option.symbol : option}
-        renderOption={option => (
-          <React.Fragment>
-            {option.symbol} - {option.name}
-          </React.Fragment>
+        options={tickerMatches}
+        value={ticker}
+        loading={loading}
+        getOptionLabel={option => option.ticker ? option.ticker : option}
+        renderOption={(props, option) => (
+          <Box key={option.ticker} component="li" sx={{  borderBottom: "1px solid #dcdcdc" }} {...props}>
+            <span style={{marginRight: "50px"}}>{option.ticker}</span> <span style={{marginLeft: "auto", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>{option.name}</span>
+          </Box>
         )}
         renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Search symbol"
-            margin="normal"
-            variant="outlined"
+          <TextField {...params} label="Search Ticker" margin="normal" variant="outlined"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? <CircularProgress color="inherit" size={15} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
           />
         )}
+        onInputChange={(e, v) => setTicker(v.toUpperCase())}
       />
-
-      <Button className="update-button" variant="outlined" color="primary">Update</Button>
-    </Paper>
+      <Button variant="outlined" color="primary">Update</Button>
+    </>
   )
 }
