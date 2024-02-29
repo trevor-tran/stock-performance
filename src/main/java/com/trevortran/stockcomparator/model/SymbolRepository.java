@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface SymbolRepository extends JpaRepository<Symbol, String> {
 
-    @Query("SELECT s FROM Symbol s WHERE s.ticker LIKE '%:term%'")
+    @Query("SELECT s FROM Symbol s WHERE s.ticker LIKE %:term%")
     List<Symbol> findBestMatchesById(@Param("term") String term);
 }
