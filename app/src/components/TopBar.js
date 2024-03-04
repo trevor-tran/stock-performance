@@ -4,23 +4,21 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axios from 'axios';
-
-
-//css
-
-const DATE_FORMAT = ("mm/dd/yyyy");
+import dayjs from 'dayjs';
 
 const ALPHAVANTAGE_KEYS = ['9550BIKHH601BM7H', 'TWMPYRJCSANOW7L7'];
 
-export default function TopBar() {
+export default function TopBar(props) {
 
+  const pastDay = dayjs(Date.now() - 1);
 
-  const [budget, setBudget] = useState(0);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState(Date.now() - 1);
-  const [ticker, setTicker] = useState("");
+  const [budget, setBudget] = useState(props.budget);
+  const [startDate, setStartDate] = useState(dayjs(props.startDate));
+  const [endDate, setEndDate] = useState(dayjs(props.endDate) );
+  const [ticker, setTicker] = useState(props.ticker);
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (!ticker) return;
@@ -35,6 +33,20 @@ export default function TopBar() {
       setLoading(false);
     });
   }, [ticker])
+
+  function handleOnUpdate(e) {
+    e.preventDefault();
+    props.onChange({
+      startDate: startDate.format("YYYY-MM-DD"),
+      budget: Number(budget),
+      endDate: endDate.format("YYYY-MM-DD"),
+      ticker
+    })
+  }
+
+  function disableWeekends(date) {
+    return date.day() === 0 || date.day() === 6;
+  }
 
   return (
     <>
@@ -52,11 +64,20 @@ export default function TopBar() {
       />
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker label="Start Date" />
+        <DatePicker label="Start Date" value={startDate} views={['month', 'year']}
+        onChange={newDate => setStartDate(newDate)}
+        shouldDisableDate={disableWeekends}
+        minDate={pastDay.subtract(20, "year")}
+        maxDate={dayjs(pastDay)}
+        />
       </LocalizationProvider>
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker label="End Date" />
+        <DatePicker label="End Date" value={endDate} views={['month', 'year']}
+        onChange={newDate => setEndDate(newDate)}
+        shouldDisableDate={disableWeekends}
+        minDate={pastDay.subtract(20, "year")}
+        maxDate={dayjs(pastDay).subtract(1, "day")}/>
       </LocalizationProvider>
 
       <Autocomplete
@@ -87,7 +108,7 @@ export default function TopBar() {
         )}
         onInputChange={(e, v) => setTicker(v.toUpperCase())}
       />
-      <Button variant="outlined" color="primary">Update</Button>
+      <Button variant="outlined" color="primary" onClick={handleOnUpdate}>Update</Button>
     </>
   )
 }
