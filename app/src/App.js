@@ -72,16 +72,13 @@ function App() {
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
   function intersectMaps(map1, map2) {
-    const map1KeySet = new Set(map1.keys());
-    const map2KeySet = new Set(map2.keys());
-    const mutualKeySet = map1KeySet.intersection(map2KeySet);
-
     let intersection = new Map();
-
-    mutualKeySet.forEach(k => {
-      const v = [...map1.get(k), ...map2.get(k)];
-      intersection.set(k, v);
-    });
+    map1.forEach((v, k) => {
+      if(map2.has(k)) {
+        intersection.set(k, [...v, ...map2.get(k)]);
+      }
+    })
+    console.log(intersection)
     
     return intersection;
   }
