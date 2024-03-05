@@ -41,6 +41,11 @@ function Chart(props) {
     prevDate = date;
   });
 
+  function handleTickerClick(e) {
+    console.log(e);
+    props.onLegendClick(e.dataKey);
+  }
+
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart width={730} height={250} data={data}
@@ -48,7 +53,7 @@ function Chart(props) {
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
         <YAxis  tickFormatter={tick => tick.toLocaleString()} label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
         <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)}/>
-        <Legend verticalAlign="top"/>
+        <Legend verticalAlign="top" onClick={handleTickerClick}/>
         <Legend />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
           if (k !== "date") {

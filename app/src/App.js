@@ -16,7 +16,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-function App() {
+export default function App() {
 
   const [userInputs, setUserInputs] = useState({
     budget: 1000,
@@ -31,6 +31,7 @@ function App() {
 
   const prevStartDate = useRef(userInputs.startDate);
   const prevEndDate = useRef(userInputs.endDate);
+  const prevTickers = useRef(tickers);
 
   useEffect(() => {
     if (tickers.length === 0) return;
@@ -44,6 +45,8 @@ function App() {
       prevStartDate.current = userInputs.startDate;
       prevEndDate.current = userInputs.endDate;
       needFreshCache = true;
+    } if (prevTickers.length > tickers.length) {
+      return;
     }
 
     axios.get(url).then(response => {
@@ -86,8 +89,26 @@ function App() {
     setUserInputs({...userInputs, ...valueObj});
     let found = tickers.indexOf(valueObj.ticker)
     if (found < 0 && valueObj.ticker.trim().length > 0) {
-      setTickers([...tickers, valueObj.ticker]);
+      const newTickers = [...tickers, valueObj.ticker]
+      setTickers(newTickers);
+      prevTickers.current = newTickers;
     }
+  }
+
+  function handleLegendClick(ticker) {
+    const newTickers = tickers.filter( v => v !== ticker);
+    setTickers(newTickers);
+    prevTickers.current = newTickers;
+
+    // remove ticker data from cache
+    const newStockCache = new Map();
+    
+    stockCache.forEach((v,k) => {
+      const newValue = v.filter(e => e.ticker !== ticker);
+      newStockCache.set(k, newValue);
+    });
+
+    setStockCache(newStockCache);
   }
 
   return (
@@ -99,11 +120,9 @@ function App() {
       </Grid>
       <Grid item sx={{width: "100%"}}>
         <Item sx={{margin: 'auto', height: "500px" }}>
-          <Chart budget={userInputs.budget} stockData={stockCache}/>
+          <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick}/>
         </Item>
       </Grid>
     </Grid>
   );
 }
-
-export default App;
