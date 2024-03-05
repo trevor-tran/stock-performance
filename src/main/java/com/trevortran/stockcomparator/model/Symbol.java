@@ -25,7 +25,7 @@ public class Symbol {
     private LocalDate lastUpdated;
     private LocalDate ipoDate;
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name="stock_id_ticker", referencedColumnName = "ticker")
+    @JoinColumn(name="ticker")
     private Set<Stock> stocks;
 
     @Override
