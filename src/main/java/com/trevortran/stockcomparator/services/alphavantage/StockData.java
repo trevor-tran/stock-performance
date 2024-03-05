@@ -7,4 +7,4 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record StockData(@JsonProperty("Time Series (Daily)") Map<LocalDate, StockDaily> data){}
+public record StockData(@JsonProperty("Monthly Adjusted Time Series") Map<LocalDate, StockDaily> data){}

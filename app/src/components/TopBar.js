@@ -1,20 +1,19 @@
-import { useState, useEffect, useContext } from 'react'
-import { Paper, Button, TextField, Autocomplete, Box, CircularProgress } from '@mui/material';
+import { useState, useEffect } from 'react'
+import { Button, TextField, Autocomplete, Box, CircularProgress } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
-const ALPHAVANTAGE_KEYS = ['9550BIKHH601BM7H', 'TWMPYRJCSANOW7L7'];
-
 export default function TopBar(props) {
 
-  const pastDay = dayjs(Date.now() - 1);
+  const endOfPastMonth = dayjs(Date.now()).subtract(1, "month").endOf("month");
+  const endOfPastYear = endOfPastMonth.subtract(1, "year");
 
   const [budget, setBudget] = useState(props.budget);
-  const [startDate, setStartDate] = useState(dayjs(props.startDate));
-  const [endDate, setEndDate] = useState(dayjs(props.endDate) );
+  const [startDate, setStartDate] = useState(dayjs(props.startDate || endOfPastYear));
+  const [endDate, setEndDate] = useState(dayjs(props.endDate || endOfPastMonth));
   const [ticker, setTicker] = useState(props.ticker);
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,19 +64,19 @@ export default function TopBar(props) {
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker label="Start Date" value={startDate} views={['month', 'year']}
-        onChange={newDate => setStartDate(newDate)}
+        onChange={newDate => setStartDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
-        minDate={pastDay.subtract(20, "year")}
-        maxDate={dayjs(pastDay)}
+        minDate={endOfPastMonth.subtract(20, "year")}
+        maxDate={endOfPastMonth.subtract(3, "month")}
         />
       </LocalizationProvider>
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker label="End Date" value={endDate} views={['month', 'year']}
-        onChange={newDate => setEndDate(newDate)}
+        onChange={newDate => setEndDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
-        minDate={pastDay.subtract(20, "year")}
-        maxDate={dayjs(pastDay).subtract(1, "day")}/>
+        minDate={endOfPastMonth.subtract(20, "year")}
+        maxDate={endOfPastMonth}/>
       </LocalizationProvider>
 
       <Autocomplete

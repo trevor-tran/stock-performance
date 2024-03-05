@@ -15,7 +15,6 @@ import java.io.Serializable;
 public final class Stock implements Serializable {
     @EmbeddedId
     private StockId id;
-    private double endOfDayPrice;
-    private double split = 1.0d;
-    private double dividend = 0d;
+    private double endOfMonthPrice;
+    private double dividend;
 }

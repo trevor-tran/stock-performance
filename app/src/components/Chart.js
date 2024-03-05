@@ -25,7 +25,7 @@ function Chart(props) {
           dataPoint[ticker] = currentBalance;
         }
       }
-      
+
     data.push(dataPoint);
     prevDate = date;
   });

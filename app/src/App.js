@@ -25,7 +25,6 @@ function App() {
     ticker: ""
   })
   const [tickers, setTickers] = useState([]);
-  const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [stockCache, setStockCache] = useState(new Map());
@@ -42,7 +41,6 @@ function App() {
 
     if (prevStartDate.current !== userInputs.startDate || prevEndDate.current !== userInputs.endDate) {
       url = `http://localhost:8080/api/stock/batch?tickers=${tickers.join()}&start=${userInputs.startDate}&end=${userInputs.endDate}`;
-      console.log(url)
       prevStartDate.current = userInputs.startDate;
       prevEndDate.current = userInputs.endDate;
       isCacheDirty = true;
@@ -69,7 +67,6 @@ function App() {
       } else {
         newStockCache = intersectMaps(stockCache, data);
       }
-
       setStockCache(newStockCache);
     });
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
@@ -85,7 +82,7 @@ function App() {
       const v = [...map1.get(k), ...map2.get(k)];
       intersection.set(k, v);
     });
-    console.log(intersection)
+    
     return intersection;
   }
 
