@@ -40,7 +40,9 @@ export default function TopBar(props) {
       budget: Number(budget),
       endDate: endDate.format("YYYY-MM-DD"),
       ticker
-    })
+    });
+    
+    setTicker("");
   }
 
   function disableWeekends(date) {
@@ -57,8 +59,8 @@ export default function TopBar(props) {
         value={budget}
         onChange={e => setBudget(e.target.value)}
         inputProps={{
-          step: 10,
-          min: 10
+          step: 1000,
+          min: 1000
         }}
       />
 
@@ -67,7 +69,7 @@ export default function TopBar(props) {
         onChange={newDate => setStartDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
         minDate={endOfPastMonth.subtract(20, "year")}
-        maxDate={endOfPastMonth.subtract(3, "month")}
+        maxDate={endOfPastMonth.subtract(1, "month")}
         />
       </LocalizationProvider>
 

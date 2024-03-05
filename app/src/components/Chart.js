@@ -9,20 +9,30 @@ function Chart(props) {
   const { stockData, budget } = props;
 
   let prevDate;
+
   stockData.forEach((arr, date, thisMap) => {
       let dataPoint = new Object();
 
       dataPoint["date"] = dayjs(date).format("MMM. YYYY").toString();
 
+      // the arr is an array datatype that contains tickers and its price
       for (let index = 0; index < arr.length; index++) {
         const {ticker, endOfMonthPrice} = arr[index];
+        
+        // if it's the day when money was invested,
+        // no need to do any calculations.
+        // Otherwise, compute the performance of current month based on previous monthh
         if (!prevDate) {
           dataPoint[ticker] = budget;
         } else {
+          // current performance is the ratio of current month price over previous month price
           const prevMonthPrice = thisMap.get(prevDate)[index].endOfMonthPrice;
           const returnRate = Number(endOfMonthPrice) / Number(prevMonthPrice);
+
+          // calculate current balance based off of previous balance and current performance rate
           const prevBalance = data[data.length - 1][ticker];
           const currentBalance = Number(prevBalance) * returnRate;
+
           dataPoint[ticker] = currentBalance;
         }
       }

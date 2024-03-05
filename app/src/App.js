@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
     if (tickers.length === 0) return;
 
-    let isCacheDirty = false;
+    let needFreshCache = false;
 
     let url = `http://localhost:8080/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
 
@@ -43,7 +43,7 @@ function App() {
       url = `http://localhost:8080/api/stock/batch?tickers=${tickers.join()}&start=${userInputs.startDate}&end=${userInputs.endDate}`;
       prevStartDate.current = userInputs.startDate;
       prevEndDate.current = userInputs.endDate;
-      isCacheDirty = true;
+      needFreshCache = true;
     }
 
     axios.get(url).then(response => {
@@ -62,7 +62,7 @@ function App() {
     }).then(data => {
       let newStockCache;
 
-      if (isCacheDirty) {
+      if (needFreshCache) {
         newStockCache = data;
       } else {
         newStockCache = intersectMaps(stockCache, data);
@@ -78,7 +78,6 @@ function App() {
         intersection.set(k, [...v, ...map2.get(k)]);
       }
     })
-    console.log(intersection)
     
     return intersection;
   }
