@@ -3,6 +3,7 @@ import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend } f
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];
 
+
 function Chart(props) {
   const data = [];
   const { stockData, budget } = props;
@@ -35,8 +36,8 @@ function Chart(props) {
       <LineChart width={730} height={250} data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-        <YAxis label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
-        <Tooltip />
+        <YAxis  tickFormatter={tick => tick.toLocaleString()} label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
+        <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)}/>
         <Legend verticalAlign="top"/>
         <Legend />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
