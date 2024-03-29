@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SymbolServiceImpl implements SymbolService {
-    private final String ALPHA_VANTAGE_KEY = "PDOGDFRY2VU8A943";
+    private final String ALPHA_VANTAGE_KEY = "";
     private final RestTemplate restTemplate;
 
     public SymbolServiceImpl() {
@@ -27,7 +27,7 @@ public class SymbolServiceImpl implements SymbolService {
                 for (SymbolDetail s : response.rawSymbols()) {
                     Symbol symbol = new Symbol(s.id(), s.name(), s.type(), s.region(),
                             s.timeZone(), s.currency(), s.marketOpen(),
-                            s.marketClose(), null, null);
+                            s.marketClose(), null, null, null);
                     symbols.add(symbol);
                 }
             }
