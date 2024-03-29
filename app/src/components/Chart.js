@@ -14,18 +14,19 @@ const renderCustomizedLegend = props => {
 
   function handleOnClick(e) {
     e.preventDefault();
-    props.onClick(payload[e.currentTarget.value])
+    props.onClick(payload[e.currentTarget.value]);
+    props.onMouseLeave();
   }
 
   function handleOnMouseEnter(e) {
     e.preventDefault();
-    props.onMouseEnter(payload[e.currentTarget.value])
+    props.onMouseEnter(payload[e.currentTarget.value]);
 
   }
 
   function handleOnMouseLeave(e) {
     e.preventDefault();
-    props.onMouseLeave(payload[e.currentTarget.value]);
+    props.onMouseLeave();
   }
 
   return (
@@ -109,7 +110,7 @@ export default function Chart(props) {
         />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
           if (k !== "date") {
-            return <Line key={k} dataKey={k} stroke={COLORS[idx % COLORS.length]} strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)} dot={false} />
+            return <Line key={k} dataKey={k} strokeWidth={3} stroke={COLORS[idx % COLORS.length]} strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)} dot={false} />
           }
         })}
       </LineChart>

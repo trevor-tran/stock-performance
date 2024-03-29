@@ -77,7 +77,7 @@ export default function TopBar(props) {
         onChange={newDate => setEndDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
         minDate={dayjs(endOfLastMonth).subtract(19, "year")}
-        maxDate={endOfLastMonth}/>
+        maxDate={dayjs(endOfLastMonth)}/>
       </LocalizationProvider>
 
       <Autocomplete

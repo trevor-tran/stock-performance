@@ -3,14 +3,12 @@ import { Box, Grid, Paper, styled } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
 import axios from 'axios';
-import dayjs from 'dayjs';
 
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-import { endOfLastMonth, endOfLastYear } from "./components/utils/date";
 
 import './App.css';
 
