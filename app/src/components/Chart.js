@@ -90,11 +90,6 @@ export default function Chart(props) {
     prevDate = date;
   });
 
-  function handleLegendHover(e) {
-    setEmphasize(e.dataKey);
-    console.log(e);
-  }
-
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
