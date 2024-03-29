@@ -1,10 +1,55 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend, Text } from 'recharts';
 
 import "../assets/css/Chart.css";
+import { Button, Tooltip as MuiTooltip } from '@mui/material';
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];
+
+
+
+const renderCustomizedLegend = props => {
+  const { payload } = props;
+
+
+  function handleOnClick(e) {
+    e.preventDefault();
+    console.log(props)
+    props.onClick(payload[e.currentTarget.value])
+  }
+
+  function handleOnMouseEnter(e) {
+    e.preventDefault();
+    props.onMouseEnter(payload[e.currentTarget.value])
+
+  }
+
+  function handleOnMouseLeave(e) {
+    e.preventDefault();
+    props.onMouseLeave(payload[e.currentTarget.value]);
+  }
+
+  return (
+    <div>
+      {
+        payload.map(
+          (entry, index) => (
+            <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="right">
+              <Button sx={{ display: "block", padding: 0, marginBottom: "5px"}} variant="text" value={index}
+                onMouseEnter={handleOnMouseEnter}
+                onMouseLeave={handleOnMouseLeave}
+                onClick={handleOnClick}>
+                <span style={{ display: "inline-block", width: "20px", height: "10px", backgroundColor: entry.color, marginRight: "10px" }}></span>
+                <span style={{ color: entry.color }}>{entry.value}</span>
+              </Button>
+            </MuiTooltip>
+          ))
+      }
+    </div>
+  )
+}
+
 
 
 export default function Chart(props) {
@@ -16,7 +61,7 @@ export default function Chart(props) {
   let prevDate;
 
   stockData.forEach((arr, date, thisMap) => {
-    let dataPoint = new Object();
+    let dataPoint = {};
 
     dataPoint["date"] = dayjs(date).format("MMM. YYYY").toString();
 
@@ -46,6 +91,11 @@ export default function Chart(props) {
     prevDate = date;
   });
 
+  function handleLegendHover(e) {
+    setEmphasize(e.dataKey);
+    console.log(e);
+  }
+
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart width={730} height={250} data={data}
@@ -53,10 +103,14 @@ export default function Chart(props) {
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
         <YAxis tickFormatter={tick => tick.toLocaleString()} label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
         <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)} />
-        <Legend verticalAlign="top"
+        <Legend layout="vertical" verticalAlign="middle" align="right"
+          wrapperStyle={{
+            paddingLeft: "20px"
+          }}
           onClick={e => props.onLegendClick(e.dataKey)}
           onMouseEnter={e => setEmphasize(e.dataKey)}
           onMouseLeave={() => setEmphasize(null)}
+          content={renderCustomizedLegend}
         />
         <Legend />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {

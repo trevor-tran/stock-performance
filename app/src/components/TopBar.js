@@ -6,14 +6,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
+import { endOfLastMonth, endOfLastYear } from "./utils/date";
+
 export default function TopBar(props) {
 
-  const endOfPastMonth = dayjs(Date.now()).subtract(1, "month").endOf("month");
-  const endOfPastYear = endOfPastMonth.subtract(1, "year");
-
   const [budget, setBudget] = useState(props.budget);
-  const [startDate, setStartDate] = useState(dayjs(props.startDate || endOfPastYear));
-  const [endDate, setEndDate] = useState(dayjs(props.endDate || endOfPastMonth));
+  const [startDate, setStartDate] = useState(dayjs(props.startDate || endOfLastYear));
+  const [endDate, setEndDate] = useState(dayjs(props.endDate || endOfLastMonth));
   const [ticker, setTicker] = useState(props.ticker);
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,7 +40,7 @@ export default function TopBar(props) {
       endDate: endDate.format("YYYY-MM-DD"),
       ticker
     });
-    
+
     setTicker("");
   }
 
@@ -68,8 +67,8 @@ export default function TopBar(props) {
         <DatePicker label="Start Date" value={startDate} views={['month', 'year']}
         onChange={newDate => setStartDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
-        minDate={endOfPastMonth.subtract(20, "year")}
-        maxDate={endOfPastMonth.subtract(1, "month")}
+        minDate={dayjs(endOfLastMonth).subtract(20, "year")}
+        maxDate={dayjs(endOfLastMonth).subtract(1, "month")}
         />
       </LocalizationProvider>
 
@@ -77,8 +76,8 @@ export default function TopBar(props) {
         <DatePicker label="End Date" value={endDate} views={['month', 'year']}
         onChange={newDate => setEndDate(newDate.endOf("month"))}
         shouldDisableDate={disableWeekends}
-        minDate={endOfPastMonth.subtract(20, "year")}
-        maxDate={endOfPastMonth}/>
+        minDate={dayjs(endOfLastMonth).subtract(19, "year")}
+        maxDate={endOfLastMonth}/>
       </LocalizationProvider>
 
       <Autocomplete
