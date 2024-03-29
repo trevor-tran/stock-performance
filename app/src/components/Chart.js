@@ -12,10 +12,8 @@ const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50'
 const renderCustomizedLegend = props => {
   const { payload } = props;
 
-
   function handleOnClick(e) {
     e.preventDefault();
-    console.log(props)
     props.onClick(payload[e.currentTarget.value])
   }
 
@@ -35,8 +33,8 @@ const renderCustomizedLegend = props => {
       {
         payload.map(
           (entry, index) => (
-            <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="right">
-              <Button sx={{ display: "block", padding: 0, marginBottom: "5px"}} variant="text" value={index}
+            <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="bottom">
+              <Button sx={{padding: 0, marginRight: "15px"}} variant="text" value={index}
                 onMouseEnter={handleOnMouseEnter}
                 onMouseLeave={handleOnMouseLeave}
                 onClick={handleOnClick}>
@@ -98,21 +96,17 @@ export default function Chart(props) {
 
   return (
     <ResponsiveContainer width='100%' height='100%'>
-      <LineChart width={730} height={250} data={data}
+      <LineChart data={data}
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-        <YAxis tickFormatter={tick => tick.toLocaleString()} label={{ value: 'U.S. dollars ($)', angle: -90, position: 'insideLeft' }} />
+        <YAxis tickFormatter={tick => "$" + tick.toLocaleString()} />
         <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)} />
-        <Legend layout="vertical" verticalAlign="middle" align="right"
-          wrapperStyle={{
-            paddingLeft: "20px"
-          }}
+        <Legend
           onClick={e => props.onLegendClick(e.dataKey)}
           onMouseEnter={e => setEmphasize(e.dataKey)}
           onMouseLeave={() => setEmphasize(null)}
           content={renderCustomizedLegend}
         />
-        <Legend />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
           if (k !== "date") {
             return <Line key={k} dataKey={k} stroke={COLORS[idx % COLORS.length]} strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)} dot={false} />
