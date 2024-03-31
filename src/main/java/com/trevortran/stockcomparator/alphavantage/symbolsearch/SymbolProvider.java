@@ -1,7 +1,8 @@
-package com.trevortran.stockcomparator.services.alphavantage;
+package com.trevortran.stockcomparator.alphavantage.symbolsearch;
 
+import com.trevortran.stockcomparator.alphavantage.util.SecretManager;
+import com.trevortran.stockcomparator.alphavantage.util.Utils;
 import com.trevortran.stockcomparator.model.Symbol;
-import com.trevortran.stockcomparator.services.SymbolService;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -10,14 +11,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SymbolServiceImpl implements SymbolService {
-    private final String ALPHA_VANTAGE_KEY = "";
+public class SymbolProvider {
     private final RestTemplate restTemplate;
 
-    public SymbolServiceImpl() {
+    public SymbolProvider() {
         restTemplate = new RestTemplate();
     }
-    @Override
     public List<Symbol> request(String keyword) {
         List<Symbol> symbols = new ArrayList<>();
         try {
@@ -37,20 +36,16 @@ public class SymbolServiceImpl implements SymbolService {
         return symbols;
     }
 
-    @Override
     public List<Symbol> request(String keyword, String region) {
         List<Symbol> symbols = request(keyword);
         return symbols.stream().filter(s -> s.getRegion().equals(region)).toList();
     }
 
     private URL buildUrl(String keyword) throws MalformedURLException {
-        return UriComponentsBuilder.newInstance()
-                .scheme("https")
-                .host("www.alphavantage.co")
-                .path("query")
+        return Utils.getQueryPath()
                 .queryParam("function", "SYMBOL_SEARCH")
                 .queryParam("keywords", keyword)
-                .queryParam("apikey", ALPHA_VANTAGE_KEY)
+                .queryParam("apikey", SecretManager.getSecretKey())
                 .build()
                 .toUri()
                 .toURL();

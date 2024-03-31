@@ -1,51 +1,49 @@
 package com.trevortran.stockcomparator.controller;
 
+import com.trevortran.stockcomparator.alphavantage.corestock.StockProvider;
 import com.trevortran.stockcomparator.model.Stock;
-import com.trevortran.stockcomparator.model.StockRepository;
 import com.trevortran.stockcomparator.model.Symbol;
-import com.trevortran.stockcomparator.services.alphavantage.StockServiceImpl;
-import com.trevortran.stockcomparator.services.StockService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import com.trevortran.stockcomparator.service.StockService;
+import com.trevortran.stockcomparator.service.SymbolService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api")
 public class StockController {
-    private final Logger log = LoggerFactory.getLogger(StockController.class);
-    private final StockRepository stockRepository;
     private final StockService stockService;
-    private final RestTemplate restTemplate;
+    private final SymbolService symbolService;
+    private final StockProvider stockProvider = new StockProvider();
 
-    public StockController(StockRepository stockRepository) {
-        this.stockRepository = stockRepository;
-        this.stockService = new StockServiceImpl();
-        this.restTemplate = new RestTemplate();
+    @Autowired
+    public StockController(StockService stockService, SymbolService symbolService) {
+        this.stockService = stockService;
+        this.symbolService = symbolService;
     }
 
     @GetMapping(value = "/stock/{ticker}", params = {"start", "end"})
     public ResponseEntity<List<Stock>> getStockByDateRange(@PathVariable String ticker, @RequestParam LocalDate start, @RequestParam LocalDate end) {
 
 
-        Symbol symbol = findSymbolById(ticker);
-        if (symbol == null) {
+        Optional<Symbol> symbolOptional = symbolService.findByTicker(ticker);
+        if (symbolOptional.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
-        LocalDate lastUpdated = symbol.getLastUpdated();
+        LocalDate lastUpdated = symbolOptional.get().getLastUpdated();
 
         // fetch and save data consumed if db is out of date
         if (lastUpdated == null || lastUpdated.isBefore(end)) {
             requestAndSaveStockData(ticker);
         }
 
-        List<Stock> stocks = stockRepository.findByTickerAndDateBetween(ticker, start, end);
+        List<Stock> stocks = stockService.findByTicker(ticker, start, end);
 
         return ResponseEntity.ok(stocks);
     }
@@ -57,10 +55,12 @@ public class StockController {
         LocalDate mutualQueryStartDate = start;
 
         for (String ticker : tickers) {
-            Symbol symbol = findSymbolById(ticker);
-            if (symbol == null) {
+            Optional<Symbol> symbolOptional = symbolService.findByTicker(ticker);
+            if (symbolOptional.isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
+
+            Symbol symbol = symbolOptional.get();
 
             LocalDate lastUpdated = symbol.getLastUpdated();
             if (lastUpdated == null || lastUpdated.isBefore(end)) {
@@ -77,27 +77,22 @@ public class StockController {
         }
 
 
-        List<Stock> stocks = stockRepository.findByMultiTickersAndDateBetween(tickers, mutualQueryStartDate, mutualQueryEndDate);
+        List<Stock> stocks = stockService.findByTickers(tickers, mutualQueryStartDate, mutualQueryEndDate);
 
         return ResponseEntity.ok(stocks);
     }
 
     private void requestAndSaveStockData(String ticker) {
-        List<Stock> stocks = stockService.request(ticker);
-        stockRepository.saveAllAndFlush(stocks);
-        Symbol symbol = findSymbolById(ticker);
-        symbol.setLastUpdated(stockRepository.findMaxDateByTicker(ticker));
-        symbol.setIpoDate(stockRepository.findMinDateByTicker(ticker));
-        updateSymbol(symbol);
-    }
+        List<Stock> stocks = stockProvider.request(ticker);
+        stockService.save(stocks);
 
-    private void updateSymbol(Symbol symbol) {
-        final String url = "http://localhost:8080/api/symbol";
-        restTemplate.put(url, symbol);
-    }
+        Optional<Symbol> symbolOptional = symbolService.findByTicker(ticker);
+        assert symbolOptional.isPresent();
 
-    private Symbol findSymbolById(String symbolId) {
-        final String url = "http://localhost:8080/api/symbol/" + symbolId;
-        return restTemplate.getForObject(url, Symbol.class);
+        symbolOptional.ifPresent(symbol -> {
+            symbol.setLastUpdated(stockService.findMaxDateByTicker(ticker));
+            symbol.setIpoDate(stockService.findMinDateByTicker(ticker));
+            symbolService.save(symbol);
+        });
     }
 }
