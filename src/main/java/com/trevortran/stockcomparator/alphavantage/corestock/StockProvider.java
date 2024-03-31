@@ -1,10 +1,10 @@
-package com.trevortran.stockcomparator.services.alphavantage;
+package com.trevortran.stockcomparator.alphavantage.corestock;
 
+import com.trevortran.stockcomparator.alphavantage.util.SecretManager;
+import com.trevortran.stockcomparator.alphavantage.util.Utils;
 import com.trevortran.stockcomparator.model.Stock;
 import com.trevortran.stockcomparator.model.StockId;
-import com.trevortran.stockcomparator.services.StockService;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,33 +13,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
-
-public class StockServiceImpl implements StockService {
-    private final String ALPHA_VANTAGE_KEY = "";
-    private final RestTemplate restTemplate;
-
-    public StockServiceImpl() {
-        restTemplate = new RestTemplate();
-    }
+public class StockProvider {
 
     private URL buildUrl(String ticker) throws MalformedURLException {
-        return UriComponentsBuilder.newInstance()
-                .scheme("https")
-                .host("www.alphavantage.co")
-                .path("query")
+        return Utils.getQueryPath()
                 .queryParam("function", "TIME_SERIES_MONTHLY_ADJUSTED")
                 .queryParam("symbol", ticker)
-                .queryParam("apikey", ALPHA_VANTAGE_KEY)
+                .queryParam("apikey", SecretManager.getSecretKey())
                 .build()
                 .toUri()
                 .toURL();
     }
 
-    @Override
+
     public List<Stock> request(String ticker) {
         List<Stock> receivedStocks = new ArrayList<>();
+        RestTemplate restTemplate = new RestTemplate();
         try {
             URL url = buildUrl(ticker);
             StockData response = restTemplate.getForObject(url.toString(), StockData.class);
@@ -48,7 +37,7 @@ public class StockServiceImpl implements StockService {
                     receivedStocks.add(normalizeStock(ticker, dailyStock));
                 }
             }
-        }catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
         }
         return receivedStocks;
@@ -58,5 +47,4 @@ public class StockServiceImpl implements StockService {
         StockId key = new StockId(ticker, dailyEntry.getKey());
         return new Stock(key, dailyEntry.getValue().price(), dailyEntry.getValue().dividend());
     }
-
 }

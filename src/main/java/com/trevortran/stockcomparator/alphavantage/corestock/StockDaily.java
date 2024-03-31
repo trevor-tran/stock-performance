@@ -1,4 +1,4 @@
-package com.trevortran.stockcomparator.services.alphavantage;
+package com.trevortran.stockcomparator.alphavantage.corestock;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
