@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend, Text } from 'recharts';
 
-import "../assets/css/Chart.css";
 import { Button, Tooltip as MuiTooltip } from '@mui/material';
 
 const COLORS = ['#8884d8', '#82ca9d', '#e57cf9', '#8b2412', '#f83581', '#f07b50', '#0c5e59', '#0011ff', '#595163'];

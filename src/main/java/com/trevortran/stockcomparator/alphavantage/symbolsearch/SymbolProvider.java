@@ -24,9 +24,16 @@ public class SymbolProvider {
             SymbolData response = restTemplate.getForObject(url.toString(), SymbolData.class);
             if (response != null && response.rawSymbols() != null) {
                 for (SymbolDetail s : response.rawSymbols()) {
-                    Symbol symbol = new Symbol(s.id(), s.name(), s.type(), s.region(),
-                            s.timeZone(), s.currency(), s.marketOpen(),
-                            s.marketClose(), null, null, null);
+                    Symbol symbol = new Symbol.Builder()
+                            .ticker(s.id())
+                            .name(s.name())
+                            .type(s.type())
+                            .region(s.region())
+                            .timeZone(s.timeZone())
+                            .currency(s.currency())
+                            .marketOpen(s.marketOpen())
+                            .marketClose(s.marketClose())
+                            .build();
                     symbols.add(symbol);
                 }
             }
