@@ -8,16 +8,12 @@ import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import News from './components/News';
+
+import "./assets/css/App.css";
 
 
-import './App.css';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-}));
+const HOST = "http://localhost:8080";
 
 export default function App() {
 
@@ -28,6 +24,7 @@ export default function App() {
     ticker: ""
   })
   const [tickers, setTickers] = useState([]);
+  const [newsList, setNewsList] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [stockCache, setStockCache] = useState(new Map());
@@ -46,12 +43,11 @@ export default function App() {
     // the flag to when to evict the entire stockCache
     let needFreshCache = false;
     // call this url when a new ticker added with start date and end date remain unchanged
-    let url = `http://localhost:8080/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
-
+    let url = `${HOST}/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
     // determine if start date and end date have change
     // if so, need to get data for all tickers
     if (prevStartDate.current !== userInputs.startDate || prevEndDate.current !== userInputs.endDate) {
-      url = `http://localhost:8080/api/stock/batch?tickers=${tickers.join()}&start=${userInputs.startDate}&end=${userInputs.endDate}`;
+      url = `${HOST}/api/stock/batch?tickers=${tickers.join()}&start=${userInputs.startDate}&end=${userInputs.endDate}`;
       prevStartDate.current = userInputs.startDate;
       prevEndDate.current = userInputs.endDate;
       needFreshCache = true;
@@ -88,6 +84,18 @@ export default function App() {
     });
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
+
+  useEffect(() => {
+    if (tickers.length === 0) return;
+    const url = `${HOST}/api/news?tickers=${tickers.join(",")}&size=${20}`;
+    axios.get( url
+      ).then(response => {
+        console.log(response.data)
+        setNewsList(response.data);
+      }).catch(err => {
+        console.log(err);
+      });
+  }, [tickers.length]);
 
   function intersectMaps(map1, map2) {
     let intersection = new Map();
@@ -134,13 +142,15 @@ export default function App() {
 
 
   return (
-    <Grid container sx={{ width: "100vw", height: "100vh", margin: "auto" }}>
-      <Grid item xs={12} sm={11} lg={10} xl={9} sx={{ margin: "auto" }}>
-        <Item sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Box className="container" sx={{ width: "70vw", height: "100vh", margin: "auto" }}>
+      <Box className="row">
+        <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
-        </Item>
-      </Grid>
-      <Grid item xs={12} sm={11} lg={10} xl={9} sx={{ margin: "auto" }}>
+        </Box>
+      </Box>
+
+      <Box className="row">
+        <Box className="col text-center">
         {
           tickers.length === 0 ?
             <Box className="d-flex flex-column justify-content-center align-items-center">
@@ -149,12 +159,27 @@ export default function App() {
               <p className="small text-center text-secondary">There is no data to show you right now.</p>
             </Box>
             :
-            <Item sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
+            <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
               <p className="h5">Monthly Growth of Initial Investment Over Time</p>
               <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
-            </Item>
+            </Box>
         }
-      </Grid>
-    </Grid>
+        </Box>
+      </Box>
+      <Box className="row">
+        <Box className="col">
+        <div style={{width: "100%", color: "black", border: "1px double black", marginTop: "30px"}}/>
+          <p className="h3 fw-bold my-3">Related News</p>
+        {
+          newsList.map(news =>
+            <Box key={news.url}>
+            <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate}/>
+            <hr/>
+            </Box>
+          )
+        }
+        </Box>
+      </Box>
+    </Box>
   );
 }
