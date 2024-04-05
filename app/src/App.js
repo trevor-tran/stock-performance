@@ -213,9 +213,15 @@ export default function App() {
       </Box>
       <Box className="row">
         <Box className="col">
-          <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
-          <p className="h3 fw-bold my-3">Related News</p>
+          {(tickers.length > 0 && newsList.length > 0) &&
+            <>
+              <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
+              <p className="h3 fw-bold my-3">Related News</p>
+            </>
+          }
+
           {
+            (tickers.length > 0 && newsList.length > 0) &&
             newsList.map(news =>
               <Box key={news.url}>
                 <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
