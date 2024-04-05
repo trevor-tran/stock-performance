@@ -1,0 +1,12 @@
+.swiper-button-next::after, .swiper-button-prev::after {
+  --swiper-navigation-size: 20px;
+  color: gray;
+}
+
+.swiper-button-next:hover, .swiper-button-prev:hover {
+  background-color: rgba(220,220,220, 0.7);
+}
+
+.slide-item {
+  border-right: 1px solid #e5e5e5;
+}
