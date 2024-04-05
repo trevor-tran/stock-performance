@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Grid, Paper, styled } from '@mui/material';
+import { Box, Tabs, Tab } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
 import axios from 'axios';
@@ -11,7 +11,9 @@ import Footer from './components/Footer';
 import News from './components/News';
 
 import "./assets/css/App.css";
+import Carousel from './components/Carousel';
 
+import { topGainers as sampleGainers, topLosers as sampleLosers } from './sampledata';
 
 const HOST = "http://localhost:8080";
 
@@ -33,10 +35,38 @@ export default function App() {
   const prevEndDate = useRef(userInputs.endDate);
   const prevTickers = useRef();
 
+  // tab selection
+  const [selectTab, setSelectTab] = useState(0);
+
+  const [topGainers, setTopGainers] = useState(sampleGainers);
+  const [topLosers, setTopLosers] = useState(sampleLosers);
+
   /**
    * HOOKs section
    */
 
+  // // get top gainers and top losers
+  // useEffect(() => {
+  //   // get top gainers
+  //   axios.get(`${HOST}/api/top-stock/gainers`
+  //   ).then(response => {
+  //     console.log("gainer:" + response.data);
+  //     setTopGainers(response.data);
+  //   }).catch(err => {
+  //     console.log(err);
+  //   });
+
+  //   // get top losers
+  //   axios.get(`${HOST}/api/top-stock/losers`
+  //   ).then(response => {
+  //     console.log("loser:" + response.data);
+  //     setTopLosers(response.data);
+  //   }).catch(err => {
+  //     console.log(err);
+  //   });
+  // }, []);
+
+  // get stock data when tickers and date range change
   useEffect(() => {
     if (tickers.length === 0) return;
 
@@ -85,16 +115,17 @@ export default function App() {
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
 
+  // get news when tickers change
   useEffect(() => {
     if (tickers.length === 0) return;
     const url = `${HOST}/api/news?tickers=${tickers.join(",")}&size=${20}`;
-    axios.get( url
-      ).then(response => {
-        console.log(response.data)
-        setNewsList(response.data);
-      }).catch(err => {
-        console.log(err);
-      });
+    axios.get(url
+    ).then(response => {
+      console.log(response.data)
+      setNewsList(response.data);
+    }).catch(err => {
+      console.log(err);
+    });
   }, [tickers.length]);
 
   function intersectMaps(map1, map2) {
@@ -144,6 +175,20 @@ export default function App() {
   return (
     <Box className="container" sx={{ width: "70vw", height: "100vh", margin: "auto" }}>
       <Box className="row">
+        <Box className="col">
+          <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
+            <Tab label="Top Gainers" id="tab-0" />
+            <Tab label="Top Losers" id="tab-1" />
+          </Tabs>
+          <CustomTabPanel value={selectTab} index={0}>
+            <Carousel items={topGainers} />
+          </CustomTabPanel>
+          <CustomTabPanel value={selectTab} index={1}>
+            <Carousel items={topLosers} />
+          </CustomTabPanel>
+        </Box>
+      </Box>
+      <Box className="row">
         <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
         </Box>
@@ -151,35 +196,56 @@ export default function App() {
 
       <Box className="row">
         <Box className="col text-center">
-        {
-          tickers.length === 0 ?
-            <Box className="d-flex flex-column justify-content-center align-items-center">
-              <img src={process.env.PUBLIC_URL + "/no-data.png"} />
-              <p className="h2 font-weight-bold"> No Data Available </p>
-              <p className="small text-center text-secondary">There is no data to show you right now.</p>
-            </Box>
-            :
-            <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
-              <p className="h5">Monthly Growth of Initial Investment Over Time</p>
-              <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
-            </Box>
-        }
+          {
+            tickers.length === 0 ?
+              <Box className="d-flex flex-column justify-content-center align-items-center">
+                <img src={process.env.PUBLIC_URL + "/no-data.png"} />
+                <p className="h2 font-weight-bold"> No Data Available </p>
+                <p className="small text-center text-secondary">There is no data to show you right now.</p>
+              </Box>
+              :
+              <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
+                <p className="h5">Monthly Growth of Initial Investment Over Time</p>
+                <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
+              </Box>
+          }
         </Box>
       </Box>
       <Box className="row">
         <Box className="col">
-        <div style={{width: "100%", color: "black", border: "1px double black", marginTop: "30px"}}/>
+          <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
           <p className="h3 fw-bold my-3">Related News</p>
-        {
-          newsList.map(news =>
-            <Box key={news.url}>
-            <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate}/>
-            <hr/>
-            </Box>
-          )
-        }
+          {
+            newsList.map(news =>
+              <Box key={news.url}>
+                <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
+                <hr />
+              </Box>
+            )
+          }
         </Box>
       </Box>
     </Box>
+  );
+}
+
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tab-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
   );
 }
