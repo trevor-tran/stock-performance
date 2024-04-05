@@ -13,7 +13,7 @@ import News from './components/News';
 import "./assets/css/App.css";
 import Carousel from './components/Carousel';
 
-import { topGainers, topLosers } from './sampledata';
+import { topGainers as sampleGainers, topLosers as sampleLosers } from './sampledata';
 
 const HOST = "http://localhost:8080";
 
@@ -35,10 +35,38 @@ export default function App() {
   const prevEndDate = useRef(userInputs.endDate);
   const prevTickers = useRef();
 
+  // tab selection
+  const [selectTab, setSelectTab] = useState(0);
+
+  const [topGainers, setTopGainers] = useState(sampleGainers);
+  const [topLosers, setTopLosers] = useState(sampleLosers);
+
   /**
    * HOOKs section
    */
 
+  // // get top gainers and top losers
+  // useEffect(() => {
+  //   // get top gainers
+  //   axios.get(`${HOST}/api/top-stock/gainers`
+  //   ).then(response => {
+  //     console.log("gainer:" + response.data);
+  //     setTopGainers(response.data);
+  //   }).catch(err => {
+  //     console.log(err);
+  //   });
+
+  //   // get top losers
+  //   axios.get(`${HOST}/api/top-stock/losers`
+  //   ).then(response => {
+  //     console.log("loser:" + response.data);
+  //     setTopLosers(response.data);
+  //   }).catch(err => {
+  //     console.log(err);
+  //   });
+  // }, []);
+
+  // get stock data when tickers and date range change
   useEffect(() => {
     if (tickers.length === 0) return;
 
@@ -87,6 +115,7 @@ export default function App() {
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
 
+  // get news when tickers change
   useEffect(() => {
     if (tickers.length === 0) return;
     const url = `${HOST}/api/news?tickers=${tickers.join(",")}&size=${20}`;
@@ -147,7 +176,16 @@ export default function App() {
     <Box className="container" sx={{ width: "70vw", height: "100vh", margin: "auto" }}>
       <Box className="row">
         <Box className="col">
-          <Carousel items={topGainers}/>
+          <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
+            <Tab label="Top Gainers" id="tab-0" />
+            <Tab label="Top Losers" id="tab-1" />
+          </Tabs>
+          <CustomTabPanel value={selectTab} index={0}>
+            <Carousel items={topGainers} />
+          </CustomTabPanel>
+          <CustomTabPanel value={selectTab} index={1}>
+            <Carousel items={topLosers} />
+          </CustomTabPanel>
         </Box>
       </Box>
       <Box className="row">
@@ -188,5 +226,26 @@ export default function App() {
         </Box>
       </Box>
     </Box>
+  );
+}
+
+
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tab-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
   );
 }

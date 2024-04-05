@@ -25,10 +25,31 @@ export default function Carousel(props) {
   return (
     <>
       <Swiper
-        slidesPerView={6}
         centeredSlides={true}
-        spaceBetween={10}
         loop={true}
+        breakpoints={{
+          640: {
+            slidesPerView: 1,
+          },
+          768: {
+            slidesPerView: 2,
+          },
+          992: {
+            slidesPerView: 3,
+          },
+          1200: {
+            slidesPerView: 4,
+          },
+          1400: {
+            slidesPerView: 5,
+          },
+          1600: {
+            slidesPerView: 6,
+          },
+          1900: {
+            slidesPerView: 7,
+          },
+        }}
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,
@@ -56,7 +77,7 @@ export default function Carousel(props) {
 }
 
 function CarouselItem({ ticker, price, changeAmount, changePercentage }) {
-  const sign = Number(changeAmount) > 0 ? "+" : "-";
+  const sign = Number(changeAmount) > 0 ? "+" : "";
   const roundPercentage = Number(changePercentage.replace("%", "")).toFixed(2);
   const change = `${sign}${changeAmount} (${sign}${roundPercentage}%)`;
   return (

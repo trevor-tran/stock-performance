@@ -25,6 +25,7 @@ public class News {
     LocalDate publishedDate;
     @Column(columnDefinition="text")
     String summary;
+    @Column(columnDefinition="text")
     String imageUrl;
     double relevanceScore;
 
