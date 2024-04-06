@@ -20,7 +20,7 @@ const HOST = "http://localhost:8080";
 export default function App() {
 
   const [userInputs, setUserInputs] = useState({
-    budget: 1000,
+    budget: 0,
     startDate: "",
     endDate: "",
     ticker: ""
@@ -189,7 +189,7 @@ export default function App() {
         </Box>
       </Box>
       <Box className="row">
-        <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
           <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
         </Box>
       </Box>
