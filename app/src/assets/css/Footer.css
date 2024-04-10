@@ -1,0 +1,9 @@
+@keyframes scaleAnimation {
+  to {
+    transform: scale(1.4);
+  }
+}
+
+.heartbeat {
+  animation: scaleAnimation 0.3s linear infinite;
+}
