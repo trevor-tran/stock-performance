@@ -10,30 +10,27 @@ import * as yup from 'yup';
 
 import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "./utils/date";
 
-// validation schema
-const validationSchema = yup.object({
-  budget: yup
-    .number('Enter amount')
-    .integer()
-    .positive("Positive number")
-    .max(1000000, 'Less than 1,000,000')
-    .required('Required'),
-  startDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
-    .required('Required'),
-  endDate: yup
-    .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
-    .required('Required'),
-  ticker: yup
-    .string()
-    .matches(/^[A-Z]+$/, "Uppercase")
-    .required('Required')
-});
 
 // TopBar component
 export default function TopBar(props) {
+  // validation schema
+  const validationSchema = yup.object({
+    budget: yup
+      .number('Enter amount')
+      .integer()
+      .positive("Positive number")
+      .max(1000000, 'Less than 1,000,000')
+      .required('Required'),
+    startDate: yup
+      .string()
+      .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
+      .required('Required'),
+    endDate: yup
+      .string()
+      .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
+      .required('Required'),
+    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
+  });
 
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -208,7 +205,7 @@ export default function TopBar(props) {
       </Box>
       <Box className="col-12 col-lg-1">
         <Button variant="contained" color="primary"
-          sx={{ width: "100%", height: "56px", marginTop: "16px"}}
+          sx={{ width: "100%", height: "56px", marginTop: "16px" }}
           onClick={formik.handleSubmit}
         >
           <span className="fw-bold">Update</span>

@@ -189,7 +189,7 @@ export default function App() {
         </Box>
       </Box>
       <Box className="row justify-content-center align-items-start">
-        <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
+        <TopBar tickers={tickers} startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
       </Box>
 
       <Box className="row flex-grow-1">
