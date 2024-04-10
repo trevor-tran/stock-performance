@@ -173,7 +173,7 @@ export default function App() {
 
 
   return (
-    <Box className="container-fluid">
+    <Box className="container-fluid d-flex flex-column" sx={{minHeight: "100vh"}}>
       <Box className="row">
         <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
@@ -192,11 +192,11 @@ export default function App() {
         <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
       </Box>
 
-      <Box className="row">
+      <Box className="row flex-grow-1">
         <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
           {
             tickers.length === 0 ?
-              <Box className="d-flex flex-grow-1 flex-column justify-content-center align-items-center">
+              <Box>
                 <img src={process.env.PUBLIC_URL + "/no-data.png"} />
                 <p className="h2 font-weight-bold"> No Data Available </p>
                 <p className="small text-center text-secondary">There is no data to show you right now.</p>
@@ -220,10 +220,10 @@ export default function App() {
 
           {
             (tickers.length > 0 && newsList.length > 0) &&
-            newsList.map(news =>
+            newsList.map((news, idx) =>
               <Box key={news.url}>
                 <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
-                <hr />
+                {idx === newsList.length - 1 || <hr />}
               </Box>
             )
           }
@@ -231,7 +231,7 @@ export default function App() {
       </Box>
 
       {/* footer */}
-      <Box className="row border-top bg-light position-static" sx={{height: "70px", marginTop: "40px", bottom: "0", width: "100vw"}}>
+      <Box className="row border-top bg-light" sx={{height: "70px", marginTop: "40px", width: "100vw"}}>
         <Footer />
       </Box>
     </Box>
