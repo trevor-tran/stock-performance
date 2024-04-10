@@ -89,13 +89,24 @@ export default function Chart(props) {
     prevDate = date;
   });
 
+  function formatUSD(value, fractionDigits = 0) {
+    return new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency: 'USD',
+      notation: "compact",
+      compactDisplay: "short",
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits
+  }).format(value);
+  }
+
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
-        margin={{ top: 10, left: 20, bottom: 10 }}>
+        margin={{ top: 10, bottom: 10 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-        <YAxis tickFormatter={tick => "$" + tick.toLocaleString()} />
-        <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)} />
+        <YAxis tickFormatter={value => formatUSD(value)}/>
+        <Tooltip formatter={(value) => formatUSD(value, 2)} />
         <Legend
           onClick={e => props.onLegendClick(e.dataKey)}
           onMouseEnter={e => setEmphasize(e.dataKey)}
