@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Button, TextField, Autocomplete, Box, CircularProgress } from '@mui/material';
+import { Button, TextField, Autocomplete, Box, CircularProgress, InputAdornment } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -13,24 +13,23 @@ import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "./utils/date";
 // validation schema
 const validationSchema = yup.object({
   budget: yup
-    .number('enter investment amount')
+    .number('Enter amount')
     .integer()
-    .positive("must be positive number")
-    .max(1000000, 'must be less than 1,000,000')
-    .required('is required'),
+    .positive("Positive number")
+    .max(1000000, 'Less than 1,000,000')
+    .required('Required'),
   startDate: yup
     .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "invalid date format")
-    .required('is required'),
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
+    .required('Required'),
   endDate: yup
     .string()
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "invalid date format")
-    .required('is required'),
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
+    .required('Required'),
   ticker: yup
     .string()
-    .matches(/^[A-Z]+$/, "must be uppercase")
-    .max(5, "must be less than 5 characters")
-    .required('is required')
+    .matches(/^[A-Z]+$/, "Uppercase")
+    .required('Required')
 });
 
 // TopBar component
@@ -59,20 +58,20 @@ export default function TopBar(props) {
         });
 
         //reset some fields
-        formik.resetForm({values: {...values, ticker: ""}});
+        formik.resetForm({ values: { ...values, ticker: "" } });
         setTickerMatches([]);
 
       } else {
         console.log("start date must be before end date");
         formik.setErrors({
-          startDate: "must be BEFORE end date",
-          endDate: "must be AFTER start date"
+          startDate: "Must be BEFORE end date",
+          endDate: "Must be AFTER start date"
         });
       }
     }
   });
 
- // get ticker matches
+  // get ticker matches
   useEffect(() => {
     const ticker = formik.values.ticker;
 
@@ -100,11 +99,11 @@ export default function TopBar(props) {
 
   return (
     <>
-      <Box>
+      <Box className="col-12 col-lg-2 col-xxl-1">
         <TextField
           required
           type="number"
-          label="Budget($)"
+          label="Budget"
           margin="normal"
           variant="outlined"
           name="budget"
@@ -117,13 +116,17 @@ export default function TopBar(props) {
             step: 1000,
           }}
           InputLabelProps={{ shrink: true }}
+          sx={{ width: "100%" }}
+          InputProps={{
+            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+          }}
         />
       </Box>
-      <Box style={{ marginTop: "16px", marginBottom: "8px" }}>
+      <Box className="col-12 col-lg-2 col-xxl-2 px-lg-0" sx={{ paddingTop: "16px" }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker label="Start Date"
+            format='MM YYYY'
             views={['month', 'year']}
-
             value={dayjs(formik.values.startDate)}
             onChange={newDate => { formik.setFieldValue("startDate", endOfMonth(newDate, DATE_FORMAT.ISO_8601)) }}
             shouldDisableDate={isWeekend}
@@ -139,12 +142,14 @@ export default function TopBar(props) {
                 error: Boolean(formik.touched.startDate) && Boolean(formik.errors.startDate)
               }
             }}
+            sx={{ width: "100%" }}
           />
         </LocalizationProvider>
       </Box>
-      <Box style={{ marginTop: "16px", marginBottom: "8px" }}>
+      <Box className="col-12 col-lg-2 col-xxl-2" sx={{ paddingTop: "16px" }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker label="End Date"
+            format='MM YYYY'
             views={['month', 'year']}
             value={dayjs(formik.values.endDate)}
             onChange={newDate => { formik.setFieldValue("endDate", endOfMonth(newDate, DATE_FORMAT.ISO_8601)) }}
@@ -158,15 +163,15 @@ export default function TopBar(props) {
                 name: "endDate",
                 onBlur: formik.handleBlur,
                 helperText: (formik.touched.endDate && formik.errors.endDate) || " ",
-                error: Boolean(formik.touched.endDate) && Boolean(formik.errors.endDate)
+                error: Boolean(formik.touched.endDate) && Boolean(formik.errors.endDate),
               }
             }}
+            sx={{ width: "100%" }}
           />
         </LocalizationProvider>
       </Box>
-      <Box>
+      <Box className="col-12 col-lg col-xl-3 col-xxl-2 px-lg-0">
         <Autocomplete
-          sx={{ minWidth: "300px", width: "400px" }}
           className="dropbox"
           freeSolo
           options={tickerMatches}
@@ -194,12 +199,21 @@ export default function TopBar(props) {
                   </>
                 ),
               }}
+              sx={{ width: "100%" }}
             />
           )}
           onInputChange={(e, v) => formik.setFieldValue("ticker", v.toUpperCase())}
+          sx={{ width: "100%" }}
         />
       </Box>
-      <Button variant="contained" color="primary" sx={{ height: "56px", marginTop: "16px" }} onClick={formik.handleSubmit}>Update</Button>
+      <Box className="col-12 col-lg-1">
+        <Button variant="contained" color="primary"
+          sx={{ width: "100%", height: "56px", marginTop: "16px"}}
+          onClick={formik.handleSubmit}
+        >
+          <span className="fw-bold">Update</span>
+        </Button>
+      </Box>
     </>
   )
 }

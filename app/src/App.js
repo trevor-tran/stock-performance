@@ -173,9 +173,9 @@ export default function App() {
 
 
   return (
-    <Box className="container" sx={{ width: "70vw", height: "100vh", margin: "auto" }}>
+    <Box className="container-fluid">
       <Box className="row">
-        <Box className="col">
+        <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
             <Tab label="Top Gainers" id="tab-0" />
             <Tab label="Top Losers" id="tab-1" />
@@ -188,17 +188,15 @@ export default function App() {
           </CustomTabPanel>
         </Box>
       </Box>
-      <Box className="row">
-        <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-          <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
-        </Box>
+      <Box className="row justify-content-center align-items-start">
+        <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
       </Box>
 
       <Box className="row">
-        <Box className="col text-center">
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
           {
             tickers.length === 0 ?
-              <Box className="d-flex flex-column justify-content-center align-items-center">
+              <Box className="d-flex flex-grow-1 flex-column justify-content-center align-items-center">
                 <img src={process.env.PUBLIC_URL + "/no-data.png"} />
                 <p className="h2 font-weight-bold"> No Data Available </p>
                 <p className="small text-center text-secondary">There is no data to show you right now.</p>
@@ -212,7 +210,7 @@ export default function App() {
         </Box>
       </Box>
       <Box className="row">
-        <Box className="col">
+        <Box className="col-12  col-xl-10 col-xxl-8 m-auto">
           {(tickers.length > 0 && newsList.length > 0) &&
             <>
               <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
@@ -230,6 +228,11 @@ export default function App() {
             )
           }
         </Box>
+      </Box>
+
+      {/* footer */}
+      <Box className="row border-top bg-light position-static" sx={{height: "70px", marginTop: "40px", bottom: "0", width: "100vw"}}>
+        <Footer />
       </Box>
     </Box>
   );

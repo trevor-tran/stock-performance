@@ -92,7 +92,7 @@ export default function Chart(props) {
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        margin={{ top: 10, left: 20, bottom: 10 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
         <YAxis tickFormatter={tick => "$" + tick.toLocaleString()} />
         <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)} />
