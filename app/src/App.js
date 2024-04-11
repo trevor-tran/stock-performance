@@ -175,10 +175,10 @@ export default function App() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{minHeight: "100vh"}}>
         {/* header */}
-        <Box className="row shadow-small border-bottom bg-light mb-5" sx={{height: "70px", width: "100vw"}}>
+        <Box className="row shadow-small border-bottom bg-light mb-4" sx={{height: "70px", width: "100vw"}}>
         <Header />
       </Box>
-      <Box className="row">
+      <Box className="row mb-4">
         <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
             <Tab label="Top Gainers" id="tab-0" />
@@ -192,7 +192,7 @@ export default function App() {
           </CustomTabPanel>
         </Box>
       </Box>
-      <Box className="row justify-content-center align-items-start">
+      <Box className="row mb-1 justify-content-center align-items-start">
         <TopBar tickers={tickers} startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
       </Box>
 

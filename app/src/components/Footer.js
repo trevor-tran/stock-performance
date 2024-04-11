@@ -8,7 +8,7 @@ import "../assets/css/Footer.css";
 
 export default function Footer() {
   return (
-    <Box className="col-12 col-md-10 m-auto">
+    <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
       <footer className="d-flex flex-wrap justify-content-between align-items-center">
         <Box className="col-md-4 d-flex align-items-center">
           <a className="text-body-secondary" href="https://trevortran.com" target="_blank" rel="noreferrer">
@@ -18,30 +18,6 @@ export default function Footer() {
         <Box>
           <span className="text-body-secondary"> Made with <FavoriteIcon className="heartbeat" sx={{color: "red"}}/> from Seattle</span>
         </Box>
-
-        <ul className="nav col-md-4 justify-content-end list-unstyled d-flex">
-          <li className="ms-3">
-            <a className="text-body-secondary" href="https://www.linkedin.com/in/trevorpt/" target="_blank" rel="noreferrer">
-              <IconButton aria-label="linkedin">
-                <LinkedInIcon />
-              </IconButton>
-            </a>
-          </li>
-          <li className="ms-3">
-            <a className="text-body-secondary" href="https://github.com/trevor-tran" target="_blank" rel="noreferrer">
-              <IconButton aria-label="github">
-                <GitHubIcon />
-              </IconButton>
-            </a>
-          </li>
-          <li className="ms-3">
-            <a className="text-body-secondary" href="mailto:trevor.phuong.tran@gmail.com">
-              <IconButton aria-label="github">
-                <EmailIcon />
-              </IconButton>
-            </a>
-          </li>
-        </ul>
       </footer>
     </Box>
   );

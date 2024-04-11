@@ -31,19 +31,19 @@ const renderCustomizedLegend = props => {
   return (
     <div>
       {
-        payload.map(
-          (entry, index) => (
-            <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="bottom">
-              <Button sx={{padding: 0, marginRight: "15px"}} variant="text" value={index}
-                onMouseEnter={handleOnMouseEnter}
-                onMouseLeave={handleOnMouseLeave}
-                onClick={handleOnClick}>
-                <span style={{ display: "inline-block", width: "20px", height: "10px", backgroundColor: entry.color, marginRight: "10px" }}></span>
-                <span style={{ color: entry.color }}>{entry.value}</span>
-              </Button>
-            </MuiTooltip>
-          ))
+        payload.map((entry, index) => (
+          <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="bottom">
+            <Button sx={{ padding: 0, marginRight: "15px" }} variant="text" value={index}
+              onMouseEnter={handleOnMouseEnter}
+              onMouseLeave={handleOnMouseLeave}
+              onClick={handleOnClick}>
+              <span style={{ display: "inline-block", width: "20px", height: "10px", backgroundColor: entry.color, marginRight: "10px" }}></span>
+              <span className="fs-6 fw-bold" style={{ color: entry.color }}>{entry.value}</span>
+            </Button>
+          </MuiTooltip>
+        ))
       }
+      <p className="small text-secondary"><strong>footnote:</strong> click on a legend to delete it</p>
     </div>
   )
 }
@@ -97,18 +97,19 @@ export default function Chart(props) {
       compactDisplay: "short",
       minimumFractionDigits: fractionDigits,
       maximumFractionDigits: fractionDigits
-  }).format(value);
+    }).format(value);
   }
 
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
-        margin={{ top: 10, bottom: 10}}>
+        margin={{ top: 10, bottom: 10, right: 5, left: 5 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-        <YAxis tickFormatter={value => formatUSD(value)}/>
+        <YAxis tickFormatter={value => formatUSD(value)} />
         <Tooltip formatter={(value) => formatUSD(value, 2)} />
         <Legend
           onClick={e => props.onLegendClick(e.dataKey)}
+          onTouchEnd={e => props.onLegendClick(e.dataKey)}
           onMouseEnter={e => setEmphasize(e.dataKey)}
           onMouseLeave={() => setEmphasize(null)}
           content={renderCustomizedLegend}
