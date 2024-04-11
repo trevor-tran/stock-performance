@@ -9,7 +9,7 @@ export default function News(props) {
         <img className="img-thumbnail"
           style={{width: "70px", height: "50px"}}
           src={imageUrl ? imageUrl : (process.env.PUBLIC_URL + "/no-picture.png")}
-          alt={title} />
+        />
       </Box>
 
       <Box className="col-12 col-lg-11">
