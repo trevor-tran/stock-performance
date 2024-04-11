@@ -61,7 +61,7 @@ export default function Chart(props) {
   stockData.forEach((arr, date, thisMap) => {
     let dataPoint = {};
 
-    dataPoint["date"] = dayjs(date).format("MMM. YYYY").toString();
+    dataPoint["date"] = dayjs(date).format("MMM 'YY").toString();
 
     // the arr is an array datatype that contains tickers and its price
     for (let index = 0; index < arr.length; index++) {
@@ -103,7 +103,7 @@ export default function Chart(props) {
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
-        margin={{ top: 10, bottom: 10 }}>
+        margin={{ top: 10, bottom: 10}}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
         <YAxis tickFormatter={value => formatUSD(value)}/>
         <Tooltip formatter={(value) => formatUSD(value, 2)} />
