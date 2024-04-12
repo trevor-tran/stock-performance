@@ -118,7 +118,11 @@ export default function Chart(props) {
         />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
           if (k !== "date") {
-            return <Line key={k} dataKey={k} strokeWidth={3} stroke={COLORS[idx % COLORS.length]} strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)} dot={false} />
+            return <Line key={k} dataKey={k}
+              strokeWidth={!emphasize ? 3 : (emphasize === k ? 3 : 1)}
+              stroke={COLORS[idx % COLORS.length]}
+              strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)}
+              dot={false} />
           }
         })}
       </LineChart>
