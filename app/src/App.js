@@ -4,8 +4,6 @@ import Chart from './components/Chart';
 import TopBar from './components/TopBar';
 import axios from 'axios';
 
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import News from './components/News';
@@ -27,7 +25,6 @@ export default function App() {
   })
   const [tickers, setTickers] = useState([]);
   const [newsList, setNewsList] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const [stockCache, setStockCache] = useState(new Map());
 
