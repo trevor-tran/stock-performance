@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import { Box, Tabs, Tab, CircularProgress } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
 import axios from 'axios';
@@ -173,11 +173,12 @@ export default function App() {
 
 
   return (
-    <Box className="container-fluid d-flex flex-column" sx={{minHeight: "100vh"}}>
-        {/* header */}
-        <Box className="row shadow-small border-bottom bg-light mb-4" sx={{height: "70px", width: "100vw"}}>
-        <Header />
+    <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
+      {/* header */}
+      <Box className="row shadow-small border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw"}}>
+        <Header/>
       </Box>
+
       <Box className="row mb-4">
         <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
@@ -197,21 +198,23 @@ export default function App() {
       </Box>
 
       <Box className="row flex-grow-1">
-        <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
-          {
-            tickers.length === 0 ?
-              <Box>
-                <img src={process.env.PUBLIC_URL + "/no-data.png"} />
-                <p className="h2 font-weight-bold"> No Data Available </p>
-                <p className="small text-center text-secondary">There is no data to show you right now.</p>
-              </Box>
-              :
-              <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
-                <p className="h5">Monthly Growth of Initial Investment Over Time</p>
-                <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
-              </Box>
-          }
-        </Box>
+        <Suspense fallback={<CircularProgress />}>
+          <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
+            {
+              tickers.length === 0 ?
+                <Box>
+                  <img className="img-fluid" src={process.env.PUBLIC_URL + "/no-data.png"} />
+                  <p className="h2 font-weight-bold"> No Data Available </p>
+                  <p className="small text-center text-secondary">There is no data to show you right now.</p>
+                </Box>
+                :
+                <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
+                  <p className="h5">Monthly Growth of Initial Investment Over Time</p>
+                  <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
+                </Box>
+            }
+          </Box>
+        </Suspense>
       </Box>
       <Box className="row">
         <Box className="col-12  col-xl-10 col-xxl-8 m-auto">
@@ -235,7 +238,7 @@ export default function App() {
       </Box>
 
       {/* footer */}
-      <Box className="row border-top bg-light mt-5" sx={{height: "70px", width: "100vw"}}>
+      <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
         <Footer />
       </Box>
     </Box>
