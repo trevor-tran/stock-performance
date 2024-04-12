@@ -13,7 +13,6 @@ import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "./utils/date";
 
 // TopBar component
 export default function TopBar(props) {
-  const {budget, startDate, endDate, ticker, tickers, firstDate} = props;
 
   // validation schema
   const validationSchema = yup.object({
@@ -31,7 +30,7 @@ export default function TopBar(props) {
       .string()
       .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
       .required('Required'),
-    ticker: tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
+    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
   });
 
   const [tickerMatches, setTickerMatches] = useState([]);
@@ -40,14 +39,20 @@ export default function TopBar(props) {
 
   const formik = useFormik({
     initialValues: {
-      budget,
-      startDate,
-      endDate,
-      ticker,
+      budget: props.budget,
+      startDate: props.startDate,
+      endDate: props.endDate,
+      ticker: props.ticker,
     },
     validationSchema: validationSchema,
     onSubmit: values => {
       const { startDate, budget, endDate, ticker } = values;
+
+      if (ticker && props.tickers.length === 5) {
+        resetSomeFields();
+        alert("You can only have 5 tickers");
+        return;
+      }
 
       if (dayjs(startDate).isBefore(endDate)) {
         props.onChange({
@@ -57,9 +62,7 @@ export default function TopBar(props) {
           ticker: ticker
         });
 
-        //reset some fields
-        formik.resetForm({ values: { ...values, ticker: "" } });
-        setTickerMatches([]);
+        resetSomeFields();
 
       } else {
         console.log("start date must be before end date");
@@ -93,6 +96,12 @@ export default function TopBar(props) {
   // check if the date is weekend
   function isWeekend(date) {
     return date.day() === 0 || date.day() === 6;
+  }
+
+  function resetSomeFields() {
+    //reset some fields
+    formik.resetForm({ values: { ...formik.values, ticker: "" } });
+    setTickerMatches([]);
   }
 
 
