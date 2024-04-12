@@ -13,6 +13,8 @@ import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "./utils/date";
 
 // TopBar component
 export default function TopBar(props) {
+  const {budget, startDate, endDate, ticker, tickers, firstDate} = props;
+
   // validation schema
   const validationSchema = yup.object({
     budget: yup
@@ -29,18 +31,19 @@ export default function TopBar(props) {
       .string()
       .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
       .required('Required'),
-    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
+    ticker: tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
   });
 
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
 
+
   const formik = useFormik({
     initialValues: {
-      budget: props.budget,
-      startDate: props.startDate,
-      endDate: props.endDate,
-      ticker: props.ticker
+      budget,
+      startDate,
+      endDate,
+      ticker,
     },
     validationSchema: validationSchema,
     onSubmit: values => {
@@ -181,7 +184,9 @@ export default function TopBar(props) {
             </Box>
           )}
           renderInput={(params) => (
-            <TextField required {...params} label="Search Ticker" margin="normal" variant="outlined" placeholder="e.g. AAPL"
+            <TextField {...params}
+              required={props.tickers.length === 0}
+              label="Search Ticker" margin="normal" variant="outlined" placeholder="e.g. AAPL"
               onBlur={formik.handleBlur}
               name="ticker"
               error={formik.touched.ticker && Boolean(formik.errors.ticker)}

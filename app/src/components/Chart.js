@@ -61,6 +61,8 @@ export default function Chart(props) {
   stockData.forEach((arr, date, thisMap) => {
     let dataPoint = {};
 
+    // console.log(date)
+
     dataPoint["date"] = dayjs(date).format("MMM 'YY").toString();
 
     // the arr is an array datatype that contains tickers and its price
