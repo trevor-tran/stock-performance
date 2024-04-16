@@ -8,8 +8,10 @@ import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "./utils/date";
+import AutoHideSnackBar from './AutoHideSnackBar';
 
+import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "../utils/date";
+import { HOST } from "../utils/utils";
 
 // TopBar component
 export default function TopBar(props) {
@@ -30,12 +32,13 @@ export default function TopBar(props) {
       .string()
       .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
       .required('Required'),
-    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase")
+    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase letters only").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase letters only")
   });
 
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [errMsg, setErrMsg] = useState("");
+  const [severity, setSeverity] = useState("error");
 
   const formik = useFormik({
     initialValues: {
@@ -48,29 +51,41 @@ export default function TopBar(props) {
     onSubmit: values => {
       const { startDate, budget, endDate, ticker } = values;
 
-      if (ticker && props.tickers.length === 5) {
-        resetSomeFields();
-        alert("You can only have 5 tickers");
+      // check if the ticker is already in the list
+      if (props.tickers.includes(ticker)) {
+        setSeverity("info");
+        setErrMsg(`${ticker} already added`);
         return;
       }
 
-      if (dayjs(startDate).isBefore(endDate)) {
-        props.onChange({
-          startDate: startDate,
-          budget: Number(budget),
-          endDate: endDate,
-          ticker: ticker
-        });
-
+      if (ticker && props.tickers.length === 5) {
         resetSomeFields();
-
-      } else {
-        console.log("start date must be before end date");
-        formik.setErrors({
-          startDate: "Must be BEFORE end date",
-          endDate: "Must be AFTER start date"
-        });
+        setSeverity("warning");
+        setErrMsg("You can only add up to 5 tickers");
+        return;
       }
+
+      if (!dayjs(startDate).isBefore(endDate)) {
+        setErrMsg("Start date must be before end date");
+        return;
+      }
+
+      // check if the ticker is valid
+      // ticker must be in the list of tickerMatches
+      const foundMatch = tickerMatches.find(t => t.ticker.toUpperCase() === ticker.toUpperCase());
+      if (!foundMatch) {
+        setErrMsg("Invalid ticker");
+        return;
+      }
+
+      props.onChange({
+        startDate: startDate,
+        budget: Number(budget),
+        endDate: endDate,
+        ticker: ticker
+      });
+
+      resetSomeFields();
     }
   });
 
@@ -78,16 +93,26 @@ export default function TopBar(props) {
   useEffect(() => {
     const ticker = formik.values.ticker;
 
-    if (!ticker) return;
+    // validate ticker on change so reduce the number of requests
+    async function validateTicker() {
+      await formik.validateField("ticker");
+    }
+    validateTicker();
+    if (!ticker || Boolean(formik.errors.ticker)) {
+      return;
+    }
 
     setLoading(true);
-    const url = "http://localhost:8080/api/symbol?keyword=";
-    axios.get(url + ticker
+    const url = HOST + "/api/symbol?keyword=" + ticker;
+    axios.get(url
     ).then(response => {
       setTickerMatches(response.data);
       setLoading(false);
     }).catch(error => {
-      console.log(error);
+      const errJson = error.toJSON();
+      if (errJson.status === 509) {
+        setErrMsg("We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!");
+      }
       setLoading(false);
     });
   }, [formik.values.ticker])
@@ -189,7 +214,8 @@ export default function TopBar(props) {
           getOptionLabel={option => option.ticker ? option.ticker : option}
           renderOption={(props, option) => (
             <Box key={option.ticker} component="li" sx={{ borderBottom: "1px solid #dcdcdc" }} {...props}>
-              <span style={{ marginRight: "50px" }}>{option.ticker}</span> <span style={{ marginLeft: "auto", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{option.name}</span>
+              <span style={{ marginRight: "50px" }}>{option.ticker}</span>
+              <span style={{ marginLeft: "auto", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{option.name}</span>
             </Box>
           )}
           renderInput={(params) => (
@@ -225,6 +251,7 @@ export default function TopBar(props) {
           <span className="fw-bold">Update</span>
         </Button>
       </Box>
+      {errMsg.length > 0 && <AutoHideSnackBar open message={errMsg} severity={severity} onHide={() => setErrMsg("")} />}
     </>
   )
 }

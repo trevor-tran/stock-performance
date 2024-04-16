@@ -10,10 +10,11 @@ import News from './components/News';
 
 import "./assets/css/App.css";
 import Carousel from './components/Carousel';
+import AutoHideSnackBar from './components/AutoHideSnackBar';
 
 import { topGainers as sampleGainers, topLosers as sampleLosers } from './sampledata';
+import { HOST } from "./utils/utils";
 
-const HOST = "http://localhost:8080";
 
 export default function App() {
 
@@ -37,6 +38,13 @@ export default function App() {
 
   const [topGainers, setTopGainers] = useState(sampleGainers);
   const [topLosers, setTopLosers] = useState(sampleLosers);
+
+  //error message
+  const [notification, setNotification] = useState({
+    message: "",
+    severity: "info",
+    autoHideDuration: 10000
+  });
 
   /**
    * HOOKs section
@@ -107,7 +115,16 @@ export default function App() {
       }
       setStockCache(newStockCache);
     }).catch(err => {
-      console.log(err);
+      console.error(err);
+      const errJson = err.toJSON();
+      if (errJson.status === 509) {
+        setNotification({
+          ...notification,
+          message: "Cannot fetch data due to a high volume of traffic. Please try again in a minute",
+          severity: "error",
+          autoHideDuration: 10000
+        });
+      }
     });
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
@@ -120,7 +137,7 @@ export default function App() {
     ).then(response => {
       setNewsList(response.data);
     }).catch(err => {
-      console.log(err);
+      console.warn(err);
     });
   }, [tickers.length]);
 
@@ -141,11 +158,19 @@ export default function App() {
 
   function handleUserInputs(valueObj) {
     setUserInputs({ ...userInputs, ...valueObj });
+
+    // only add new ticker to the list
     let found = tickers.indexOf(valueObj.ticker)
     if (found < 0 && valueObj.ticker.trim().length > 0) {
       const newTickers = [...tickers, valueObj.ticker]
       setTickers(newTickers);
       prevTickers.current = newTickers;
+      setNotification({
+        ...notification,
+        message: "New ticker added",
+        severity: "success",
+        autoHideDuration: 5000
+      });
     }
   }
 
@@ -190,7 +215,14 @@ export default function App() {
         </Box>
       </Box>
       <Box className="row mb-1 justify-content-center align-items-start">
-        <TopBar tickers={tickers} startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
+        <TopBar
+          tickers={tickers}
+          startDate={userInputs.startDate}
+          endDate={userInputs.endDate}
+          budget={userInputs.budget}
+          ticker={userInputs.ticker}
+          onChange={handleUserInputs}
+        />
       </Box>
 
       <Box className="row flex-grow-1">
@@ -223,7 +255,13 @@ export default function App() {
             (tickers.length > 0 && newsList.length > 0) &&
             newsList.map((news, idx) =>
               <Box key={news.url}>
-                <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
+                <News
+                  title={news.title}
+                  url={news.url}
+                  imageUrl={news.imageUrl}
+                  summary={news.summary}
+                  publishedDate={news.publishedDate}
+                />
                 {idx === newsList.length - 1 || <hr />}
               </Box>
             )
@@ -235,6 +273,17 @@ export default function App() {
       <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
         <Footer />
       </Box>
+
+      {/* snack bar to inform user */}
+      {notification.message.length > 0 &&
+        <AutoHideSnackBar
+          open
+          message={notification.message}
+          severity={notification.severity}
+          onHide={() => setNotification({...notification, message: ""})}
+          autoHideDuration={notification.autoHideDuration}
+        />
+      }
     </Box>
   );
 }

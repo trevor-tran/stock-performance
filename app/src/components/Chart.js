@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend, Text } from 'recharts';
+import { LineChart, ResponsiveContainer, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts';
 
 import { Button, Tooltip as MuiTooltip } from '@mui/material';
 
@@ -125,6 +125,7 @@ export default function Chart(props) {
               dot={false} />
           }
         })}
+         <CartesianGrid strokeDasharray="5 5"/>
       </LineChart>
     </ResponsiveContainer>
   );

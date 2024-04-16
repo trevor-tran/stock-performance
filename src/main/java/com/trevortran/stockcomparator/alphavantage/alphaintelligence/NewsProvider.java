@@ -5,6 +5,7 @@ import com.trevortran.stockcomparator.alphavantage.util.Utils;
 import com.trevortran.stockcomparator.model.News;
 import org.springframework.web.client.RestTemplate;
 
+import javax.naming.LimitExceededException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -18,13 +19,13 @@ public class NewsProvider {
         return Utils.getQueryPath()
                 .queryParam("function", "NEWS_SENTIMENT")
                 .queryParam("tickers", ticker)
-                .queryParam("apikey", SecretManager.getSecretKey())
+                .queryParam("apikey", SecretManager.getApiKey())
                 .build()
                 .toUri()
                 .toURL();
     }
 
-    public List<News> request(String ticker) {
+    public List<News> request(String ticker) throws LimitExceededException {
         List<News> newsList = new ArrayList<>();
         RestTemplate restTemplate = new RestTemplate();
         try {
@@ -37,7 +38,7 @@ public class NewsProvider {
                     newsList.add(news);
                 }
             } else if (response.information() != null) {
-               // todo: handle limit exceed
+                throw new LimitExceededException("Rate of Requests has reached");
             }
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
