@@ -31,19 +31,19 @@ const renderCustomizedLegend = props => {
   return (
     <div>
       {
-        payload.map(
-          (entry, index) => (
-            <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="bottom">
-              <Button sx={{padding: 0, marginRight: "15px"}} variant="text" value={index}
-                onMouseEnter={handleOnMouseEnter}
-                onMouseLeave={handleOnMouseLeave}
-                onClick={handleOnClick}>
-                <span style={{ display: "inline-block", width: "20px", height: "10px", backgroundColor: entry.color, marginRight: "10px" }}></span>
-                <span style={{ color: entry.color }}>{entry.value}</span>
-              </Button>
-            </MuiTooltip>
-          ))
+        payload.map((entry, index) => (
+          <MuiTooltip key={`item-${index}`} title="Click to delete" arrow placement="bottom">
+            <Button sx={{ padding: 0, marginRight: "15px" }} variant="text" value={index}
+              onMouseEnter={handleOnMouseEnter}
+              onMouseLeave={handleOnMouseLeave}
+              onClick={handleOnClick}>
+              <span style={{ display: "inline-block", width: "20px", height: "10px", backgroundColor: entry.color, marginRight: "10px" }}></span>
+              <span className="fs-6 fw-bold" style={{ color: entry.color }}>{entry.value}</span>
+            </Button>
+          </MuiTooltip>
+        ))
       }
+      <p className="small text-secondary"><strong>footnote:</strong> click on a legend to delete it</p>
     </div>
   )
 }
@@ -61,7 +61,9 @@ export default function Chart(props) {
   stockData.forEach((arr, date, thisMap) => {
     let dataPoint = {};
 
-    dataPoint["date"] = dayjs(date).format("MMM. YYYY").toString();
+    // console.log(date)
+
+    dataPoint["date"] = dayjs(date).format("MMM 'YY").toString();
 
     // the arr is an array datatype that contains tickers and its price
     for (let index = 0; index < arr.length; index++) {
@@ -89,22 +91,38 @@ export default function Chart(props) {
     prevDate = date;
   });
 
+  function formatUSD(value, fractionDigits = 0) {
+    return new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency: 'USD',
+      notation: "compact",
+      compactDisplay: "short",
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits
+    }).format(value);
+  }
+
   return (
     <ResponsiveContainer width='100%' height='100%'>
       <LineChart data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        margin={{ top: 10, bottom: 10, right: 5, left: 5 }}>
         <XAxis dataKey="date" type="category" allowDuplicatedCategory={false} angle={-20} textAnchor="end" height={55} />
-        <YAxis tickFormatter={tick => "$" + tick.toLocaleString()} />
-        <Tooltip formatter={(value) => new Intl.NumberFormat('en').format(value)} />
+        <YAxis tickFormatter={value => formatUSD(value)} />
+        <Tooltip formatter={(value) => formatUSD(value, 2)} />
         <Legend
           onClick={e => props.onLegendClick(e.dataKey)}
+          onTouchEnd={e => props.onLegendClick(e.dataKey)}
           onMouseEnter={e => setEmphasize(e.dataKey)}
           onMouseLeave={() => setEmphasize(null)}
           content={renderCustomizedLegend}
         />
         {data.length > 0 && Object.keys(data[0]).map((k, idx) => {
           if (k !== "date") {
-            return <Line key={k} dataKey={k} strokeWidth={3} stroke={COLORS[idx % COLORS.length]} strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)} dot={false} />
+            return <Line key={k} dataKey={k}
+              strokeWidth={!emphasize ? 3 : (emphasize === k ? 3 : 1)}
+              stroke={COLORS[idx % COLORS.length]}
+              strokeOpacity={!emphasize ? 1 : (emphasize === k ? 1 : 0.3)}
+              dot={false} />
           }
         })}
       </LineChart>

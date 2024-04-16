@@ -5,14 +5,14 @@ export default function News(props) {
 
   return (
     <Box className="d-flex my-2 w-100 px-2 row">
-      <Box className="col-1">
+      <Box className="d-none d-lg-block col-lg-1">
         <img className="img-thumbnail"
-         style={{width: "70px", height: "50px"}}
+          style={{width: "70px", height: "50px"}}
           src={imageUrl ? imageUrl : (process.env.PUBLIC_URL + "/no-picture.png")}
-          alt={title} />
+        />
       </Box>
 
-      <Box className="col-11">
+      <Box className="col-12 col-lg-11">
         <div className="text-truncate">
           <a className="fs-6 fw-bold text-capitalize" href={url} target="_blank">{title}</a>
           </div>

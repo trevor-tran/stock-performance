@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
 import axios from 'axios';
 
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import News from './components/News';
@@ -20,14 +18,13 @@ const HOST = "http://localhost:8080";
 export default function App() {
 
   const [userInputs, setUserInputs] = useState({
-    budget: 1000,
+    budget: 0,
     startDate: "",
     endDate: "",
     ticker: ""
   })
   const [tickers, setTickers] = useState([]);
   const [newsList, setNewsList] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const [stockCache, setStockCache] = useState(new Map());
 
@@ -121,7 +118,6 @@ export default function App() {
     const url = `${HOST}/api/news?tickers=${tickers.join(",")}&size=${20}`;
     axios.get(url
     ).then(response => {
-      console.log(response.data)
       setNewsList(response.data);
     }).catch(err => {
       console.log(err);
@@ -173,9 +169,14 @@ export default function App() {
 
 
   return (
-    <Box className="container" sx={{ width: "70vw", height: "100vh", margin: "auto" }}>
-      <Box className="row">
-        <Box className="col">
+    <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
+      {/* header */}
+      <Box className="row shadow-sm border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw" }}>
+        <Header />
+      </Box>
+
+      <Box className="row mb-4">
+        <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
             <Tab label="Top Gainers" id="tab-0" />
             <Tab label="Top Losers" id="tab-1" />
@@ -188,18 +189,16 @@ export default function App() {
           </CustomTabPanel>
         </Box>
       </Box>
-      <Box className="row">
-        <Box className="col" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <TopBar startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
-        </Box>
+      <Box className="row mb-1 justify-content-center align-items-start">
+        <TopBar tickers={tickers} startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
       </Box>
 
-      <Box className="row">
-        <Box className="col text-center">
+      <Box className="row flex-grow-1">
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
           {
             tickers.length === 0 ?
-              <Box className="d-flex flex-column justify-content-center align-items-center">
-                <img src={process.env.PUBLIC_URL + "/no-data.png"} />
+              <Box>
+                <img className="img-fluid" src={process.env.PUBLIC_URL + "/no-data.png"} />
                 <p className="h2 font-weight-bold"> No Data Available </p>
                 <p className="small text-center text-secondary">There is no data to show you right now.</p>
               </Box>
@@ -212,18 +211,29 @@ export default function App() {
         </Box>
       </Box>
       <Box className="row">
-        <Box className="col">
-          <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
-          <p className="h3 fw-bold my-3">Related News</p>
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto">
+          {(tickers.length > 0 && newsList.length > 0) &&
+            <>
+              <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
+              <p className="h3 fw-bold my-3">Related News</p>
+            </>
+          }
+
           {
-            newsList.map(news =>
+            (tickers.length > 0 && newsList.length > 0) &&
+            newsList.map((news, idx) =>
               <Box key={news.url}>
                 <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
-                <hr />
+                {idx === newsList.length - 1 || <hr />}
               </Box>
             )
           }
         </Box>
+      </Box>
+
+      {/* footer */}
+      <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
+        <Footer />
       </Box>
     </Box>
   );
