@@ -171,7 +171,7 @@ export default function App() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
       {/* header */}
-      <Box className="row shadow-small border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw" }}>
+      <Box className="row shadow-sm border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw" }}>
         <Header />
       </Box>
 
