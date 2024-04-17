@@ -159,12 +159,6 @@ export default function App() {
       const newTickers = [...tickers, valueObj.ticker]
       setTickers(newTickers);
       prevTickers.current = newTickers;
-      setNotification({
-        ...notification,
-        message: "New ticker added",
-        severity: "success",
-        autoHideDuration: 5000
-      });
     }
   }
 

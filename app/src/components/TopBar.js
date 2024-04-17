@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import AutoHideSnackBar from './AutoHideSnackBar';
 
 import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "../utils/date";
-import { HOST } from "../utils/utils";
+import { HOST, MAXIMUM_TICKERS } from "../utils/utils";
 
 // TopBar component
 export default function TopBar(props) {
@@ -68,12 +68,12 @@ export default function TopBar(props) {
         return;
       }
 
-      if (ticker && props.tickers.length === 5) {
+      if (ticker && props.tickers.length === MAXIMUM_TICKERS) {
         resetSomeFields();
 
         setNotification({
           ...notification,
-          message: "You can only add up to 5 tickers",
+          message: `You can only add up to ${MAXIMUM_TICKERS} tickers`,
           severity: "warning"
         });
 
@@ -94,7 +94,7 @@ export default function TopBar(props) {
       if (ticker.length > 0 && !foundMatch) {
         setNotification({
           ...notification,
-          message: "Invalid ticker",
+          message: "Please select a ticker from the dropdown list",
           severity: "error"
         });
         return;
