@@ -7,5 +7,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record GainerLoser(@JsonProperty("ticker") String ticker,
                           @JsonProperty("price") double price,
                           @JsonProperty("change_amount") double changeAmount,
-                          @JsonProperty("change_percentage") double changePercentage) {
+                          @JsonProperty("change_percentage") String changePercentage) {
 }

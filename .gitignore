@@ -35,3 +35,6 @@ build/
 
 ## react
 /**/node_modules
+
+# do not commit the fowllowing files since they contains sensitive information
+**/SecretManager.java

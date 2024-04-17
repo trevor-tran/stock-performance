@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
@@ -12,7 +12,6 @@ import "./assets/css/App.css";
 import Carousel from './components/Carousel';
 import AutoHideSnackBar from './components/AutoHideSnackBar';
 
-import { topGainers as sampleGainers, topLosers as sampleLosers } from './sampledata';
 import { HOST } from "./utils/utils";
 
 
@@ -36,8 +35,8 @@ export default function App() {
   // tab selection
   const [selectTab, setSelectTab] = useState(0);
 
-  const [topGainers, setTopGainers] = useState(sampleGainers);
-  const [topLosers, setTopLosers] = useState(sampleLosers);
+  const [topGainers, setTopGainers] = useState([]);
+  const [topLosers, setTopLosers] = useState([]);
 
   //error message
   const [notification, setNotification] = useState({
@@ -50,26 +49,24 @@ export default function App() {
    * HOOKs section
    */
 
-  // // get top gainers and top losers
-  // useEffect(() => {
-  //   // get top gainers
-  //   axios.get(`${HOST}/api/top-stock/gainers`
-  //   ).then(response => {
-  //     console.log("gainer:" + response.data);
-  //     setTopGainers(response.data);
-  //   }).catch(err => {
-  //     console.log(err);
-  //   });
+  // get top gainers and top losers
+  useEffect(() => {
+    // get top gainers
+    axios.get(`${HOST}/api/top-stock/gainers`
+    ).then(response => {
+      setTopGainers(response.data);
+    }).catch(err => {
+      console.error(err);
+    });
 
-  //   // get top losers
-  //   axios.get(`${HOST}/api/top-stock/losers`
-  //   ).then(response => {
-  //     console.log("loser:" + response.data);
-  //     setTopLosers(response.data);
-  //   }).catch(err => {
-  //     console.log(err);
-  //   });
-  // }, []);
+    // get top losers
+    axios.get(`${HOST}/api/top-stock/losers`
+    ).then(response => {
+      setTopLosers(response.data);
+    }).catch(err => {
+      console.error(err);
+    });
+  }, []);
 
   // get stock data when tickers and date range change
   useEffect(() => {
@@ -207,10 +204,10 @@ export default function App() {
             <Tab label="Top Losers" id="tab-1" />
           </Tabs>
           <CustomTabPanel value={selectTab} index={0}>
-            <Carousel items={topGainers} />
+            {topGainers.length > 0 && <Carousel items={topGainers} />}
           </CustomTabPanel>
           <CustomTabPanel value={selectTab} index={1}>
-            <Carousel items={topLosers} />
+            {topLosers.length > 0 && <Carousel items={topLosers} />}
           </CustomTabPanel>
         </Box>
       </Box>

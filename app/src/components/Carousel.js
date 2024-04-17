@@ -12,10 +12,6 @@ import {
 } from 'swiper/modules';
 // -----end-----
 
-import {
-  Card,
-  CardContent
-} from '@mui/material';
 
 import "../assets/css/Carousel.css";
 
@@ -27,6 +23,7 @@ export default function Carousel(props) {
       <Swiper
         centeredSlides={true}
         loop={true}
+        // slidesPerGroup={1}
         breakpoints={{
           640: {
             slidesPerView: 1,
@@ -54,19 +51,16 @@ export default function Carousel(props) {
           delay: 2500,
           disableOnInteraction: false,
         }}
-        pagination={{
-          clickable: true,
-        }}
         navigation={true}
         modules={[Autoplay, Navigation]}>
         {
-          items.map((item, index) =>
+          items.length > 0 && items.map((item, index) =>
             <SwiperSlide key={index}>
               <CarouselItem
                 ticker={item.ticker}
                 price={item.price}
-                changeAmount={item.changeAmount}
-                changePercentage={item.changePercentage}
+                changeAmount={item.change_amount}
+                changePercentage={item.change_percentage}
               />
             </SwiperSlide>
           )
@@ -78,6 +72,7 @@ export default function Carousel(props) {
 
 function CarouselItem({ ticker, price, changeAmount, changePercentage }) {
   const sign = Number(changeAmount) > 0 ? "+" : "";
+
   const roundPercentage = Number(changePercentage.replace("%", "")).toFixed(2);
   const change = `${sign}${changeAmount} (${sign}${roundPercentage}%)`;
   return (
