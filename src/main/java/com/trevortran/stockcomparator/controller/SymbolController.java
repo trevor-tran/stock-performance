@@ -17,8 +17,8 @@ import java.util.Set;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
 @Slf4j
+@RequestMapping("/api")
 public class SymbolController {
     private final SymbolService symbolService;
 

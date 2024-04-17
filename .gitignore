@@ -38,3 +38,6 @@ build/
 
 # do not commit the fowllowing files since they contains sensitive information
 **/SecretManager.java
+
+# logs
+/**/logs

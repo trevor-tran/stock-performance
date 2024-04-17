@@ -2,6 +2,7 @@ package com.trevortran.stockcomparator.controller;
 
 import com.trevortran.stockcomparator.model.GainerLoser;
 import com.trevortran.stockcomparator.service.GainerLoserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.Map;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/top-stock")
+@Slf4j
 public class GainerLoserController {
     private final GainerLoserService gainerLoserService;
 
