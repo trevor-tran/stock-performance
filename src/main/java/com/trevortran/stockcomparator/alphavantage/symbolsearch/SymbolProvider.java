@@ -4,8 +4,8 @@ import com.trevortran.stockcomparator.alphavantage.util.SecretManager;
 import com.trevortran.stockcomparator.alphavantage.util.Utils;
 import com.trevortran.stockcomparator.model.Symbol;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.naming.LimitExceededException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,12 +17,14 @@ public class SymbolProvider {
     public SymbolProvider() {
         restTemplate = new RestTemplate();
     }
-    public List<Symbol> request(String keyword) {
+    public List<Symbol> request(String keyword) throws LimitExceededException {
         List<Symbol> symbols = new ArrayList<>();
         try {
             URL url = buildUrl(keyword);
             SymbolData response = restTemplate.getForObject(url.toString(), SymbolData.class);
-            if (response != null && response.rawSymbols() != null) {
+            assert response != null;
+
+            if (response.rawSymbols() != null) {
                 for (SymbolDetail s : response.rawSymbols()) {
                     Symbol symbol = new Symbol.Builder()
                             .ticker(s.id())
@@ -36,6 +38,8 @@ public class SymbolProvider {
                             .build();
                     symbols.add(symbol);
                 }
+            } else if (response.information() != null) {
+                throw new LimitExceededException("Rate of Requests has reached");
             }
         }catch (MalformedURLException e) {
             System.out.println(e.getMessage());
@@ -43,7 +47,7 @@ public class SymbolProvider {
         return symbols;
     }
 
-    public List<Symbol> request(String keyword, String region) {
+    public List<Symbol> request(String keyword, String region) throws LimitExceededException {
         List<Symbol> symbols = request(keyword);
         return symbols.stream().filter(s -> s.getRegion().equals(region)).toList();
     }
@@ -52,7 +56,7 @@ public class SymbolProvider {
         return Utils.getQueryPath()
                 .queryParam("function", "SYMBOL_SEARCH")
                 .queryParam("keywords", keyword)
-                .queryParam("apikey", SecretManager.getSecretKey())
+                .queryParam("apikey", SecretManager.getApiKey())
                 .build()
                 .toUri()
                 .toURL();

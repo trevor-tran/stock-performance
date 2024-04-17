@@ -54,7 +54,12 @@ public class GainerLoserServiceImpl implements GainerLoserService {
         losers = new ArrayList<>();
 
         for (GainerLoser gainerLoser : gainerLosers) {
-            if (gainerLoser.changePercentage() > 0) {
+            String percentageExtraction = gainerLoser.changePercentage()
+                    .trim()
+                    .substring(0,gainerLoser.changePercentage().length() - 1);
+            double percentage = Double.parseDouble(percentageExtraction);
+
+            if (percentage > 0) {
                 gainers.add(gainerLoser);
             } else {
                 losers.add(gainerLoser);

@@ -20,7 +20,7 @@ public class GainerLoserProvider {
     private URL buildUrl() throws MalformedURLException {
         return Utils.getQueryPath()
                 .queryParam("function", "TOP_GAINERS_LOSERS")
-                .queryParam("apikey", SecretManager.getSecretKey())
+                .queryParam("apikey", SecretManager.getApiKey())
                 .build()
                 .toUri()
                 .toURL();

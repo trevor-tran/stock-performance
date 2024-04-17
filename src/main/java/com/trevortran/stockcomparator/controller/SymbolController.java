@@ -3,11 +3,13 @@ package com.trevortran.stockcomparator.controller;
 import com.trevortran.stockcomparator.alphavantage.symbolsearch.SymbolProvider;
 import com.trevortran.stockcomparator.model.Symbol;
 import com.trevortran.stockcomparator.service.SymbolService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.LimitExceededException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import java.util.Set;
 @CrossOrigin
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class SymbolController {
     private final SymbolService symbolService;
 
@@ -36,9 +39,14 @@ public class SymbolController {
     @GetMapping(value = "/symbol", params = {"keyword"})
     public ResponseEntity<List<Symbol>> findMatches(@RequestParam String keyword) {
         List<Symbol> symbolMatches = symbolService.findBestTickerMatches(keyword);
-        if (symbolMatches.isEmpty()) {
-            List<Symbol> fetchedSymbols = fetchAndUpdateDb(keyword);
-            symbolMatches = merge(symbolMatches, fetchedSymbols);
+        try {
+            if (symbolMatches.isEmpty()) {
+                List<Symbol> fetchedSymbols = fetchAndUpdateDb(keyword);
+                symbolMatches = merge(symbolMatches, fetchedSymbols);
+            }
+        } catch (LimitExceededException exception) {
+            log.warn(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build();
         }
         return ResponseEntity.ok(symbolMatches);
     }
@@ -48,7 +56,7 @@ public class SymbolController {
         return symbolService.save(symbol);
     }
 
-    private List<Symbol> fetchAndUpdateDb(String keyword) {
+    private List<Symbol> fetchAndUpdateDb(String keyword) throws LimitExceededException {
         List<Symbol> symbols = symbolProvider.request(keyword, "United States");
         return symbolService.save(symbols);
     }

@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.naming.LimitExceededException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -22,6 +24,21 @@ public class GainerLoserController {
     @Autowired
     public GainerLoserController(GainerLoserService gainerLoserService) {
         this.gainerLoserService = gainerLoserService;
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getGainersLosersHandler() {
+        try {
+            List<GainerLoser> gainers = gainerLoserService.getTopGainers();
+            List<GainerLoser> losers = gainerLoserService.getTopLosers();
+
+            Map<String, List<GainerLoser>> results = new HashMap<>();
+            results.put("gainers", gainers);
+            results.put("losers", losers);
+            return ResponseEntity.ok(results);
+        } catch (LimitExceededException e) {
+            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build();
+        }
     }
     @GetMapping("/gainers")
     public ResponseEntity<?> getGainersHandler() {

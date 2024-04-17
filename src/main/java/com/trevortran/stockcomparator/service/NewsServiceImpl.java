@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.LimitExceededException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public List<News> findLatestNewsByTicker(String ticker, int size) {
+    public List<News> findLatestNewsByTicker(String ticker, int size) throws LimitExceededException {
         LocalDate today = LocalDate.now().minusDays(1);
 
         List<News> todayNews = newsRepository.findByTickerAndPublishedDateOrderByRelevanceScoreDesc(

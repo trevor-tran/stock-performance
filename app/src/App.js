@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
 import Chart from './components/Chart';
 import TopBar from './components/TopBar';
@@ -10,10 +10,10 @@ import News from './components/News';
 
 import "./assets/css/App.css";
 import Carousel from './components/Carousel';
+import AutoHideSnackBar from './components/AutoHideSnackBar';
 
-import { topGainers as sampleGainers, topLosers as sampleLosers } from './sampledata';
+import { HOST } from "./utils/utils";
 
-const HOST = "http://localhost:8080";
 
 export default function App() {
 
@@ -35,33 +35,37 @@ export default function App() {
   // tab selection
   const [selectTab, setSelectTab] = useState(0);
 
-  const [topGainers, setTopGainers] = useState(sampleGainers);
-  const [topLosers, setTopLosers] = useState(sampleLosers);
+  const [topGainers, setTopGainers] = useState([]);
+  const [topLosers, setTopLosers] = useState([]);
+
+  const [notification, setNotification] = useState({
+    message: "",
+    severity: "info",
+    autoHideDuration: 10000
+  });
 
   /**
    * HOOKs section
    */
 
-  // // get top gainers and top losers
-  // useEffect(() => {
-  //   // get top gainers
-  //   axios.get(`${HOST}/api/top-stock/gainers`
-  //   ).then(response => {
-  //     console.log("gainer:" + response.data);
-  //     setTopGainers(response.data);
-  //   }).catch(err => {
-  //     console.log(err);
-  //   });
+  // get top gainers and top losers
+  useEffect(() => {
+    // get top gainers
+    axios.get(`${HOST}/api/top-stock/gainers`
+    ).then(response => {
+      setTopGainers(response.data);
+    }).catch(err => {
+      console.error(err);
+    });
 
-  //   // get top losers
-  //   axios.get(`${HOST}/api/top-stock/losers`
-  //   ).then(response => {
-  //     console.log("loser:" + response.data);
-  //     setTopLosers(response.data);
-  //   }).catch(err => {
-  //     console.log(err);
-  //   });
-  // }, []);
+    // get top losers
+    axios.get(`${HOST}/api/top-stock/losers`
+    ).then(response => {
+      setTopLosers(response.data);
+    }).catch(err => {
+      console.error(err);
+    });
+  }, []);
 
   // get stock data when tickers and date range change
   useEffect(() => {
@@ -69,8 +73,10 @@ export default function App() {
 
     // the flag to when to evict the entire stockCache
     let needFreshCache = false;
+
     // call this url when a new ticker added with start date and end date remain unchanged
     let url = `${HOST}/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
+
     // determine if start date and end date have change
     // if so, need to get data for all tickers
     if (prevStartDate.current !== userInputs.startDate || prevEndDate.current !== userInputs.endDate) {
@@ -79,10 +85,6 @@ export default function App() {
       prevEndDate.current = userInputs.endDate;
       needFreshCache = true;
     }
-
-    // if (prevTickers.length > tickers.length) {
-    //   return;
-    // }
 
     axios.get(url).then(response => {
       let normalizedData = new Map();
@@ -107,7 +109,16 @@ export default function App() {
       }
       setStockCache(newStockCache);
     }).catch(err => {
-      console.log(err);
+      console.error(err);
+      const errJson = err.toJSON();
+      if (errJson.status === 509) {
+        setNotification({
+          ...notification,
+          message: "Cannot fetch data due to a high volume of traffic. Please try again in a minute",
+          severity: "error",
+          autoHideDuration: 10000
+        });
+      }
     });
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
@@ -120,7 +131,7 @@ export default function App() {
     ).then(response => {
       setNewsList(response.data);
     }).catch(err => {
-      console.log(err);
+      console.warn(err);
     });
   }, [tickers.length]);
 
@@ -141,11 +152,19 @@ export default function App() {
 
   function handleUserInputs(valueObj) {
     setUserInputs({ ...userInputs, ...valueObj });
+
+    // only add new ticker to the list
     let found = tickers.indexOf(valueObj.ticker)
     if (found < 0 && valueObj.ticker.trim().length > 0) {
       const newTickers = [...tickers, valueObj.ticker]
       setTickers(newTickers);
       prevTickers.current = newTickers;
+      setNotification({
+        ...notification,
+        message: "New ticker added",
+        severity: "success",
+        autoHideDuration: 5000
+      });
     }
   }
 
@@ -171,7 +190,7 @@ export default function App() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
       {/* header */}
-      <Box className="row shadow-sm border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw" }}>
+      <Box className="row shadow-sm mb-4 bg-light" sx={{ height: "70px", width: "100vw", borderBottom: "2px solid #4682B4" }}>
         <Header />
       </Box>
 
@@ -182,15 +201,22 @@ export default function App() {
             <Tab label="Top Losers" id="tab-1" />
           </Tabs>
           <CustomTabPanel value={selectTab} index={0}>
-            <Carousel items={topGainers} />
+            {topGainers.length > 0 && <Carousel items={topGainers} />}
           </CustomTabPanel>
           <CustomTabPanel value={selectTab} index={1}>
-            <Carousel items={topLosers} />
+            {topLosers.length > 0 && <Carousel items={topLosers} />}
           </CustomTabPanel>
         </Box>
       </Box>
       <Box className="row mb-1 justify-content-center align-items-start">
-        <TopBar tickers={tickers} startDate={userInputs.startDate} endDate={userInputs.endDate} budget={userInputs.budget} ticker={userInputs.ticker} onChange={handleUserInputs} />
+        <TopBar
+          tickers={tickers}
+          startDate={userInputs.startDate}
+          endDate={userInputs.endDate}
+          budget={userInputs.budget}
+          ticker={userInputs.ticker}
+          onChange={handleUserInputs}
+        />
       </Box>
 
       <Box className="row flex-grow-1">
@@ -223,7 +249,13 @@ export default function App() {
             (tickers.length > 0 && newsList.length > 0) &&
             newsList.map((news, idx) =>
               <Box key={news.url}>
-                <News title={news.title} url={news.url} imageUrl={news.imageUrl} summary={news.summary} publishedDate={news.publishedDate} />
+                <News
+                  title={news.title}
+                  url={news.url}
+                  imageUrl={news.imageUrl}
+                  summary={news.summary}
+                  publishedDate={news.publishedDate}
+                />
                 {idx === newsList.length - 1 || <hr />}
               </Box>
             )
@@ -235,6 +267,17 @@ export default function App() {
       <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
         <Footer />
       </Box>
+
+      {/* snack bar to inform user */}
+      {notification.message.length > 0 &&
+        <AutoHideSnackBar
+          open
+          message={notification.message}
+          severity={notification.severity}
+          onHide={() => setNotification({ ...notification, message: "" })}
+          autoHideDuration={notification.autoHideDuration}
+        />
+      }
     </Box>
   );
 }

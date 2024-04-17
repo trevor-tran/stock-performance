@@ -5,10 +5,13 @@ import com.trevortran.stockcomparator.model.Stock;
 import com.trevortran.stockcomparator.model.Symbol;
 import com.trevortran.stockcomparator.service.StockService;
 import com.trevortran.stockcomparator.service.SymbolService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.LimitExceededException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +19,7 @@ import java.util.Optional;
 @CrossOrigin
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class StockController {
     private final StockService stockService;
     private final SymbolService symbolService;
@@ -28,7 +32,9 @@ public class StockController {
     }
 
     @GetMapping(value = "/stock/{ticker}", params = {"start", "end"})
-    public ResponseEntity<List<Stock>> getStockByDateRange(@PathVariable String ticker, @RequestParam LocalDate start, @RequestParam LocalDate end) {
+    public ResponseEntity<List<Stock>> getStockByDateRange(@PathVariable String ticker,
+                                                           @RequestParam LocalDate start,
+                                                           @RequestParam LocalDate end) {
 
 
         Optional<Symbol> symbolOptional = symbolService.findByTicker(ticker);
@@ -38,9 +44,14 @@ public class StockController {
 
         LocalDate lastUpdated = symbolOptional.get().getLastUpdated();
 
-        // fetch and save data consumed if db is out of date
-        if (lastUpdated == null || lastUpdated.isBefore(end)) {
-            requestAndSaveStockData(ticker);
+        try {
+            // fetch and save data consumed if db is out of date
+            if (lastUpdated == null || lastUpdated.isBefore(end)) {
+                requestAndSaveStockData(ticker);
+            }
+        } catch (LimitExceededException exception) {
+            log.warn(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build();
         }
 
         List<Stock> stocks = stockService.findByTicker(ticker, start, end);
@@ -49,7 +60,9 @@ public class StockController {
     }
 
     @GetMapping(value = "/stock/batch", params = {"tickers", "start", "end"})
-    public ResponseEntity<List<Stock>> getStockByDateRange(@RequestParam List<String> tickers, @RequestParam LocalDate start, @RequestParam LocalDate end) {
+    public ResponseEntity<List<Stock>> getStockByDateRange(@RequestParam List<String> tickers,
+                                                           @RequestParam LocalDate start,
+                                                           @RequestParam LocalDate end) {
 
         LocalDate mutualQueryEndDate = end;
         LocalDate mutualQueryStartDate = start;
@@ -63,8 +76,13 @@ public class StockController {
             Symbol symbol = symbolOptional.get();
 
             LocalDate lastUpdated = symbol.getLastUpdated();
-            if (lastUpdated == null || lastUpdated.isBefore(end)) {
-                requestAndSaveStockData(ticker);
+            try {
+                if (lastUpdated == null || lastUpdated.isBefore(end)) {
+                    requestAndSaveStockData(ticker);
+                }
+            } catch (LimitExceededException exception) {
+                log.error(exception.getMessage());
+                return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).build();
             }
 
             lastUpdated = symbol.getLastUpdated();
@@ -82,7 +100,7 @@ public class StockController {
         return ResponseEntity.ok(stocks);
     }
 
-    private void requestAndSaveStockData(String ticker) {
+    private void requestAndSaveStockData(String ticker) throws LimitExceededException {
         List<Stock> stocks = stockProvider.request(ticker);
         stockService.save(stocks);
 
