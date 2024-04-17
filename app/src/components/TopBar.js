@@ -115,7 +115,7 @@ export default function TopBar(props) {
   useEffect(() => {
     const ticker = formik.values.ticker;
 
-    if (!ticker || Boolean(formik.errors.ticker)) {
+    if (!ticker) {
       setTickerMatches([]);
       return;
     }

@@ -4,7 +4,6 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import EmailIcon from '@mui/icons-material/Email';
 
 export default function Header(props) {
-  const { color } = props;
   return (
     <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
       <header className="d-flex flex-wrap justify-content-center align-items-center">
