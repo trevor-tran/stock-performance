@@ -38,7 +38,6 @@ export default function App() {
   const [topGainers, setTopGainers] = useState([]);
   const [topLosers, setTopLosers] = useState([]);
 
-  //error message
   const [notification, setNotification] = useState({
     message: "",
     severity: "info",
@@ -74,8 +73,10 @@ export default function App() {
 
     // the flag to when to evict the entire stockCache
     let needFreshCache = false;
+
     // call this url when a new ticker added with start date and end date remain unchanged
     let url = `${HOST}/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
+
     // determine if start date and end date have change
     // if so, need to get data for all tickers
     if (prevStartDate.current !== userInputs.startDate || prevEndDate.current !== userInputs.endDate) {
@@ -84,10 +85,6 @@ export default function App() {
       prevEndDate.current = userInputs.endDate;
       needFreshCache = true;
     }
-
-    // if (prevTickers.length > tickers.length) {
-    //   return;
-    // }
 
     axios.get(url).then(response => {
       let normalizedData = new Map();
@@ -193,7 +190,7 @@ export default function App() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
       {/* header */}
-      <Box className="row shadow-sm border-bottom mb-4 bg-light" sx={{ height: "70px", width: "100vw" }}>
+      <Box className="row shadow-sm mb-4 bg-light" sx={{ height: "70px", width: "100vw", borderBottom: "2px solid #4682B4" }}>
         <Header />
       </Box>
 
@@ -277,7 +274,7 @@ export default function App() {
           open
           message={notification.message}
           severity={notification.severity}
-          onHide={() => setNotification({...notification, message: ""})}
+          onHide={() => setNotification({ ...notification, message: "" })}
           autoHideDuration={notification.autoHideDuration}
         />
       }

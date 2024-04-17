@@ -32,13 +32,19 @@ export default function TopBar(props) {
       .string()
       .matches(/^\d{4}-\d{2}-\d{2}$/, "Invalid format")
       .required('Required'),
-    ticker: props.tickers.length === 0 ? yup.string().matches(/^[A-Z]+$/, "Uppercase letters only").required('Required') : yup.string().matches(/^[A-Z]+$/, "Uppercase letters only")
+    ticker: props.tickers.length === 0 ?
+      yup.string().required('Required')
+      :
+      yup.string()
   });
 
   const [tickerMatches, setTickerMatches] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-  const [severity, setSeverity] = useState("error");
+
+  const [notification, setNotification] = useState({
+    message: "",
+    severity: "error",
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -53,28 +59,44 @@ export default function TopBar(props) {
 
       // check if the ticker is already in the list
       if (props.tickers.includes(ticker)) {
-        setSeverity("info");
-        setErrMsg(`${ticker} already added`);
+        setNotification({
+          ...notification,
+          message: `${ticker} already added`,
+          severity: "info"
+        });
+
         return;
       }
 
       if (ticker && props.tickers.length === 5) {
         resetSomeFields();
-        setSeverity("warning");
-        setErrMsg("You can only add up to 5 tickers");
+
+        setNotification({
+          ...notification,
+          message: "You can only add up to 5 tickers",
+          severity: "warning"
+        });
+
         return;
       }
 
       if (!dayjs(startDate).isBefore(endDate)) {
-        setErrMsg("Start date must be before end date");
+        formik.setErrors({
+          startDate: "Must be BEFORE end date",
+          endDate: "Must be AFTER start date"
+        });
         return;
       }
 
       // check if the ticker is valid
       // ticker must be in the list of tickerMatches
       const foundMatch = tickerMatches.find(t => t.ticker.toUpperCase() === ticker.toUpperCase());
-      if (!foundMatch) {
-        setErrMsg("Invalid ticker");
+      if (ticker.length > 0 && !foundMatch) {
+        setNotification({
+          ...notification,
+          message: "Invalid ticker",
+          severity: "error"
+        });
         return;
       }
 
@@ -93,16 +115,13 @@ export default function TopBar(props) {
   useEffect(() => {
     const ticker = formik.values.ticker;
 
-    // validate ticker on change so reduce the number of requests
-    async function validateTicker() {
-      await formik.validateField("ticker");
-    }
-    validateTicker();
     if (!ticker || Boolean(formik.errors.ticker)) {
+      setTickerMatches([]);
       return;
     }
 
     setLoading(true);
+
     const url = HOST + "/api/symbol?keyword=" + ticker;
     axios.get(url
     ).then(response => {
@@ -111,10 +130,15 @@ export default function TopBar(props) {
     }).catch(error => {
       const errJson = error.toJSON();
       if (errJson.status === 509) {
-        setErrMsg("We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!");
+        setNotification({
+          ...notification,
+          message: "We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!",
+          severity: "error"
+        });
       }
       setLoading(false);
     });
+
   }, [formik.values.ticker])
 
 
@@ -239,7 +263,7 @@ export default function TopBar(props) {
               sx={{ width: "100%" }}
             />
           )}
-          onInputChange={(e, v) => formik.setFieldValue("ticker", v.toUpperCase())}
+          onInputChange={(e, v) => formik.setFieldValue("ticker", v.toUpperCase().trim())}
           sx={{ width: "100%" }}
         />
       </Box>
@@ -251,7 +275,12 @@ export default function TopBar(props) {
           <span className="fw-bold">Update</span>
         </Button>
       </Box>
-      {errMsg.length > 0 && <AutoHideSnackBar open message={errMsg} severity={severity} onHide={() => setErrMsg("")} />}
+      {notification.message.length > 0 &&
+        <AutoHideSnackBar
+          open
+          message={notification.message}
+          severity={notification.severity}
+          onHide={() => setNotification({ ...notification, message: "" })} />}
     </>
   )
 }
