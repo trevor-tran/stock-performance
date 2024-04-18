@@ -184,13 +184,13 @@ export default function App() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
       {/* header */}
-      <Box className="row shadow-sm mb-4 bg-light" sx={{ height: "70px", width: "100vw", borderBottom: "2px solid #4682B4" }}>
+      <Box className="row shadow-sm mb-4 bg-light" sx={{ width: "100vw", borderBottom: "2px solid #4682B4" }}>
         <Header />
       </Box>
 
       <Box className="row mb-4">
         <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
-          <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)} aria-label="basic tabs example">
+          <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)}>
             <Tab label="Top Gainers" id="tab-0" />
             <Tab label="Top Losers" id="tab-1" />
           </Tabs>
@@ -289,7 +289,7 @@ function CustomTabPanel(props) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ padding: "10px 0px"}}>
           {children}
         </Box>
       )}

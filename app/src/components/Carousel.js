@@ -25,19 +25,16 @@ export default function Carousel(props) {
         loop={true}
         // slidesPerGroup={1}
         breakpoints={{
-          640: {
-            slidesPerView: 1,
-          },
-          768: {
+          0: {
             slidesPerView: 2,
           },
-          992: {
+          640: {
             slidesPerView: 3,
           },
-          1200: {
+          768: {
             slidesPerView: 4,
           },
-          1400: {
+          1200: {
             slidesPerView: 5,
           },
           1600: {
@@ -76,7 +73,7 @@ function CarouselItem({ ticker, price, changeAmount, changePercentage }) {
   const roundPercentage = Number(changePercentage.replace("%", "")).toFixed(2);
   const change = `${sign}${changeAmount} (${sign}${roundPercentage}%)`;
   return (
-    <div className="slide-item" style={{ width: "190px", padding: "20px"}}>
+    <div className="slide-item" style={{ width: "170px"}}>
       <span className="d-block h6 text-primary">{ticker}</span>
       <span className="d-block">{price}</span>
       <span className={changeAmount > 0 ? "text-success" : "text-danger"}>{change}</span>
