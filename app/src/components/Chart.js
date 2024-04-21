@@ -51,10 +51,10 @@ const renderCustomizedLegend = props => {
 
 
 export default function Chart(props) {
-  const [emphasize, setEmphasize] = useState(null);
-
   const data = [];
   const { stockData, budget } = props;
+
+  const [emphasize, setEmphasize] = useState(null);
 
   let prevDate;
 

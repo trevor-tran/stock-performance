@@ -5,4 +5,11 @@ export const HOST =  DEV_HOST;
 
 export const MAXIMUM_TICKERS = 3;
 
-export const STOCK_STALE_TIME_IN_HOURS = 12;
+// stale time in hours
+export const STALE_TIME = {
+  stock: 12,
+  gainersLosers: 24,
+  news: 5,
+}
+
+export const NUMBER_OF_NEWS_ARTICLES = 20;

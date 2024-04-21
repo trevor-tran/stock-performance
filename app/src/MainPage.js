@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import { Box, Tabs, Tab, CircularProgress, Backdrop } from '@mui/material';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import Chart from './components/Chart';
@@ -11,48 +11,67 @@ import News from './components/News';
 import Carousel from './components/Carousel';
 import AutoHideSnackBar from './components/AutoHideSnackBar';
 
-import { HOST, STOCK_STALE_TIME_IN_HOURS } from "./utils/utils";
+import {
+  HOST,
+  STALE_TIME,
+  NUMBER_OF_NEWS_ARTICLES
+} from "./utils/utils";
 
 
 const fetchStockData = async (tickers, startDate, endDate) => {
-  const url = `${HOST}/api/stock/batch?tickers=${tickers.join()}&start=${startDate}&end=${endDate}`;
+  const tickersParam = tickers.join();
+  const url = `${HOST}/api/stock/batch?tickers=${tickersParam}&start=${startDate}&end=${endDate}`;
   const response = await axios.get(url);
-  return response.data;
+  return response?.data;
+}
+
+const fetchTopGainersLosers = async () => {
+  const response = await axios.get(`${HOST}/api/top-stock`);
+  return response?.data;
+};
+
+const fetchNews = async (tickers, size) => {
+  const tickersParam = tickers.join();
+  const url = `${HOST}/api/news?tickers=${tickersParam}&size=${size}`;
+  const response = await axios.get(url);
+  return response?.data;
 }
 
 
 export default function MainPage() {
-
   // react-query hook
   const queryClient = useQueryClient();
+
+  const { data, status, error } = useQuery({
+    queryKey: ["gainers-losers"],
+    queryFn: fetchTopGainersLosers,
+    staleTime: STALE_TIME.gainersLosers * 3600 * 1000,
+  });
 
   const [userInputs, setUserInputs] = useState({
     budget: 0,
     startDate: "",
     endDate: "",
     ticker: ""
-  })
-
+  });
   const [tickers, setTickers] = useState([]);
   const [newsList, setNewsList] = useState([]);
-
   const [stockCache, setStockCache] = useState(new Map());
-
-  const prevStartDate = useRef(userInputs.startDate);
-  const prevEndDate = useRef(userInputs.endDate);
-  const prevTickers = useRef();
-
   // tab selection
   const [selectTab, setSelectTab] = useState(0);
-
   const [topGainers, setTopGainers] = useState([]);
   const [topLosers, setTopLosers] = useState([]);
-
   const [notification, setNotification] = useState({
     message: "",
     severity: "info",
     autoHideDuration: 10000
   });
+  const [loading, setLoading] = useState(false);
+
+  const prevStartDate = useRef(userInputs.startDate);
+  const prevEndDate = useRef(userInputs.endDate);
+  const prevTickers = useRef();
+
 
   /**
    * HOOKs section
@@ -60,25 +79,41 @@ export default function MainPage() {
 
   // get top gainers and top losers
   useEffect(() => {
-    // get top gainers
-    axios.get(`${HOST}/api/top-stock/gainers`
-    ).then(response => {
-      setTopGainers(response.data);
-    }).catch(err => {
-      console.error(err);
-    });
+    if (status === "loading") {
+      console.log("loading top gainers and losers...");
+    } else if (status === "success") {
+      setTopGainers(data.gainers);
+      setTopLosers(data.losers);
+    } else if (status === "error") {
+      console.error("error fetching top gainers and losers:", error);
+    }
+  }, [status]);
 
-    // get top losers
-    axios.get(`${HOST}/api/top-stock/losers`
-    ).then(response => {
-      setTopLosers(response.data);
-    }).catch(err => {
-      console.error(err);
-    });
-  }, []);
+
 
   // get stock data when tickers and date range change
   useEffect(() => {
+    // define the function to fetch data and set the stockCache
+    async function fetchData() {
+      const data = await queryClient.fetchQuery({
+        queryKey: ["stock-data", ...tickersParam, startDate, endDate],
+        queryFn: () => fetchStockData(tickersParam, startDate, endDate),
+        staleTime: STALE_TIME.stock * 3600 * 1000,
+      });
+      const normalizedResponse = normalizeResponseData(data);
+
+      let newStockCache;
+      if (needFreshCache) {
+        newStockCache = normalizedResponse;
+      } else {
+        newStockCache = intersectMaps(stockCache, normalizedResponse);
+      }
+      setStockCache(newStockCache);
+      setLoading(false);
+    }
+
+    setLoading(true);
+
     const { startDate, endDate } = userInputs;
     if (tickers.length === 0) return;
 
@@ -96,23 +131,6 @@ export default function MainPage() {
       needFreshCache = true;
     }
 
-    // define the function to fetch data and set the stockCache
-    async function fetchData() {
-      const data = await queryClient.fetchQuery({
-        queryKey: [...tickersParam, startDate, endDate],
-        queryFn: () => fetchStockData(tickersParam, startDate, endDate),
-        staleTime: STOCK_STALE_TIME_IN_HOURS * 3600 * 1000,
-      });
-      const normalizedResponse = normalizeResponseData(data);
-
-      let newStockCache;
-      if (needFreshCache) {
-        newStockCache = normalizedResponse;
-      } else {
-        newStockCache = intersectMaps(stockCache, normalizedResponse);
-      }
-      setStockCache(newStockCache);
-    }
 
     try {
       fetchData();
@@ -134,6 +152,7 @@ export default function MainPage() {
         severity: "error",
         autoHideDuration: 10000
       });
+      setLoading(false);
     }
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
@@ -154,15 +173,25 @@ export default function MainPage() {
 
   // get news when tickers change
   useEffect(() => {
+    async function fetchData() {
+      const data = await queryClient.fetchQuery({
+        queryKey: ["news-data", ...tickers],
+        queryFn: () => fetchNews(tickers, NUMBER_OF_NEWS_ARTICLES),
+        staleTime: STALE_TIME.news * 3600 * 1000,
+      });
+      setNewsList(data);
+    }
+
     if (tickers.length === 0) return;
-    const url = `${HOST}/api/news?tickers=${tickers.join(",")}&size=${20}`;
-    axios.get(url
-    ).then(response => {
-      setNewsList(response.data);
-    }).catch(err => {
-      console.warn(err);
-    });
+
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
   }, [tickers.length]);
+
+
 
   function intersectMaps(map1, map2) {
     let intersection = new Map();
@@ -224,10 +253,20 @@ export default function MainPage() {
             <Tab label="Top Losers" id="tab-1" />
           </Tabs>
           <CustomTabPanel value={selectTab} index={0}>
-            {topGainers.length > 0 && <Carousel items={topGainers} />}
+            {
+              topGainers.length > 0 ? <Carousel items={topGainers} /> :
+                <Box className="d-flex justify-content-center align-items-center">
+                  <CircularProgress />
+                </Box>
+            }
           </CustomTabPanel>
           <CustomTabPanel value={selectTab} index={1}>
-            {topLosers.length > 0 && <Carousel items={topLosers} />}
+            {
+              topGainers.length > 0 ? <Carousel items={topLosers} /> :
+                <Box className="d-flex justify-content-center align-items-center">
+                  <CircularProgress />
+                </Box>
+            }
           </CustomTabPanel>
         </Box>
       </Box>
@@ -252,9 +291,15 @@ export default function MainPage() {
                 <p className="small text-center text-secondary">There is no data to show you right now.</p>
               </Box>
               :
-              <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
-                <p className="h5">Monthly Growth of Initial Investment Over Time</p>
-                <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
+              <Box
+                className="d-flex flex-column justify-content-center align-items-center"
+                sx={{ margin: 'auto', height: "600px", pb: "40px" }}>
+                {loading ? <CircularProgress /> :
+                  <>
+                    <p className="h5">Monthly Growth of Initial Investment Over Time</p>
+                    <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
+                  </>
+                }
               </Box>
           }
         </Box>
