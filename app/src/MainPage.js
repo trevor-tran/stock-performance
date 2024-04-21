@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, Suspense } from 'react';
-import { Box, Tabs, Tab, CircularProgress, Backdrop } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
+import { Box, Tabs, Tab, CircularProgress } from '@mui/material';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -242,12 +242,12 @@ export default function MainPage() {
   return (
     <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
       {/* header */}
-      <Box className="row shadow-sm mb-4 bg-light" sx={{ width: "100vw", borderBottom: "2px solid #4682B4" }}>
+      <Box className="row shadow-sm mb-4 bg-light py-1 py-sm-2" sx={{ width: "100vw", borderBottom: "2px solid #4682B4" }}>
         <Header />
       </Box>
 
       <Box className="row mb-4">
-        <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto">
           <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)}>
             <Tab label="Top Gainers" id="tab-0" />
             <Tab label="Top Losers" id="tab-1" />
