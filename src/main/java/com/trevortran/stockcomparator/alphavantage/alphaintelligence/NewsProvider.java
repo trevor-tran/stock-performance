@@ -3,6 +3,7 @@ package com.trevortran.stockcomparator.alphavantage.alphaintelligence;
 import com.trevortran.stockcomparator.alphavantage.util.SecretManager;
 import com.trevortran.stockcomparator.alphavantage.util.Utils;
 import com.trevortran.stockcomparator.model.News;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
 import javax.naming.LimitExceededException;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class NewsProvider {
 
     private URL buildUrl(String ticker) throws MalformedURLException {
@@ -32,13 +34,19 @@ public class NewsProvider {
             URL url = buildUrl(ticker);
             NewsData response = restTemplate.getForObject(url.toString(), NewsData.class);
             assert response != null;
+            String infoMessage = response.information();
+
             if (response.newsDetailList() != null) {
                 for (NewsDetail newsDetail : response.newsDetailList()) {
                     News news = mapToNewsObject(newsDetail);
                     newsList.add(news);
                 }
-            } else if (response.information() != null) {
-                throw new LimitExceededException("Rate of Requests has reached");
+            } else if (infoMessage != null) {
+                if (infoMessage.equalsIgnoreCase(Utils.INVALID_INPUTS)) {
+                    log.warn("Invalid inputs for news fetch with ticker: " + ticker);
+                } else {
+                    throw new LimitExceededException("Rate of Requests has reached");
+                }
             }
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
