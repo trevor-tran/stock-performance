@@ -13,6 +13,18 @@ import AutoHideSnackBar from './AutoHideSnackBar';
 import { endOfLastMonth, DATE_FORMAT, endOfMonth } from "../utils/date";
 import { HOST, MAXIMUM_TICKERS } from "../utils/utils";
 
+import { useQueryClient } from '@tanstack/react-query';
+
+
+
+const fetchMatchingTickers = async (keyword) => {
+  const url = HOST + "/api/symbol?keyword=" + keyword;
+  const response = await axios.get(url);
+  return response.data;
+}
+
+
+
 // TopBar component
 export default function TopBar(props) {
 
@@ -36,14 +48,6 @@ export default function TopBar(props) {
       yup.string().required('Required')
       :
       yup.string()
-  });
-
-  const [tickerMatches, setTickerMatches] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const [notification, setNotification] = useState({
-    message: "",
-    severity: "error",
   });
 
   const formik = useFormik({
@@ -111,6 +115,17 @@ export default function TopBar(props) {
     }
   });
 
+  const queryClient = useQueryClient();
+
+  const [tickerMatches, setTickerMatches] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [notification, setNotification] = useState({
+    message: "",
+    severity: "error",
+  });
+
+
   // get ticker matches
   useEffect(() => {
     const ticker = formik.values.ticker;
@@ -122,22 +137,38 @@ export default function TopBar(props) {
 
     setLoading(true);
 
-    const url = HOST + "/api/symbol?keyword=" + ticker;
-    axios.get(url
-    ).then(response => {
-      setTickerMatches(response.data);
+    async function fetchData() {
+      const data = await queryClient.fetchQuery({
+        queryKey: [ticker],
+        queryFn: () => fetchMatchingTickers(ticker),
+        staleTime: Number.MAX_SAFE_INTEGER,
+      });
+      setTickerMatches(data);
       setLoading(false);
-    }).catch(error => {
-      const errJson = error.toJSON();
-      if (errJson.status === 509) {
-        setNotification({
-          ...notification,
-          message: "We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!",
-          severity: "error"
-        });
+    }
+
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      let message = "An error occured. Please try again in a minute. Thanks for your patience!";
+
+      // if it's axios error
+      if (axios.isAxiosError(error)) {
+        const errJson = error.toJSON();
+        if (errJson.status === 509) {
+          message = "We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!";
+        }
       }
+
+      setNotification({
+        ...notification,
+        message,
+        severity: "error"
+      });
+
       setLoading(false);
-    });
+    }
 
   }, [formik.values.ticker])
 
@@ -236,6 +267,8 @@ export default function TopBar(props) {
           value={formik.values.ticker}
           loading={loading}
           getOptionLabel={option => option.ticker ? option.ticker : option}
+          onInputChange={(e, v) => formik.setFieldValue("ticker", v.toUpperCase().trim())}
+          sx={{ width: "100%" }}
           renderOption={(props, option) => (
             <Box key={option.ticker} component="li" sx={{ borderBottom: "1px solid #dcdcdc" }} {...props}>
               <span style={{ marginRight: "50px" }}>{option.ticker}</span>
@@ -263,15 +296,12 @@ export default function TopBar(props) {
               sx={{ width: "100%" }}
             />
           )}
-          onInputChange={(e, v) => formik.setFieldValue("ticker", v.toUpperCase().trim())}
-          sx={{ width: "100%" }}
         />
       </Box>
       <Box className="col-12 col-lg-1">
         <Button variant="contained" color="primary"
           sx={{ width: "100%", height: "56px", marginTop: "16px" }}
-          onClick={formik.handleSubmit}
-        >
+          onClick={formik.handleSubmit}>
           <span className="fw-bold">Update</span>
         </Button>
       </Box>

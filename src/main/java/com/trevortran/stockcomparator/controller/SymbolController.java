@@ -10,10 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.LimitExceededException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -38,11 +37,14 @@ public class SymbolController {
 
     @GetMapping(value = "/symbol", params = {"keyword"})
     public ResponseEntity<List<Symbol>> findMatches(@RequestParam String keyword) {
+        if (keyword.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
         List<Symbol> symbolMatches = symbolService.findBestTickerMatches(keyword);
         try {
             if (symbolMatches.isEmpty()) {
-                List<Symbol> fetchedSymbols = fetchAndUpdateDb(keyword);
-                symbolMatches = merge(symbolMatches, fetchedSymbols);
+                symbolMatches = fetchAndUpdateDb(keyword);
             }
         } catch (LimitExceededException exception) {
             log.warn(exception.getMessage());
@@ -59,12 +61,5 @@ public class SymbolController {
     private List<Symbol> fetchAndUpdateDb(String keyword) throws LimitExceededException {
         List<Symbol> symbols = symbolProvider.request(keyword, "United States");
         return symbolService.save(symbols);
-    }
-
-    private List<Symbol> merge(List<Symbol> list1, List<Symbol> list2) {
-        Set<Symbol> symbols = new HashSet<>();
-        symbols.addAll(list1);
-        symbols.addAll(list2);
-        return symbols.stream().toList();
     }
 }
