@@ -1,31 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, Tabs, Tab } from '@mui/material';
-import Chart from './components/Chart';
-import TopBar from './components/TopBar';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
+import Chart from './components/Chart';
+import TopBar from './components/TopBar';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import News from './components/News';
-
-import "./assets/css/App.css";
 import Carousel from './components/Carousel';
 import AutoHideSnackBar from './components/AutoHideSnackBar';
 
-import { HOST } from "./utils/utils";
+import { HOST, STOCK_STALE_TIME_IN_HOURS } from "./utils/utils";
 
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
 
-const queryClient = new QueryClient();
+const fetchStockData = async (tickers, startDate, endDate) => {
+  const url = `${HOST}/api/stock/batch?tickers=${tickers.join()}&start=${startDate}&end=${endDate}`;
+  const response = await axios.get(url);
+  return response.data;
+}
 
 
 export default function MainPage() {
+
+  // react-query hook
+  const queryClient = useQueryClient();
 
   const [userInputs, setUserInputs] = useState({
     budget: 0,
@@ -33,6 +32,7 @@ export default function MainPage() {
     endDate: "",
     ticker: ""
   })
+
   const [tickers, setTickers] = useState([]);
   const [newsList, setNewsList] = useState([]);
 
@@ -79,59 +79,78 @@ export default function MainPage() {
 
   // get stock data when tickers and date range change
   useEffect(() => {
+    const { startDate, endDate } = userInputs;
     if (tickers.length === 0) return;
 
     // the flag to when to evict the entire stockCache
     let needFreshCache = false;
 
-    // call this url when a new ticker added with start date and end date remain unchanged
-    let url = `${HOST}/api/stock/${tickers[tickers.length - 1]}?start=${userInputs.startDate}&end=${userInputs.endDate}`;
+    // get stock data for new ticker when start date and end date remain unchanged
+    let tickersParam = [tickers[tickers.length - 1]];
 
-    // determine if start date and end date have change
-    // if so, need to get data for all tickers
-    if (prevStartDate.current !== userInputs.startDate || prevEndDate.current !== userInputs.endDate) {
-      url = `${HOST}/api/stock/batch?tickers=${tickers.join()}&start=${userInputs.startDate}&end=${userInputs.endDate}`;
-      prevStartDate.current = userInputs.startDate;
-      prevEndDate.current = userInputs.endDate;
+    // if start date and end date have change, need to get data for all tickers
+    if (prevStartDate.current !== startDate || prevEndDate.current !== endDate) {
+      tickersParam = tickers;
+      prevStartDate.current = startDate;
+      prevEndDate.current = endDate;
       needFreshCache = true;
     }
 
-    axios.get(url).then(response => {
-      let normalizedData = new Map();
-      response.data.forEach(e => {
-        const { id, endOfMonthPrice, dividend } = e;
-        if (!normalizedData.has(id.date)) {
-          normalizedData.set(id.date, []);
-        }
-        const ticker = id.ticker;
-        normalizedData.get(id.date).push({ ticker, endOfMonthPrice, dividend });
+    // define the function to fetch data and set the stockCache
+    async function fetchData() {
+      const data = await queryClient.fetchQuery({
+        queryKey: [...tickersParam, startDate, endDate],
+        queryFn: () => fetchStockData(tickersParam, startDate, endDate),
+        staleTime: STOCK_STALE_TIME_IN_HOURS * 3600 * 1000,
       });
+      const normalizedResponse = normalizeResponseData(data);
 
-      return normalizedData;
-
-    }).then(data => {
       let newStockCache;
-
       if (needFreshCache) {
-        newStockCache = data;
+        newStockCache = normalizedResponse;
       } else {
-        newStockCache = intersectMaps(stockCache, data);
+        newStockCache = intersectMaps(stockCache, normalizedResponse);
       }
       setStockCache(newStockCache);
-    }).catch(err => {
-      console.error(err);
-      const errJson = err.toJSON();
-      if (errJson.status === 509) {
-        setNotification({
-          ...notification,
-          message: "Cannot fetch data due to a high volume of traffic. Please try again in a minute",
-          severity: "error",
-          autoHideDuration: 10000
-        });
+    }
+
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      let message = "An error occured. Please try again in a minute. Thanks for your patience!";
+
+      // if it's axios error
+      if (axios.isAxiosError(error)) {
+        const errJson = error.toJSON();
+        if (errJson.status === 509) {
+          message = "Cannot fetch data due to a high volume of traffic. Please try again in a minute";
+        }
       }
-    });
+
+      setNotification({
+        ...notification,
+        message,
+        severity: "error",
+        autoHideDuration: 10000
+      });
+    }
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
+
+  function normalizeResponseData(responseData) {
+    let normalizedData = new Map();
+    responseData.forEach(e => {
+      const { id, endOfMonthPrice, dividend } = e;
+      if (!normalizedData.has(id.date)) {
+        normalizedData.set(id.date, []);
+      }
+      const ticker = id.ticker;
+      normalizedData.get(id.date).push({ ticker, endOfMonthPrice, dividend });
+    });
+
+    return normalizedData;
+  }
 
   // get news when tickers change
   useEffect(() => {
@@ -192,99 +211,97 @@ export default function MainPage() {
 
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
-        {/* header */}
-        <Box className="row shadow-sm mb-4 bg-light" sx={{ width: "100vw", borderBottom: "2px solid #4682B4" }}>
-          <Header />
-        </Box>
-
-        <Box className="row mb-4">
-          <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
-            <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)}>
-              <Tab label="Top Gainers" id="tab-0" />
-              <Tab label="Top Losers" id="tab-1" />
-            </Tabs>
-            <CustomTabPanel value={selectTab} index={0}>
-              {topGainers.length > 0 && <Carousel items={topGainers} />}
-            </CustomTabPanel>
-            <CustomTabPanel value={selectTab} index={1}>
-              {topLosers.length > 0 && <Carousel items={topLosers} />}
-            </CustomTabPanel>
-          </Box>
-        </Box>
-        <Box className="row mb-1 justify-content-center align-items-start">
-          <TopBar
-            tickers={tickers}
-            startDate={userInputs.startDate}
-            endDate={userInputs.endDate}
-            budget={userInputs.budget}
-            ticker={userInputs.ticker}
-            onChange={handleUserInputs}
-          />
-        </Box>
-
-        <Box className="row flex-grow-1">
-          <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
-            {
-              tickers.length === 0 ?
-                <Box>
-                  <img className="img-fluid" src={process.env.PUBLIC_URL + "/no-data.png"} />
-                  <p className="h2 font-weight-bold"> No Data Available </p>
-                  <p className="small text-center text-secondary">There is no data to show you right now.</p>
-                </Box>
-                :
-                <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
-                  <p className="h5">Monthly Growth of Initial Investment Over Time</p>
-                  <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
-                </Box>
-            }
-          </Box>
-        </Box>
-        <Box className="row">
-          <Box className="col-12 col-xl-10 col-xxl-8 m-auto">
-            {(tickers.length > 0 && newsList.length > 0) &&
-              <>
-                <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
-                <p className="h3 fw-bold my-3">Related News</p>
-              </>
-            }
-
-            {
-              (tickers.length > 0 && newsList.length > 0) &&
-              newsList.map((news, idx) =>
-                <Box key={news.url}>
-                  <News
-                    title={news.title}
-                    url={news.url}
-                    imageUrl={news.imageUrl}
-                    summary={news.summary}
-                    publishedDate={news.publishedDate}
-                  />
-                  {idx === newsList.length - 1 || <hr />}
-                </Box>
-              )
-            }
-          </Box>
-        </Box>
-
-        {/* footer */}
-        <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
-          <Footer />
-        </Box>
-
-        {/* snack bar to inform user */}
-        {notification.message.length > 0 &&
-          <AutoHideSnackBar
-            open
-            message={notification.message}
-            severity={notification.severity}
-            onHide={() => setNotification({ ...notification, message: "" })}
-            autoHideDuration={notification.autoHideDuration}
-          />
-        }
+    <Box className="container-fluid d-flex flex-column" sx={{ minHeight: "100vh" }}>
+      {/* header */}
+      <Box className="row shadow-sm mb-4 bg-light" sx={{ width: "100vw", borderBottom: "2px solid #4682B4" }}>
+        <Header />
       </Box>
-    </QueryClientProvider>
+
+      <Box className="row mb-4">
+        <Box className="col-12 col-lg-10 col-xxl-8 m-auto">
+          <Tabs value={selectTab} onChange={(event, newTab) => setSelectTab(newTab)}>
+            <Tab label="Top Gainers" id="tab-0" />
+            <Tab label="Top Losers" id="tab-1" />
+          </Tabs>
+          <CustomTabPanel value={selectTab} index={0}>
+            {topGainers.length > 0 && <Carousel items={topGainers} />}
+          </CustomTabPanel>
+          <CustomTabPanel value={selectTab} index={1}>
+            {topLosers.length > 0 && <Carousel items={topLosers} />}
+          </CustomTabPanel>
+        </Box>
+      </Box>
+      <Box className="row mb-1 justify-content-center align-items-start">
+        <TopBar
+          tickers={tickers}
+          startDate={userInputs.startDate}
+          endDate={userInputs.endDate}
+          budget={userInputs.budget}
+          ticker={userInputs.ticker}
+          onChange={handleUserInputs}
+        />
+      </Box>
+
+      <Box className="row flex-grow-1">
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto text-center">
+          {
+            tickers.length === 0 ?
+              <Box>
+                <img className="img-fluid" src={process.env.PUBLIC_URL + "/no-data.png"} />
+                <p className="h2 font-weight-bold"> No Data Available </p>
+                <p className="small text-center text-secondary">There is no data to show you right now.</p>
+              </Box>
+              :
+              <Box sx={{ margin: 'auto', height: "600px", paddingBottom: "40px" }}>
+                <p className="h5">Monthly Growth of Initial Investment Over Time</p>
+                <Chart budget={userInputs.budget} stockData={stockCache} onLegendClick={handleLegendClick} />
+              </Box>
+          }
+        </Box>
+      </Box>
+      <Box className="row">
+        <Box className="col-12 col-xl-10 col-xxl-8 m-auto">
+          {(tickers.length > 0 && newsList.length > 0) &&
+            <>
+              <div style={{ width: "100%", color: "black", border: "1px double black", marginTop: "30px" }} />
+              <p className="h3 fw-bold my-3">Related News</p>
+            </>
+          }
+
+          {
+            (tickers.length > 0 && newsList.length > 0) &&
+            newsList.map((news, idx) =>
+              <Box key={news.url}>
+                <News
+                  title={news.title}
+                  url={news.url}
+                  imageUrl={news.imageUrl}
+                  summary={news.summary}
+                  publishedDate={news.publishedDate}
+                />
+                {idx === newsList.length - 1 || <hr />}
+              </Box>
+            )
+          }
+        </Box>
+      </Box>
+
+      {/* footer */}
+      <Box className="row mt-5" sx={{ width: "100vw", backgroundColor: "#4682B4" }}>
+        <Footer />
+      </Box>
+
+      {/* snack bar to inform user */}
+      {notification.message.length > 0 &&
+        <AutoHideSnackBar
+          open
+          message={notification.message}
+          severity={notification.severity}
+          onHide={() => setNotification({ ...notification, message: "" })}
+          autoHideDuration={notification.autoHideDuration}
+        />
+      }
+    </Box>
   );
 }
 

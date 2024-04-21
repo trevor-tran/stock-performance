@@ -4,6 +4,7 @@ import {
 } from '@tanstack/react-query';
 import MainPage from './MainPage';
 
+import "./assets/css/App.css";
 
 const queryClient = new QueryClient();
 
@@ -15,5 +16,3 @@ export default function App() {
     </QueryClientProvider>
   );
 }
-
-
