@@ -129,46 +129,44 @@ export default function TopBar(props) {
   // get ticker matches
   useEffect(() => {
     const ticker = formik.values.ticker;
-
     if (!ticker) {
       setTickerMatches([]);
       return;
     }
-
     setLoading(true);
 
     async function fetchData() {
-      const data = await queryClient.fetchQuery({
-        queryKey: [ticker],
-        queryFn: () => fetchMatchingTickers(ticker),
-        staleTime: Number.MAX_SAFE_INTEGER,
-      });
-      setTickerMatches(data);
-      setLoading(false);
-    }
+      try {
+        const data = await queryClient.fetchQuery({
+          queryKey: [ticker],
+          queryFn: () => fetchMatchingTickers(ticker),
+          staleTime: Number.MAX_SAFE_INTEGER,
+        });
+        setTickerMatches(data);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+        let message = "An error occured. Please try again in a minute. Thanks for your patience!";
 
-    try {
-      fetchData();
-    } catch (error) {
-      console.error(error);
-      let message = "An error occured. Please try again in a minute. Thanks for your patience!";
-
-      // if it's axios error
-      if (axios.isAxiosError(error)) {
-        const errJson = error.toJSON();
-        if (errJson.status === 509) {
-          message = "We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!";
+        // if it's axios error
+        if (axios.isAxiosError(error)) {
+          const errJson = error.toJSON();
+          if (errJson.status === 509) {
+            message = "We've hit our ticker searching limit. Please try again in a minute. Thanks for your patience!";
+          }
         }
+
+        setNotification({
+          ...notification,
+          message,
+          severity: "error"
+        });
+
+        setLoading(false);
       }
-
-      setNotification({
-        ...notification,
-        message,
-        severity: "error"
-      });
-
-      setLoading(false);
     }
+
+    fetchData();
 
   }, [formik.values.ticker])
 

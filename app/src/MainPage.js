@@ -93,33 +93,12 @@ export default function MainPage() {
 
   // get stock data when tickers and date range change
   useEffect(() => {
-    // define the function to fetch data and set the stockCache
-    async function fetchData() {
-      const data = await queryClient.fetchQuery({
-        queryKey: ["stock-data", ...tickersParam, startDate, endDate],
-        queryFn: () => fetchStockData(tickersParam, startDate, endDate),
-        staleTime: STALE_TIME.stock * 3600 * 1000,
-      });
-      const normalizedResponse = normalizeResponseData(data);
-
-      let newStockCache;
-      if (needFreshCache) {
-        newStockCache = normalizedResponse;
-      } else {
-        newStockCache = intersectMaps(stockCache, normalizedResponse);
-      }
-      setStockCache(newStockCache);
-      setLoading(false);
-    }
-
-    setLoading(true);
-
-    const { startDate, endDate } = userInputs;
     if (tickers.length === 0) return;
+    setLoading(true);
+    const { startDate, endDate } = userInputs;
 
     // the flag to when to evict the entire stockCache
     let needFreshCache = false;
-
     // get stock data for new ticker when start date and end date remain unchanged
     let tickersParam = [tickers[tickers.length - 1]];
 
@@ -131,29 +110,48 @@ export default function MainPage() {
       needFreshCache = true;
     }
 
+    // define the function to fetch data and set the stockCache
+    async function fetchData() {
+      try {
+        const data = await queryClient.fetchQuery({
+          queryKey: ["stock-data", ...tickersParam, startDate, endDate],
+          queryFn: () => fetchStockData(tickersParam, startDate, endDate),
+          staleTime: STALE_TIME.stock * 3600 * 1000,
+        });
+        const normalizedResponse = normalizeResponseData(data);
 
-    try {
-      fetchData();
-    } catch (error) {
-      console.error(error);
-      let message = "An error occured. Please try again in a minute. Thanks for your patience!";
-
-      // if it's axios error
-      if (axios.isAxiosError(error)) {
-        const errJson = error.toJSON();
-        if (errJson.status === 509) {
-          message = "Cannot fetch data due to a high volume of traffic. Please try again in a minute";
+        let newStockCache;
+        if (needFreshCache) {
+          newStockCache = normalizedResponse;
+        } else {
+          newStockCache = intersectMaps(stockCache, normalizedResponse);
         }
-      }
+        setStockCache(newStockCache);
+        setLoading(false);
 
-      setNotification({
-        ...notification,
-        message,
-        severity: "error",
-        autoHideDuration: 10000
-      });
-      setLoading(false);
+      } catch (error) {
+        console.error(error);
+        let message = "An error occured. Please try again in a minute. Thanks for your patience!";
+
+        // if it's axios error
+        if (axios.isAxiosError(error)) {
+          const errJson = error.toJSON();
+          if (errJson.status === 509) {
+            message = "Cannot fetch data due to a high volume of traffic. Please try again in a minute";
+          }
+        }
+
+        setNotification({
+          ...notification,
+          message,
+          severity: "error",
+          autoHideDuration: 10000
+        });
+        setLoading(false);
+      }
     }
+
+    fetchData();
   }, [tickers.length, userInputs.startDate, userInputs.endDate]);
 
 
@@ -173,22 +171,23 @@ export default function MainPage() {
 
   // get news when tickers change
   useEffect(() => {
-    async function fetchData() {
-      const data = await queryClient.fetchQuery({
-        queryKey: ["news-data", ...tickers],
-        queryFn: () => fetchNews(tickers, NUMBER_OF_NEWS_ARTICLES),
-        staleTime: STALE_TIME.news * 3600 * 1000,
-      });
-      setNewsList(data);
-    }
-
     if (tickers.length === 0) return;
 
-    try {
-      fetchData();
-    } catch (error) {
-      console.error(error);
+    async function fetchData() {
+      try {
+        const data = await queryClient.fetchQuery({
+          queryKey: ["news-data", ...tickers],
+          queryFn: () => fetchNews(tickers, NUMBER_OF_NEWS_ARTICLES),
+          staleTime: STALE_TIME.news * 3600 * 1000,
+        });
+        setNewsList(data);
+      } catch (error) {
+        console.error("error fetching news:", error);
+      }
     }
+
+    fetchData();
+
   }, [tickers.length]);
 
 
