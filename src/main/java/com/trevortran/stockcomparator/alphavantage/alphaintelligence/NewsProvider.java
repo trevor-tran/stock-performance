@@ -42,6 +42,7 @@ public class NewsProvider {
                     newsList.add(news);
                 }
             } else if (infoMessage != null) {
+                System.out.println(infoMessage);
                 if (infoMessage.equalsIgnoreCase(Utils.INVALID_INPUTS)) {
                     log.warn("Invalid inputs for news fetch with ticker: " + ticker);
                 } else {

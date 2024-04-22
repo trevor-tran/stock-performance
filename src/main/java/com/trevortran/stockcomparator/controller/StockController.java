@@ -16,7 +16,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin
+//@CrossOrigin
+@CrossOrigin(origins = "https://trevortran.com, http://trevortran.com")
 @RestController
 @RequestMapping("/api")
 @Slf4j

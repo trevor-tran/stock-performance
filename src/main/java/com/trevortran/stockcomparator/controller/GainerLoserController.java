@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin
+//@CrossOrigin
+@CrossOrigin(origins = "https://trevortran.com, http://trevortran.com")
 @RestController
 @RequestMapping("/api/top-stock")
 @Slf4j

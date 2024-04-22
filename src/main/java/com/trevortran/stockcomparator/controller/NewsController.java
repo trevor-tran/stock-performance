@@ -12,7 +12,8 @@ import javax.naming.LimitExceededException;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin
+//@CrossOrigin
+@CrossOrigin(origins = "https://trevortran.com, http://trevortran.com")
 @RestController
 @RequestMapping("/api/news")
 @Slf4j
