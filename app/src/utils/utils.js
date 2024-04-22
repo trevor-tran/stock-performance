@@ -1,5 +1,5 @@
 
-const DEV_HOST = "http://localhost:8080";
+const DEV_HOST = "http://localhost:8181";
 const PROD_HOST = "https://trevortran.com/stockcomparator/server";
 export const HOST =  PROD_HOST;
 
