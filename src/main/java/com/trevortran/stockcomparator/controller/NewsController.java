@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //@CrossOrigin
-@CrossOrigin(origins = "https://trevortran.com, http://trevortran.com")
+@CrossOrigin(origins = "https://trevortran.com, http://trevortran.com, https://www.trevortran.com, http://www.trevortran.com")
 @RestController
 @RequestMapping("/api/news")
 @Slf4j
