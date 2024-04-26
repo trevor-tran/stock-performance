@@ -1,0 +1,29 @@
+
+
+
+@media screen and (max-width: 767px) {
+  .donation-button {
+    background-color: none;
+  }
+  .donation-button img {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .donation-button {
+    background-color: rgba(0, 0, 128, 1);
+  }
+
+  .donation-button:hover {
+    background-color: rgba(0, 0, 128, 1);
+  }
+
+  .donation-button img {
+    width: 20px;
+    height: 20px;
+    transform: translate(0, -5px);
+  }
+}
